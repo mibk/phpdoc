@@ -9,7 +9,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param $foo int
+	@param int $foo
 	@return string
 */`
 
@@ -30,9 +30,9 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Whitespace, "\t"},
 		{phpdoc.Tag, "@param"},
 		{phpdoc.Whitespace, " "},
-		{phpdoc.Var, "$foo"},
-		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "int"},
+		{phpdoc.Whitespace, " "},
+		{phpdoc.Var, "$foo"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
 		{phpdoc.Tag, "@return"},
@@ -45,5 +45,24 @@ func TestScanner(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("\n got: %v\nwant: %v", got, want)
+	}
+}
+
+func TestParser(t *testing.T) {
+	const input = `/**
+@param string $bar
+@return float
+*/
+`
+
+	sc := phpdoc.NewScanner([]byte(input))
+	p := phpdoc.NewParser(sc)
+	doc, err := p.Parse()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := doc.String(); got != input {
+		t.Errorf("\n got: %q\nwant: %q", got, input)
 	}
 }
