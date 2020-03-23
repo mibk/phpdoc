@@ -11,7 +11,7 @@ import (
 func TestScanner(t *testing.T) {
 	const input = `/**
 	@param int $foo
-	@return string
+	* @return string
 */`
 
 	sc := phpdoc.NewScanner([]byte(input))
@@ -36,6 +36,8 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Var, "$foo"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
+		{phpdoc.Asterisk, "*"},
+		{phpdoc.Whitespace, " "},
 		{phpdoc.Tag, "@return"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "string"},
@@ -66,15 +68,38 @@ var parseTests = []struct {
 `},
 	{"more params", `
 /**
+	@author   Name <not known>
 @param DateTime $bar Must be   from this century
 @param mixed $foo
  *@return float    Always positive
 */
 ----
 /**
+ * @author Name <not known>
  * @param DateTime $bar Must be   from this century
  * @param mixed $foo
  * @return float Always positive
+ */
+`},
+	{"tags and text", `
+/**
+This function does this and that.
+
+@author Jack
+* It's deprecated now.
+
+@deprecated Don't use
+@return bool
+*/
+----
+/**
+ * This function does this and that.
+ *
+ * @author Jack
+ * It's deprecated now.
+ *
+ * @deprecated Don't use
+ * @return bool
  */
 `},
 }

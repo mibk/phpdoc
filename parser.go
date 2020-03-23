@@ -13,13 +13,26 @@ func (doc *PHPDoc) String() string {
 	var b strings.Builder
 	b.WriteString("/**\n")
 	for _, line := range doc.Lines {
-		b.WriteString(" * " + line.String() + "\n")
+		s := line.String()
+		if s == "" {
+			b.WriteString(" *\n")
+		} else {
+			b.WriteString(" * " + line.String() + "\n")
+		}
 	}
 	b.WriteString(" */\n")
 	return b.String()
 }
 
 type Line interface{ fmt.Stringer }
+
+type TextLine struct {
+	Value string
+}
+
+func (txt *TextLine) String() string {
+	return txt.Value
+}
 
 type TagLine interface{ fmt.Stringer }
 
@@ -44,6 +57,19 @@ type ReturnTag struct {
 
 func (tag *ReturnTag) String() string {
 	s := "@return " + tag.Type.String()
+	if tag.Desc != "" {
+		return s + " " + tag.Desc
+	}
+	return s
+}
+
+type OtherTag struct {
+	Name string
+	Desc string
+}
+
+func (tag *OtherTag) String() string {
+	s := "@" + tag.Name
 	if tag.Desc != "" {
 		return s + " " + tag.Desc
 	}
@@ -144,12 +170,15 @@ func (p *Parser) parseLines() []Line {
 }
 
 // Line
-//	Text
-//	Tag
+//	TextLine
+//	TagLine
 func (p *Parser) parseLine() Line {
-	// TODO: support text lines.
-	p.consume(Whitespace, Other)
-	return p.parseTag()
+	p.consume(Whitespace, Asterisk)
+	if p.tok.Type == Tag {
+		return p.parseTag()
+	} else {
+		return &TextLine{Value: p.parseDesc()}
+	}
 }
 
 func (p *Parser) parseTag() TagLine {
@@ -162,7 +191,7 @@ func (p *Parser) parseTag() TagLine {
 	case "@return":
 		return p.parseReturnTag()
 	default:
-		p.errorf("unexpected tag name: %v", name)
+		return p.parseOtherTag(name[1:])
 		return nil
 	}
 }
@@ -182,6 +211,12 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
 	p.consume(Whitespace)
 	tag.Type = p.parseType()
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+func (p *Parser) parseOtherTag(name string) *OtherTag {
+	tag := &OtherTag{Name: name}
 	tag.Desc = p.parseDesc()
 	return tag
 }

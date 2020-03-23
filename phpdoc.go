@@ -25,6 +25,7 @@ const (
 	Error
 	Newline
 	Whitespace
+	Asterisk
 	Other
 	OpenDoc
 	CloseDoc
@@ -102,7 +103,7 @@ func (sc *Scanner) lexAny() Token {
 			sc.next()
 			return Token{Type: CloseDoc, Text: "*/"}
 		}
-		return sc.scanOther("*")
+		return Token{Type: Asterisk, Text: "*"}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':
