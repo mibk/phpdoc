@@ -83,17 +83,21 @@ var parseTests = []struct {
 `},
 	{"tags and text", `
 /**
-This function does this and that.
+This function does
+* * this and
+* * that.
 
-@author Jack
-* It's deprecated now.
+ * @author   Jack
+It's deprecated now.
 
 @deprecated Don't use
 @return bool
 */
 ----
 /**
- * This function does this and that.
+ * This function does
+ * * this and
+ * * that.
  *
  * @author Jack
  * It's deprecated now.

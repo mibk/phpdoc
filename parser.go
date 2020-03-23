@@ -118,11 +118,9 @@ func (p *Parser) consume(ttypes ...TokenType) {
 		panic("not token types to consume provided")
 	}
 
-REPEAT:
-	for _, tt := range ttypes {
-		if p.tok.Type == tt {
+	for ; len(ttypes) > 0; ttypes = ttypes[1:] {
+		if p.tok.Type == ttypes[0] {
 			p.next()
-			goto REPEAT
 		}
 	}
 }
@@ -136,8 +134,7 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 // PHPDoc
 //	'/**' [ newline ] Line [ newline Line ] ... '*/'
 func (p *Parser) parseDoc() *PHPDoc {
-	// TODO: ignore leading whitespace
-
+	p.consume(Whitespace)
 	p.next()
 	p.expect(OpenDoc)
 	lines := p.parseLines()
@@ -173,7 +170,7 @@ func (p *Parser) parseLines() []Line {
 //	TextLine
 //	TagLine
 func (p *Parser) parseLine() Line {
-	p.consume(Whitespace, Asterisk)
+	p.consume(Whitespace, Asterisk, Whitespace)
 	if p.tok.Type == Tag {
 		return p.parseTag()
 	} else {
