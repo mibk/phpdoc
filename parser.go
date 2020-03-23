@@ -15,7 +15,7 @@ func (doc *PHPDoc) String() string {
 	for _, line := range doc.Lines {
 		b.WriteString(" * " + line.String() + "\n")
 	}
-	b.WriteString("*/\n")
+	b.WriteString(" */\n")
 	return b.String()
 }
 

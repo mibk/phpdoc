@@ -2,6 +2,7 @@ package phpdoc_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"mibk.io/phpdoc"
@@ -48,13 +49,52 @@ func TestScanner(t *testing.T) {
 	}
 }
 
-func TestParser(t *testing.T) {
-	const input = `/**
+var parseTests = []struct {
+	name string
+	test string
+}{
+	{"basic", `
+/**
+	@param string $bar
+	@return float
+*/
+----
+/**
  * @param string $bar
  * @return float
+ */
+`},
+	{"more params", `
+/**
+@param DateTime $bar
+@param mixed $foo
+ *@return float
 */
-`
+----
+/**
+ * @param DateTime $bar
+ * @param mixed $foo
+ * @return float
+ */
+`},
+}
 
+func TestParser(t *testing.T) {
+	for _, tt := range parseTests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := strings.Split(tt.test, "----\n")
+			if len(s) != 2 {
+				t.Fatal("invalid test format")
+			}
+
+			input, want := strings.TrimSpace(s[0]), s[1]
+			parserTestCase(t, input, want)
+		})
+	}
+}
+
+func parserTestCase(t *testing.T, input, want string) {
+	t.Helper()
 	sc := phpdoc.NewScanner([]byte(input))
 	p := phpdoc.NewParser(sc)
 	doc, err := p.Parse()
@@ -62,7 +102,7 @@ func TestParser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got := doc.String(); got != input {
-		t.Errorf("\n got: %q\nwant: %q", got, input)
+	if got := doc.String(); got != want {
+		t.Errorf("\n got: %q\nwant: %q", got, want)
 	}
 }
