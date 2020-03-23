@@ -31,6 +31,7 @@ const (
 	CloseDoc
 	Tag
 	Var
+	Union
 	Ident
 )
 
@@ -104,6 +105,8 @@ func (sc *Scanner) lexAny() Token {
 			return Token{Type: CloseDoc, Text: "*/"}
 		}
 		return Token{Type: Asterisk, Text: "*"}
+	case '|':
+		return Token{Type: Union, Text: "|"}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':

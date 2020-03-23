@@ -138,9 +138,29 @@ func (p *Parser) parseOtherTag(name string) *OtherTag {
 }
 
 func (p *Parser) parseType() PHPType {
+	typ := p.parseIdentType()
+	if p.tok.Type == Union {
+		return p.parseUnionType(typ)
+	}
+	return typ
+}
+
+func (p *Parser) parseIdentType() PHPType {
 	name := p.tok.Text
 	p.expect(Ident)
-	return &PHPScalarType{Name: name}
+	return &PHPIdentType{Name: name}
+}
+
+func (p *Parser) parseUnionType(init PHPType) PHPType {
+	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
+	ut.Types = append(ut.Types, init)
+
+	for p.tok.Type == Union {
+		p.next()
+		typ := p.parseIdentType()
+		ut.Types = append(ut.Types, typ)
+	}
+	return ut
 }
 
 func (p *Parser) parseDesc() string {

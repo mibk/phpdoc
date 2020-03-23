@@ -78,10 +78,25 @@ func (tag *OtherTag) String() string {
 
 type PHPType interface{ fmt.Stringer }
 
-type PHPScalarType struct {
+type PHPUnionType struct {
+	Types []PHPType
+}
+
+func (t *PHPUnionType) String() string {
+	var b strings.Builder
+	for i, typ := range t.Types {
+		if i > 0 {
+			b.WriteRune('|')
+		}
+		b.WriteString(typ.String())
+	}
+	return b.String()
+}
+
+type PHPIdentType struct {
 	Name string
 }
 
-func (t *PHPScalarType) String() string {
+func (t *PHPIdentType) String() string {
 	return t.Name
 }

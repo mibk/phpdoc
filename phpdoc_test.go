@@ -10,7 +10,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param int $foo
+	@param int|null $foo
 	* @return string
 */`
 
@@ -32,6 +32,8 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Tag, "@param"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "int"},
+		{phpdoc.Union, "|"},
+		{phpdoc.Ident, "null"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Var, "$foo"},
 		{phpdoc.Newline, "\n"},
@@ -69,14 +71,14 @@ var parseTests = []struct {
 	{"more params", `
 /**
 	@author   Name <not known>
-@param DateTime $bar Must be   from this century
+@param DateTime|string|null $bar Must be   from this century
 @param mixed $foo
  *@return float    Always positive
 */
 ----
 /**
  * @author Name <not known>
- * @param DateTime $bar Must be   from this century
+ * @param DateTime|string|null $bar Must be   from this century
  * @param mixed $foo
  * @return float Always positive
  */
