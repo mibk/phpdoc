@@ -50,8 +50,8 @@ func TestScanner(t *testing.T) {
 
 func TestParser(t *testing.T) {
 	const input = `/**
-@param string $bar
-@return float
+ * @param string $bar
+ * @return float
 */
 `
 

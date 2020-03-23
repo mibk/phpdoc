@@ -13,7 +13,7 @@ func (doc *PHPDoc) String() string {
 	var b strings.Builder
 	b.WriteString("/**\n")
 	for _, line := range doc.Lines {
-		b.WriteString(line.String() + "\n")
+		b.WriteString(" * " + line.String() + "\n")
 	}
 	b.WriteString("*/\n")
 	return b.String()
@@ -77,9 +77,17 @@ func (p *Parser) expect(tt TokenType) {
 	p.next()
 }
 
-func (p *Parser) consume(tt TokenType) {
-	if p.tok.Type == tt {
-		p.next()
+func (p *Parser) consume(ttypes ...TokenType) {
+	if len(ttypes) == 0 {
+		panic("not token types to consume provided")
+	}
+
+REPEAT:
+	for _, tt := range ttypes {
+		if p.tok.Type == tt {
+			p.next()
+			goto REPEAT
+		}
 	}
 }
 
@@ -129,7 +137,8 @@ func (p *Parser) parseLines() []Line {
 //	Text
 //	Tag
 func (p *Parser) parseLine() Line {
-	// TODO: support text lines, '*' prefixes.
+	// TODO: support text lines.
+	p.consume(Whitespace, Other)
 	return p.parseTag()
 }
 
