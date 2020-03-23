@@ -66,15 +66,15 @@ var parseTests = []struct {
 `},
 	{"more params", `
 /**
-@param DateTime $bar
+@param DateTime $bar Must be   from this century
 @param mixed $foo
- *@return float
+ *@return float    Always positive
 */
 ----
 /**
- * @param DateTime $bar
+ * @param DateTime $bar Must be   from this century
  * @param mixed $foo
- * @return float
+ * @return float Always positive
  */
 `},
 }

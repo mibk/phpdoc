@@ -26,18 +26,28 @@ type TagLine interface{ fmt.Stringer }
 type ParamTag struct {
 	Type PHPType
 	Var  Token
+	Desc string
 }
 
 func (tag *ParamTag) String() string {
-	return "@param " + tag.Type.String() + " " + tag.Var.Text
+	s := "@param " + tag.Type.String() + " " + tag.Var.Text
+	if tag.Desc != "" {
+		return s + " " + tag.Desc
+	}
+	return s
 }
 
 type ReturnTag struct {
 	Type PHPType
+	Desc string
 }
 
 func (tag *ReturnTag) String() string {
-	return "@return " + tag.Type.String()
+	s := "@return " + tag.Type.String()
+	if tag.Desc != "" {
+		return s + " " + tag.Desc
+	}
+	return s
 }
 
 type PHPType interface{ fmt.Stringer }
@@ -164,6 +174,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 	p.consume(Whitespace)
 	tag.Var = p.tok
 	p.expect(Var)
+	tag.Desc = p.parseDesc()
 	return tag
 }
 
@@ -171,6 +182,7 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
 	p.consume(Whitespace)
 	tag.Type = p.parseType()
+	tag.Desc = p.parseDesc()
 	return tag
 }
 
@@ -178,4 +190,12 @@ func (p *Parser) parseType() PHPType {
 	name := p.tok.Text
 	p.expect(Ident)
 	return &PHPScalarType{Name: name}
+}
+
+func (p *Parser) parseDesc() string {
+	var b strings.Builder
+	for ; p.tok.Type != Newline && p.tok.Type != CloseDoc; p.next() {
+		b.WriteString(p.tok.Text)
+	}
+	return strings.TrimSpace(b.String())
 }
