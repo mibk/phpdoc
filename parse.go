@@ -145,6 +145,18 @@ func (p *Parser) parseType() PHPType {
 	return typ
 }
 
+func (p *Parser) parseUnionType(init PHPType) PHPType {
+	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
+	ut.Types = append(ut.Types, init)
+
+	for p.tok.Type == Union {
+		p.next()
+		typ := p.parseAtomicType()
+		ut.Types = append(ut.Types, typ)
+	}
+	return ut
+}
+
 func (p *Parser) parseAtomicType() PHPType {
 	typ := p.parseIdentType()
 	if p.tok.Type == OpenAngle {
@@ -179,18 +191,6 @@ func (p *Parser) parseIdentType() PHPType {
 	name := p.tok.Text
 	p.expect(Ident)
 	return &PHPIdentType{Name: name}
-}
-
-func (p *Parser) parseUnionType(init PHPType) PHPType {
-	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
-	ut.Types = append(ut.Types, init)
-
-	for p.tok.Type == Union {
-		p.next()
-		typ := p.parseAtomicType()
-		ut.Types = append(ut.Types, typ)
-	}
-	return ut
 }
 
 func (p *Parser) parseDesc() string {
