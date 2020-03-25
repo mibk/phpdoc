@@ -138,9 +138,19 @@ func (p *Parser) parseOtherTag(name string) *OtherTag {
 }
 
 func (p *Parser) parseType() PHPType {
-	typ := p.parseIdentType()
+	typ := p.parseAtomicType()
 	if p.tok.Type == Union {
 		return p.parseUnionType(typ)
+	}
+	return typ
+}
+
+func (p *Parser) parseAtomicType() PHPType {
+	typ := p.parseIdentType()
+	if p.tok.Type == OpenBrack {
+		p.next()
+		p.expect(CloseBrack)
+		return &PHPArrayType{Elem: typ}
 	}
 	return typ
 }
@@ -157,7 +167,7 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 
 	for p.tok.Type == Union {
 		p.next()
-		typ := p.parseIdentType()
+		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)
 	}
 	return ut

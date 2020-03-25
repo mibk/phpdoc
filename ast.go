@@ -93,6 +93,14 @@ func (t *PHPUnionType) String() string {
 	return b.String()
 }
 
+type PHPArrayType struct {
+	Elem PHPType
+}
+
+func (t *PHPArrayType) String() string {
+	return t.Elem.String() + "[]"
+}
+
 type PHPIdentType struct {
 	Name string
 }

@@ -11,7 +11,7 @@ import (
 func TestScanner(t *testing.T) {
 	const input = `/**
 	@param int|null $foo
-	* @return string
+	* @return string[]
 */`
 
 	sc := phpdoc.NewScanner([]byte(input))
@@ -43,6 +43,8 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Tag, "@return"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "string"},
+		{phpdoc.OpenBrack, "["},
+		{phpdoc.CloseBrack, "]"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.CloseDoc, `*/`},
 		{phpdoc.EOF, ""},
@@ -106,6 +108,17 @@ It's deprecated now.
  *
  * @deprecated Don't use
  * @return bool
+ */
+`},
+	{"arrays", `
+/**
+@param int[] $arr
+@return string|string[]
+*/
+----
+/**
+ * @param int[] $arr
+ * @return string|string[]
  */
 `},
 }
