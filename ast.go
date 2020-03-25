@@ -101,6 +101,25 @@ func (t *PHPArrayType) String() string {
 	return t.Elem.String() + "[]"
 }
 
+type PHPGenericType struct {
+	Base     PHPType
+	Generics []PHPType
+}
+
+func (t *PHPGenericType) String() string {
+	var b strings.Builder
+	b.WriteString(t.Base.String())
+	b.WriteRune('<')
+	for i, typ := range t.Generics {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(typ.String())
+	}
+	b.WriteRune('>')
+	return b.String()
+}
+
 type PHPIdentType struct {
 	Name string
 }

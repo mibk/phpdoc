@@ -12,7 +12,7 @@ import (
 func TestScanner(t *testing.T) {
 	const input = `/**
 	@param int|null $foo
-	* @return string[]
+	* @return string[]|array<string, string>
 */`
 
 	sc := phpdoc.NewScanner([]byte(input))
@@ -46,6 +46,14 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Ident, "string"},
 		{phpdoc.OpenBrack, "["},
 		{phpdoc.CloseBrack, "]"},
+		{phpdoc.Union, "|"},
+		{phpdoc.Ident, "array"},
+		{phpdoc.OpenAngle, "<"},
+		{phpdoc.Ident, "string"},
+		{phpdoc.Comma, ","},
+		{phpdoc.Whitespace, " "},
+		{phpdoc.Ident, "string"},
+		{phpdoc.CloseAngle, ">"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.CloseDoc, `*/`},
 		{phpdoc.EOF, ""},
@@ -120,6 +128,15 @@ It's deprecated now.
 /**
  * @param int[] $arr
  * @return string|string[]
+ */
+`},
+	{"generics", `
+/**
+@param array<string, array<string, int>[]> $arr
+*/
+----
+/**
+ * @param array<string, array<string, int>[]> $arr
  */
 `},
 }

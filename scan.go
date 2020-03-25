@@ -33,6 +33,9 @@ const (
 	Var
 	OpenBrack
 	CloseBrack
+	OpenAngle
+	CloseAngle
+	Comma
 	Union
 	Ident
 )
@@ -111,6 +114,12 @@ func (sc *Scanner) lexAny() Token {
 		return Token{Type: OpenBrack, Text: "["}
 	case ']':
 		return Token{Type: CloseBrack, Text: "]"}
+	case '<':
+		return Token{Type: OpenAngle, Text: "<"}
+	case '>':
+		return Token{Type: CloseAngle, Text: ">"}
+	case ',':
+		return Token{Type: Comma, Text: ","}
 	case '|':
 		return Token{Type: Union, Text: "|"}
 	case '\n':

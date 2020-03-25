@@ -147,12 +147,32 @@ func (p *Parser) parseType() PHPType {
 
 func (p *Parser) parseAtomicType() PHPType {
 	typ := p.parseIdentType()
+	if p.tok.Type == OpenAngle {
+		p.next()
+		typ = p.parseGenericType(typ)
+	}
 	if p.tok.Type == OpenBrack {
 		p.next()
 		p.expect(CloseBrack)
 		return &PHPArrayType{Elem: typ}
 	}
 	return typ
+}
+
+func (p *Parser) parseGenericType(base PHPType) PHPType {
+	var generics []PHPType
+	for {
+		t := p.parseType()
+		generics = append(generics, t)
+		p.consume(Whitespace)
+		if p.tok.Type != Comma {
+			break
+		}
+		p.next()
+		p.consume(Whitespace)
+	}
+	p.expect(CloseAngle)
+	return &PHPGenericType{Base: base, Generics: generics}
 }
 
 func (p *Parser) parseIdentType() PHPType {
