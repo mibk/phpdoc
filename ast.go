@@ -39,7 +39,7 @@ type TagLine interface{ fmt.Stringer }
 type ParamTag struct {
 	Type     PHPType
 	Variadic bool
-	Var      Token
+	Var      string
 	Desc     string
 }
 
@@ -49,7 +49,8 @@ func (tag *ParamTag) String() string {
 	if tag.Variadic {
 		b.WriteString("...")
 	}
-	b.WriteString(tag.Var.Text)
+	b.WriteRune('$')
+	b.WriteString(tag.Var)
 	if tag.Desc != "" {
 		b.WriteString(" " + tag.Desc)
 	}

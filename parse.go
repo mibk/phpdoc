@@ -122,7 +122,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 		p.next()
 		p.consume(Whitespace)
 	}
-	tag.Var = p.tok
+	tag.Var = p.tok.Text[1:]
 	p.expect(Var)
 	tag.Desc = p.parseDesc()
 	return tag
