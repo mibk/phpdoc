@@ -1,9 +1,10 @@
 package phpdoc_test
 
 import (
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 
 	"mibk.io/phpdoc"
 )
@@ -50,8 +51,8 @@ func TestScanner(t *testing.T) {
 		{phpdoc.EOF, ""},
 	}
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("\n got: %v\nwant: %v", got, want)
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("tokens don't match (-got +want)\n%s", diff)
 	}
 }
 
