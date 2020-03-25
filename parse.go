@@ -117,6 +117,11 @@ func (p *Parser) parseParamTag() *ParamTag {
 	p.consume(Whitespace)
 	tag.Type = p.parseType()
 	p.consume(Whitespace)
+	if p.tok.Type == Ellipsis {
+		tag.Variadic = true
+		p.next()
+		p.consume(Whitespace)
+	}
 	tag.Var = p.tok
 	p.expect(Var)
 	tag.Desc = p.parseDesc()

@@ -11,7 +11,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param int|null $foo
+	@param int|null ...$foo
 	* @return string[]|array<string, string>
 */`
 
@@ -36,6 +36,7 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Union, "|"},
 		{phpdoc.Ident, "null"},
 		{phpdoc.Whitespace, " "},
+		{phpdoc.Ellipsis, "..."},
 		{phpdoc.Var, "$foo"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
@@ -70,12 +71,12 @@ var parseTests = []struct {
 }{
 	{"basic", `
 /**
-	@param string $bar
+	@param string ... $bar
 	@return float
 */
 ----
 /**
- * @param string $bar
+ * @param string ...$bar
  * @return float
  */
 `},

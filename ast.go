@@ -37,17 +37,23 @@ func (txt *TextLine) String() string {
 type TagLine interface{ fmt.Stringer }
 
 type ParamTag struct {
-	Type PHPType
-	Var  Token
-	Desc string
+	Type     PHPType
+	Variadic bool
+	Var      Token
+	Desc     string
 }
 
 func (tag *ParamTag) String() string {
-	s := "@param " + tag.Type.String() + " " + tag.Var.Text
-	if tag.Desc != "" {
-		return s + " " + tag.Desc
+	var b strings.Builder
+	b.WriteString("@param " + tag.Type.String() + " ")
+	if tag.Variadic {
+		b.WriteString("...")
 	}
-	return s
+	b.WriteString(tag.Var.Text)
+	if tag.Desc != "" {
+		b.WriteString(" " + tag.Desc)
+	}
+	return b.String()
 }
 
 type ReturnTag struct {

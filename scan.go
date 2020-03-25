@@ -36,6 +36,7 @@ const (
 	OpenAngle
 	CloseAngle
 	Comma
+	Ellipsis
 	Union
 	Ident
 )
@@ -120,6 +121,15 @@ func (sc *Scanner) lexAny() Token {
 		return Token{Type: CloseAngle, Text: ">"}
 	case ',':
 		return Token{Type: Comma, Text: ","}
+	case '.':
+		if sc.peek() == '.' {
+			if sc.next(); sc.peek() == '.' {
+				sc.next()
+				return Token{Type: Ellipsis, Text: "..."}
+			}
+			return sc.scanOther("..")
+		}
+		return sc.scanOther(".")
 	case '|':
 		return Token{Type: Union, Text: "|"}
 	case '\n':
