@@ -18,23 +18,24 @@ func _() {
 	_ = x[CloseDoc-7]
 	_ = x[Tag-8]
 	_ = x[Var-9]
-	_ = x[Nullable-10]
-	_ = x[OpenParen-11]
-	_ = x[CloseParen-12]
-	_ = x[OpenBrack-13]
-	_ = x[CloseBrack-14]
-	_ = x[OpenAngle-15]
-	_ = x[CloseAngle-16]
-	_ = x[Comma-17]
-	_ = x[Ellipsis-18]
-	_ = x[Union-19]
-	_ = x[Intersect-20]
-	_ = x[Ident-21]
+	_ = x[Backslash-10]
+	_ = x[Nullable-11]
+	_ = x[OpenParen-12]
+	_ = x[CloseParen-13]
+	_ = x[OpenBrack-14]
+	_ = x[CloseBrack-15]
+	_ = x[OpenAngle-16]
+	_ = x[CloseAngle-17]
+	_ = x[Comma-18]
+	_ = x[Ellipsis-19]
+	_ = x[Union-20]
+	_ = x[Intersect-21]
+	_ = x[Ident-22]
 }
 
-const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOtherOpenDocCloseDocTagVarNullableOpenParenCloseParenOpenBrackCloseBrackOpenAngleCloseAngleCommaEllipsisUnionIntersectIdent"
+const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOtherOpenDocCloseDocTagVarBackslashNullableOpenParenCloseParenOpenBrackCloseBrackOpenAngleCloseAngleCommaEllipsisUnionIntersectIdent"
 
-var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 38, 45, 53, 56, 59, 67, 76, 86, 95, 105, 114, 124, 129, 137, 142, 151, 156}
+var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 38, 45, 53, 56, 59, 68, 76, 85, 95, 104, 114, 123, 133, 138, 146, 151, 160, 165}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

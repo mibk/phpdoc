@@ -151,13 +151,29 @@ func (t *PHPGenericType) String() string {
 }
 
 type PHPIdentType struct {
-	Name     string
+	Name     *PHPIdent
 	Nullable bool
 }
 
 func (t *PHPIdentType) String() string {
 	if t.Nullable {
-		return "?" + t.Name
+		return "?" + t.Name.String()
 	}
-	return t.Name
+	return t.Name.String()
+}
+
+type PHPIdent struct {
+	Parts  []string
+	Global bool
+}
+
+func (id *PHPIdent) String() string {
+	var b strings.Builder
+	for i, part := range id.Parts {
+		if i > 0 || id.Global {
+			b.WriteRune('\\')
+		}
+		b.WriteString(part)
+	}
+	return b.String()
 }

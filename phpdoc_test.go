@@ -11,7 +11,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param (Traversable&Countable)|array $map
+	@param (\Traversable&\Countable)|array $map
 	@param int|null ...$foo
 	* @return string[]|array<string, ?string>
 */`
@@ -34,8 +34,10 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Tag, "@param"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.OpenParen, "("},
+		{phpdoc.Backslash, "\\"},
 		{phpdoc.Ident, "Traversable"},
 		{phpdoc.Intersect, "&"},
+		{phpdoc.Backslash, "\\"},
 		{phpdoc.Ident, "Countable"},
 		{phpdoc.CloseParen, ")"},
 		{phpdoc.Union, "|"},
@@ -171,6 +173,19 @@ It's deprecated now.
 ----
 /**
  * @param (int|float)[] $num
+ */
+`},
+	{"qualified names", `
+/**
+@param  \Foo\ Bar \DateTime $a
+@param   Other\DateTime     $b
+@return \ Traversable
+*/
+----
+/**
+ * @param \Foo\Bar\DateTime $a
+ * @param Other\DateTime $b
+ * @return \Traversable
  */
 `},
 }

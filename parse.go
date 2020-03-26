@@ -227,9 +227,28 @@ func (p *Parser) parseIdentType() PHPType {
 		p.next()
 		p.consume(Whitespace)
 	}
-	typ.Name = p.tok.Text
-	p.expect(Ident)
+	typ.Name = p.parseIdentName()
 	return typ
+}
+
+func (p *Parser) parseIdentName() *PHPIdent {
+	id := new(PHPIdent)
+	if p.tok.Type == Backslash {
+		id.Global = true
+		p.next()
+		p.consume(Whitespace)
+	}
+	for {
+		id.Parts = append(id.Parts, p.tok.Text)
+		p.expect(Ident)
+		p.consume(Whitespace)
+		if p.tok.Type != Backslash {
+			break
+		}
+		p.next()
+		p.consume(Whitespace)
+	}
+	return id
 }
 
 func (p *Parser) parseDesc() string {
