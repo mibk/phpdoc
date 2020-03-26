@@ -12,7 +12,7 @@ import (
 func TestScanner(t *testing.T) {
 	const input = `/**
 	@param (\Traversable&\Countable)|array $map
-	@param int|null ...$foo
+	@param int|null ...$_0_žluťoučký_9
 	* @return string[]|array<string, ?string>
 */`
 
@@ -53,7 +53,7 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Ident, "null"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ellipsis, "..."},
-		{phpdoc.Var, "$foo"},
+		{phpdoc.Var, "$_0_žluťoučký_9"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
 		{phpdoc.Asterisk, "*"},

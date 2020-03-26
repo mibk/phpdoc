@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 type Token struct {
@@ -186,8 +187,14 @@ func (sc *Scanner) lexIdent() string {
 	var b strings.Builder
 	for {
 		switch r := sc.next(); {
-		case r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z':
+		case r == '_' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= utf8.RuneSelf:
 			b.WriteRune(r)
+		case r >= '0' && r <= '9':
+			if b.Len() > 0 {
+				b.WriteRune(r)
+				continue
+			}
+			fallthrough
 		default:
 			sc.backup()
 			return b.String()
