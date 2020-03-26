@@ -32,6 +32,8 @@ const (
 	Tag        // @foo
 	Var        // $bar
 	Nullable   // ?
+	OpenParen  // (
+	CloseParen // )
 	OpenBrack  // [
 	CloseBrack // ]
 	OpenAngle  // <
@@ -115,6 +117,10 @@ func (sc *Scanner) lexAny() Token {
 		return Token{Type: Asterisk, Text: "*"}
 	case '?':
 		return Token{Type: Nullable, Text: "?"}
+	case '(':
+		return Token{Type: OpenParen, Text: "("}
+	case ')':
+		return Token{Type: CloseParen, Text: ")"}
 	case '[':
 		return Token{Type: OpenBrack, Text: "["}
 	case ']':

@@ -115,6 +115,14 @@ func (t *PHPIntersectType) String() string {
 	return b.String()
 }
 
+type PHPParenType struct {
+	Type PHPType
+}
+
+func (t *PHPParenType) String() string {
+	return "(" + t.Type.String() + ")"
+}
+
 type PHPArrayType struct {
 	Elem PHPType
 }

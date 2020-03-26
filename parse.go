@@ -178,10 +178,16 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 }
 
 func (p *Parser) parseAtomicType() PHPType {
-	typ := p.parseIdentType()
-	if p.tok.Type == OpenAngle {
+	var typ PHPType
+	if p.tok.Type == OpenParen {
 		p.next()
-		typ = p.parseGenericType(typ)
+		typ = p.parseParenType()
+	} else {
+		typ = p.parseIdentType()
+		if p.tok.Type == OpenAngle {
+			p.next()
+			typ = p.parseGenericType(typ)
+		}
 	}
 	if p.tok.Type == OpenBrack {
 		p.next()
@@ -189,6 +195,13 @@ func (p *Parser) parseAtomicType() PHPType {
 		return &PHPArrayType{Elem: typ}
 	}
 	return typ
+}
+
+func (p *Parser) parseParenType() PHPType {
+	t := new(PHPParenType)
+	t.Type = p.parseType()
+	p.expect(CloseParen)
+	return t
 }
 
 func (p *Parser) parseGenericType(base PHPType) PHPType {
