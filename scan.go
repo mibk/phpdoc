@@ -23,23 +23,23 @@ type TokenType int
 const (
 	EOF TokenType = iota
 	Error
-	Newline
+	Newline // \n
 	Whitespace
-	Asterisk
+	Asterisk // *
 	Other
-	OpenDoc
-	CloseDoc
-	Tag
-	Var
-	Nullable
-	OpenBrack
-	CloseBrack
-	OpenAngle
-	CloseAngle
-	Comma
-	Ellipsis
-	Union
-	Ident
+	OpenDoc    // /**
+	CloseDoc   // */
+	Tag        // @foo
+	Var        // $bar
+	Nullable   // ?
+	OpenBrack  // [
+	CloseBrack // ]
+	OpenAngle  // <
+	CloseAngle // >
+	Comma      // ,
+	Ellipsis   // ...
+	Union      // |
+	Ident      // baz
 )
 
 const eof = -1
