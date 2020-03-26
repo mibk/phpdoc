@@ -188,6 +188,19 @@ It's deprecated now.
  * @return \Traversable
  */
 `},
+	{"properties", `
+/**
+@property  \ Foo $a
+@property-read    array<int,string>    $b
+@property-write int [] $c
+*/
+----
+/**
+ * @property \Foo $a
+ * @property-read array<int, string> $b
+ * @property-write int[] $c
+ */
+`},
 }
 
 func TestParser(t *testing.T) {

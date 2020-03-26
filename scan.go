@@ -168,11 +168,24 @@ func (sc *Scanner) scanOpenDoc() Token {
 }
 
 func (sc *Scanner) scanTag() Token {
-	id := sc.lexIdent()
+	id := sc.lexTag()
 	if id == "" {
 		return sc.scanOther("@")
 	}
 	return Token{Type: Tag, Text: "@" + id}
+}
+
+func (sc *Scanner) lexTag() string {
+	var b strings.Builder
+	for {
+		switch r := sc.next(); {
+		case r == '-' || r >= 'a' && r <= 'z':
+			b.WriteRune(r)
+		default:
+			sc.backup()
+			return b.String()
+		}
+	}
 }
 
 func (sc *Scanner) scanVar() Token {

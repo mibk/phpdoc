@@ -70,6 +70,34 @@ func (tag *ReturnTag) String() string {
 	return s
 }
 
+type PropertyTag struct {
+	Read, Write bool
+	Type        PHPType
+	Desc        string
+}
+
+func (tag *PropertyTag) String() string {
+	var b strings.Builder
+	b.WriteString("@property")
+
+	switch {
+	case !tag.Read && !tag.Write:
+		return "<!invalid property state!>"
+	case tag.Read && tag.Write:
+	case tag.Read:
+		b.WriteString("-read")
+	case tag.Write:
+		b.WriteString("-write")
+	}
+
+	b.WriteRune(' ')
+	b.WriteString(tag.Type.String())
+	if tag.Desc != "" {
+		b.WriteString(" " + tag.Desc)
+	}
+	return b.String()
+}
+
 type OtherTag struct {
 	Name string
 	Desc string

@@ -106,6 +106,8 @@ func (p *Parser) parseTag() TagLine {
 		return p.parseParamTag()
 	case "@return":
 		return p.parseReturnTag()
+	case "@property", "@property-read", "@property-write":
+		return p.parsePropertyTag(name)
 	default:
 		return p.parseOtherTag(name[1:])
 		return nil
@@ -133,6 +135,25 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 	p.consume(Whitespace)
 	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
+	return tag
+}
+
+func (p *Parser) parsePropertyTag(name string) *PropertyTag {
+	tag := new(PropertyTag)
+	p.consume(Whitespace)
+	tag.Type = p.parseType()
+	tag.Desc = p.parseDesc()
+
+	switch {
+	case strings.HasSuffix(name, "-read"):
+		tag.Read = true
+	case strings.HasSuffix(name, "-write"):
+		tag.Write = true
+	default:
+		tag.Read = true
+		tag.Write = true
+	}
+
 	return tag
 }
 
