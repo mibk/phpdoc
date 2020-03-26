@@ -144,8 +144,11 @@ func (p *Parser) parseOtherTag(name string) *OtherTag {
 
 func (p *Parser) parseType() PHPType {
 	typ := p.parseAtomicType()
-	if p.tok.Type == Union {
+	switch p.tok.Type {
+	case Union:
 		return p.parseUnionType(typ)
+	case Intersect:
+		return p.parseIntersectType(typ)
 	}
 	return typ
 }
@@ -155,6 +158,18 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 	ut.Types = append(ut.Types, init)
 
 	for p.tok.Type == Union {
+		p.next()
+		typ := p.parseAtomicType()
+		ut.Types = append(ut.Types, typ)
+	}
+	return ut
+}
+
+func (p *Parser) parseIntersectType(init PHPType) PHPType {
+	ut := &PHPIntersectType{Types: make([]PHPType, 0, 2)}
+	ut.Types = append(ut.Types, init)
+
+	for p.tok.Type == Intersect {
 		p.next()
 		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)

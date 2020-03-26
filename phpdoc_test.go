@@ -11,6 +11,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
+	@param Traversable&Countable $map
 	@param int|null ...$foo
 	* @return string[]|array<string, ?string>
 */`
@@ -28,6 +29,15 @@ func TestScanner(t *testing.T) {
 
 	want := []phpdoc.Token{
 		{phpdoc.OpenDoc, "/**"},
+		{phpdoc.Newline, "\n"},
+		{phpdoc.Whitespace, "\t"},
+		{phpdoc.Tag, "@param"},
+		{phpdoc.Whitespace, " "},
+		{phpdoc.Ident, "Traversable"},
+		{phpdoc.Intersect, "&"},
+		{phpdoc.Ident, "Countable"},
+		{phpdoc.Whitespace, " "},
+		{phpdoc.Var, "$map"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
 		{phpdoc.Tag, "@param"},
@@ -139,6 +149,15 @@ It's deprecated now.
 ----
 /**
  * @param array<string, array<string, int>[]> $arr
+ */
+`},
+	{"intersection", `
+/**
+@param  Traversable&Countable $map
+*/
+----
+/**
+ * @param Traversable&Countable $map
  */
 `},
 }

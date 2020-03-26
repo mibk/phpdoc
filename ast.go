@@ -100,6 +100,21 @@ func (t *PHPUnionType) String() string {
 	return b.String()
 }
 
+type PHPIntersectType struct {
+	Types []PHPType
+}
+
+func (t *PHPIntersectType) String() string {
+	var b strings.Builder
+	for i, typ := range t.Types {
+		if i > 0 {
+			b.WriteRune('&')
+		}
+		b.WriteString(typ.String())
+	}
+	return b.String()
+}
+
 type PHPArrayType struct {
 	Elem PHPType
 }

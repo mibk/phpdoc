@@ -39,6 +39,7 @@ const (
 	Comma      // ,
 	Ellipsis   // ...
 	Union      // |
+	Intersect  // &
 	Ident      // baz
 )
 
@@ -135,6 +136,8 @@ func (sc *Scanner) lexAny() Token {
 		return sc.scanOther(".")
 	case '|':
 		return Token{Type: Union, Text: "|"}
+	case '&':
+		return Token{Type: Intersect, Text: "&"}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':
