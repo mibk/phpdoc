@@ -12,7 +12,7 @@ import (
 func TestScanner(t *testing.T) {
 	const input = `/**
 	@param int|null ...$foo
-	* @return string[]|array<string, string>
+	* @return string[]|array<string, ?string>
 */`
 
 	sc := phpdoc.NewScanner([]byte(input))
@@ -53,6 +53,7 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Ident, "string"},
 		{phpdoc.Comma, ","},
 		{phpdoc.Whitespace, " "},
+		{phpdoc.Nullable, "?"},
 		{phpdoc.Ident, "string"},
 		{phpdoc.CloseAngle, ">"},
 		{phpdoc.Newline, "\n"},
@@ -72,12 +73,12 @@ var parseTests = []struct {
 	{"basic", `
 /**
 	@param string ... $bar
-	@return float
+	@return ? float
 */
 ----
 /**
  * @param string ...$bar
- * @return float
+ * @return ?float
  */
 `},
 	{"more params", `

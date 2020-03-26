@@ -193,9 +193,15 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 }
 
 func (p *Parser) parseIdentType() PHPType {
-	name := p.tok.Text
+	typ := new(PHPIdentType)
+	if p.tok.Type == Nullable {
+		typ.Nullable = true
+		p.next()
+		p.consume(Whitespace)
+	}
+	typ.Name = p.tok.Text
 	p.expect(Ident)
-	return &PHPIdentType{Name: name}
+	return typ
 }
 
 func (p *Parser) parseDesc() string {

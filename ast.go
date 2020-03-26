@@ -128,9 +128,13 @@ func (t *PHPGenericType) String() string {
 }
 
 type PHPIdentType struct {
-	Name string
+	Name     string
+	Nullable bool
 }
 
 func (t *PHPIdentType) String() string {
+	if t.Nullable {
+		return "?" + t.Name
+	}
 	return t.Name
 }

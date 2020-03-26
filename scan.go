@@ -31,6 +31,7 @@ const (
 	CloseDoc
 	Tag
 	Var
+	Nullable
 	OpenBrack
 	CloseBrack
 	OpenAngle
@@ -111,6 +112,8 @@ func (sc *Scanner) lexAny() Token {
 			return Token{Type: CloseDoc, Text: "*/"}
 		}
 		return Token{Type: Asterisk, Text: "*"}
+	case '?':
+		return Token{Type: Nullable, Text: "?"}
 	case '[':
 		return Token{Type: OpenBrack, Text: "["}
 	case ']':
