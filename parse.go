@@ -148,14 +148,10 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 
 	switch {
 	case strings.HasSuffix(name, "-read"):
-		tag.Read = true
+		tag.ReadOnly = true
 	case strings.HasSuffix(name, "-write"):
-		tag.Write = true
-	default:
-		tag.Read = true
-		tag.Write = true
+		tag.WriteOnly = true
 	}
-
 	return tag
 }
 

@@ -71,9 +71,9 @@ func (tag *ReturnTag) String() string {
 }
 
 type PropertyTag struct {
-	Read, Write bool
-	Type        PHPType
-	Desc        string
+	ReadOnly, WriteOnly bool
+	Type                PHPType
+	Desc                string
 }
 
 func (tag *PropertyTag) String() string {
@@ -81,12 +81,11 @@ func (tag *PropertyTag) String() string {
 	b.WriteString("@property")
 
 	switch {
-	case !tag.Read && !tag.Write:
+	case tag.ReadOnly && tag.WriteOnly:
 		return "<!invalid property state!>"
-	case tag.Read && tag.Write:
-	case tag.Read:
+	case tag.ReadOnly:
 		b.WriteString("-read")
-	case tag.Write:
+	case tag.WriteOnly:
 		b.WriteString("-write")
 	}
 
