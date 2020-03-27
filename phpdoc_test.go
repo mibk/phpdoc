@@ -139,12 +139,12 @@ It's deprecated now.
 `},
 	{"arrays", `
 /**
-@param int [ ] $arr
+@param int [ ] []$arr
 @return string|string[]
 */
 ----
 /**
- * @param int[] $arr
+ * @param int[][] $arr
  * @return string|string[]
  */
 `},

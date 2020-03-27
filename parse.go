@@ -204,9 +204,9 @@ func (p *Parser) parseAtomicType() PHPType {
 			typ = p.parseGenericType(typ)
 		}
 	}
-	if p.got(OpenBrack) {
+	for p.got(OpenBrack) {
 		p.expect(CloseBrack)
-		return &PHPArrayType{Elem: typ}
+		typ = &PHPArrayType{Elem: typ}
 	}
 	return typ
 }
