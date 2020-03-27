@@ -100,7 +100,7 @@ var parseTests = []struct {
 	{"more params", `
 /**
 	@author   Name <not known>
-@param DateTime|string|null $bar Must be   from this century
+@param DateTime | string|null $bar Must be   from this century
 @param mixed $foo
  *@return float    Always positive
 */
@@ -139,7 +139,7 @@ It's deprecated now.
 `},
 	{"arrays", `
 /**
-@param int[] $arr
+@param int [ ] $arr
 @return string|string[]
 */
 ----
@@ -150,7 +150,7 @@ It's deprecated now.
 `},
 	{"generics", `
 /**
-@param array<string, array<string, int>[]> $arr
+@param array < string, array<string, int > []> $arr
 */
 ----
 /**
@@ -168,7 +168,7 @@ It's deprecated now.
 `},
 	{"parentheses", `
 /**
-@param  (int|float)[] $num
+@param  ( int |float )[] $num
 */
 ----
 /**

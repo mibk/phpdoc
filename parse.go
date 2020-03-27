@@ -21,8 +21,13 @@ func (p *Parser) Parse() (*PHPDoc, error) {
 	return doc, p.err
 }
 
-func (p *Parser) next() {
+func (p *Parser) nextTok() {
 	p.tok = p.sc.Next()
+}
+
+func (p *Parser) next() {
+	p.nextTok()
+	p.consume(Whitespace)
 }
 
 func (p *Parser) expect(tt TokenType) {
@@ -47,7 +52,7 @@ func (p *Parser) consume(ttypes ...TokenType) {
 
 	for ; len(ttypes) > 0; ttypes = ttypes[1:] {
 		if p.tok.Type == ttypes[0] {
-			p.next()
+			p.nextTok()
 		}
 	}
 }
@@ -61,7 +66,6 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 // PHPDoc
 //	'/**' [ newline ] Line [ newline Line ] ... '*/'
 func (p *Parser) parseDoc() *PHPDoc {
-	p.consume(Whitespace)
 	p.next()
 	p.expect(OpenDoc)
 	lines := p.parseLines()
@@ -120,12 +124,9 @@ func (p *Parser) parseTag() TagLine {
 
 func (p *Parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
-	p.consume(Whitespace)
 	tag.Type = p.parseType()
-	p.consume(Whitespace)
 	if p.got(Ellipsis) {
 		tag.Variadic = true
-		p.consume(Whitespace)
 	}
 	tag.Var = p.tok.Text[1:]
 	p.expect(Var)
@@ -135,7 +136,6 @@ func (p *Parser) parseParamTag() *ParamTag {
 
 func (p *Parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
-	p.consume(Whitespace)
 	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
 	return tag
@@ -143,7 +143,6 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 
 func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
-	p.consume(Whitespace)
 	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
 
@@ -228,11 +227,9 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 	for {
 		t := p.parseType()
 		generics = append(generics, t)
-		p.consume(Whitespace)
 		if !p.got(Comma) {
 			break
 		}
-		p.consume(Whitespace)
 	}
 	p.expect(CloseAngle)
 	return &PHPGenericType{Base: base, Generics: generics}
@@ -242,7 +239,6 @@ func (p *Parser) parseIdentType() PHPType {
 	typ := new(PHPIdentType)
 	if p.got(Nullable) {
 		typ.Nullable = true
-		p.consume(Whitespace)
 	}
 	typ.Name = p.parseIdentName()
 	return typ
@@ -252,23 +248,20 @@ func (p *Parser) parseIdentName() *PHPIdent {
 	id := new(PHPIdent)
 	if p.got(Backslash) {
 		id.Global = true
-		p.consume(Whitespace)
 	}
 	for {
 		id.Parts = append(id.Parts, p.tok.Text)
 		p.expect(Ident)
-		p.consume(Whitespace)
 		if !p.got(Backslash) {
 			break
 		}
-		p.consume(Whitespace)
 	}
 	return id
 }
 
 func (p *Parser) parseDesc() string {
 	var b strings.Builder
-	for ; p.tok.Type != Newline && p.tok.Type != CloseDoc; p.next() {
+	for ; p.tok.Type != Newline && p.tok.Type != CloseDoc; p.nextTok() {
 		b.WriteString(p.tok.Text)
 	}
 	return strings.TrimSpace(b.String())
