@@ -32,6 +32,14 @@ func (p *Parser) expect(tt TokenType) {
 	p.next()
 }
 
+func (p *Parser) got(tt TokenType) bool {
+	if p.tok.Type == tt {
+		p.next()
+		return true
+	}
+	return false
+}
+
 func (p *Parser) consume(ttypes ...TokenType) {
 	if len(ttypes) == 0 {
 		panic("not token types to consume provided")
@@ -75,11 +83,7 @@ func (p *Parser) parseLines() []Line {
 		line := p.parseLine()
 		lines = append(lines, line)
 
-		switch p.tok.Type {
-		case Newline:
-			p.next()
-			continue
-		default:
+		if !p.got(Newline) {
 			return lines
 		}
 	}
@@ -119,9 +123,8 @@ func (p *Parser) parseParamTag() *ParamTag {
 	p.consume(Whitespace)
 	tag.Type = p.parseType()
 	p.consume(Whitespace)
-	if p.tok.Type == Ellipsis {
+	if p.got(Ellipsis) {
 		tag.Variadic = true
-		p.next()
 		p.consume(Whitespace)
 	}
 	tag.Var = p.tok.Text[1:]
@@ -178,8 +181,7 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
-	for p.tok.Type == Union {
-		p.next()
+	for p.got(Union) {
 		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)
 	}
@@ -190,8 +192,7 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 	ut := &PHPIntersectType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
-	for p.tok.Type == Intersect {
-		p.next()
+	for p.got(Intersect) {
 		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)
 	}
@@ -200,18 +201,15 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 
 func (p *Parser) parseAtomicType() PHPType {
 	var typ PHPType
-	if p.tok.Type == OpenParen {
-		p.next()
+	if p.got(OpenParen) {
 		typ = p.parseParenType()
 	} else {
 		typ = p.parseIdentType()
-		if p.tok.Type == OpenAngle {
-			p.next()
+		if p.got(OpenAngle) {
 			typ = p.parseGenericType(typ)
 		}
 	}
-	if p.tok.Type == OpenBrack {
-		p.next()
+	if p.got(OpenBrack) {
 		p.expect(CloseBrack)
 		return &PHPArrayType{Elem: typ}
 	}
@@ -231,10 +229,9 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 		t := p.parseType()
 		generics = append(generics, t)
 		p.consume(Whitespace)
-		if p.tok.Type != Comma {
+		if !p.got(Comma) {
 			break
 		}
-		p.next()
 		p.consume(Whitespace)
 	}
 	p.expect(CloseAngle)
@@ -243,9 +240,8 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 
 func (p *Parser) parseIdentType() PHPType {
 	typ := new(PHPIdentType)
-	if p.tok.Type == Nullable {
+	if p.got(Nullable) {
 		typ.Nullable = true
-		p.next()
 		p.consume(Whitespace)
 	}
 	typ.Name = p.parseIdentName()
@@ -254,19 +250,17 @@ func (p *Parser) parseIdentType() PHPType {
 
 func (p *Parser) parseIdentName() *PHPIdent {
 	id := new(PHPIdent)
-	if p.tok.Type == Backslash {
+	if p.got(Backslash) {
 		id.Global = true
-		p.next()
 		p.consume(Whitespace)
 	}
 	for {
 		id.Parts = append(id.Parts, p.tok.Text)
 		p.expect(Ident)
 		p.consume(Whitespace)
-		if p.tok.Type != Backslash {
+		if !p.got(Backslash) {
 			break
 		}
-		p.next()
 		p.consume(Whitespace)
 	}
 	return id
