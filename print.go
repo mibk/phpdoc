@@ -6,11 +6,10 @@ func (doc *PHPDoc) String() string {
 	var b strings.Builder
 	b.WriteString("/**\n")
 	for _, line := range doc.Lines {
-		s := line.String()
-		if s == "" {
+		if s := line.String(); s == "" {
 			b.WriteString(" *\n")
 		} else {
-			b.WriteString(" * " + line.String() + "\n")
+			b.WriteString(" * " + s + "\n")
 		}
 	}
 	b.WriteString(" */\n")
