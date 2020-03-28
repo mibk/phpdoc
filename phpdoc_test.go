@@ -226,7 +226,11 @@ func parserTestCase(t *testing.T, input, want string) {
 		t.Fatal(err)
 	}
 
-	if got := doc.String(); got != want {
+	got := new(strings.Builder)
+	if err := phpdoc.Fprint(got, doc); err != nil {
+		t.Fatalf("printing: unexpected err: %v", err)
+	}
+	if got.String() != want {
 		t.Errorf("\n got: %q\nwant: %q", got, want)
 	}
 }

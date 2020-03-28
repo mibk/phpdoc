@@ -1,134 +1,273 @@
 package phpdoc
 
-import "strings"
+import (
+	"fmt"
+	"io"
+	"text/tabwriter"
+)
 
-func (doc *PHPDoc) String() string {
-	var b strings.Builder
-	b.WriteString("/**\n")
-	for _, line := range doc.Lines {
-		if s := line.String(); s == "" {
-			b.WriteString(" *\n")
-		} else {
-			b.WriteString(" * " + s + "\n")
+func Fprint(w io.Writer, node interface{}) error {
+	w = &trimmer{output: w}
+	p := &printer{output: w}
+	p.printNode(node)
+	return p.err
+}
+
+type printer struct {
+	output io.Writer
+	err    error // sticky
+}
+
+func (p *printer) print(args ...interface{}) {
+	if p.err != nil {
+		return
+	}
+	_, p.err = fmt.Fprint(p.output, args...)
+}
+
+func (p *printer) printNode(node interface{}) {
+	if p.err != nil {
+		return
+	}
+
+	switch n := node.(type) {
+	case *PHPDoc:
+		p.print("/**\n")
+		for _, line := range n.Lines {
+			p.print(" * ")
+			p.printNode(line)
+			p.print("\n")
 		}
+		p.print(" */\n")
+	case *TextLine:
+		p.print(n.Value)
+	case TagLine:
+		p.printTag(n)
+	default:
+		p.err = fmt.Errorf("unsupported node type %T", n)
 	}
-	b.WriteString(" */\n")
-	return b.String()
 }
 
-func (txt *TextLine) String() string {
-	return txt.Value
-}
-
-func (tag *ParamTag) String() string {
-	var b strings.Builder
-	b.WriteString("@param " + tag.Type.String() + " ")
-	if tag.Variadic {
-		b.WriteString("...")
-	}
-	b.WriteRune('$')
-	b.WriteString(tag.Var)
-	if tag.Desc != "" {
-		b.WriteString(" " + tag.Desc)
-	}
-	return b.String()
-}
-
-func (tag *ReturnTag) String() string {
-	s := "@return " + tag.Type.String()
-	if tag.Desc != "" {
-		return s + " " + tag.Desc
-	}
-	return s
-}
-
-func (tag *PropertyTag) String() string {
-	var b strings.Builder
-	b.WriteString("@property")
-
-	switch {
-	case tag.ReadOnly && tag.WriteOnly:
-		return "<!invalid property state!>"
-	case tag.ReadOnly:
-		b.WriteString("-read")
-	case tag.WriteOnly:
-		b.WriteString("-write")
-	}
-
-	b.WriteRune(' ')
-	b.WriteString(tag.Type.String())
-	if tag.Desc != "" {
-		b.WriteString(" " + tag.Desc)
-	}
-	return b.String()
-}
-
-func (tag *OtherTag) String() string {
-	s := "@" + tag.Name
-	if tag.Desc != "" {
-		return s + " " + tag.Desc
-	}
-	return s
-}
-
-func (t *PHPUnionType) String() string {
-	var b strings.Builder
-	for i, typ := range t.Types {
-		if i > 0 {
-			b.WriteRune('|')
+func (p *printer) printTag(tag TagLine) {
+	switch tag := tag.(type) {
+	case *ParamTag:
+		p.print("@param ")
+		p.printPHPType(tag.Type)
+		p.print(" ")
+		if tag.Variadic {
+			p.print("...")
 		}
-		b.WriteString(typ.String())
-	}
-	return b.String()
-}
-
-func (t *PHPIntersectType) String() string {
-	var b strings.Builder
-	for i, typ := range t.Types {
-		if i > 0 {
-			b.WriteRune('&')
+		p.print("$")
+		p.print(tag.Var)
+		if tag.Desc != "" {
+			p.print(" ", tag.Desc)
 		}
-		b.WriteString(typ.String())
-	}
-	return b.String()
-}
-
-func (t *PHPParenType) String() string {
-	return "(" + t.Type.String() + ")"
-}
-
-func (t *PHPArrayType) String() string {
-	return t.Elem.String() + "[]"
-}
-
-func (t *PHPGenericType) String() string {
-	var b strings.Builder
-	b.WriteString(t.Base.String())
-	b.WriteRune('<')
-	for i, typ := range t.Generics {
-		if i > 0 {
-			b.WriteString(", ")
+	case *ReturnTag:
+		p.print("@return ")
+		p.printPHPType(tag.Type)
+		if tag.Desc != "" {
+			p.print(" ", tag.Desc)
 		}
-		b.WriteString(typ.String())
+	case *PropertyTag:
+		p.print("@property")
+		switch {
+		case tag.ReadOnly && tag.WriteOnly:
+			// TODO: Return error?
+			p.print("<!invalid property state!>")
+		case tag.ReadOnly:
+			p.print("-read")
+		case tag.WriteOnly:
+			p.print("-write")
+		}
+		p.print(" ")
+		p.printPHPType(tag.Type)
+		if tag.Desc != "" {
+			p.print(" ", tag.Desc)
+		}
+	case *OtherTag:
+		p.print("@", tag.Name)
+		if tag.Desc != "" {
+			p.print(" ", tag.Desc)
+		}
+	default:
+		panic(fmt.Sprintf("unknown tag line %T", tag))
 	}
-	b.WriteRune('>')
-	return b.String()
 }
 
-func (t *PHPIdentType) String() string {
-	if t.Nullable {
-		return "?" + t.Name.String()
+func (p *printer) printPHPType(typ PHPType) {
+	switch typ := typ.(type) {
+	case *PHPUnionType:
+		for i, typ := range typ.Types {
+			if i > 0 {
+				p.print("|")
+			}
+			p.printPHPType(typ)
+		}
+	case *PHPIntersectType:
+		for i, typ := range typ.Types {
+			if i > 0 {
+				p.print("&")
+			}
+			p.printPHPType(typ)
+		}
+	case *PHPParenType:
+		p.print("(")
+		p.printPHPType(typ.Type)
+		p.print(")")
+	case *PHPArrayType:
+		p.printPHPType(typ.Elem)
+		p.print("[]")
+	case *PHPGenericType:
+		p.printPHPType(typ.Base)
+		p.print("<")
+		for i, typ := range typ.Generics {
+			if i > 0 {
+				p.print(", ")
+			}
+			p.printPHPType(typ)
+		}
+		p.print(">")
+	case *PHPIdentType:
+		if typ.Nullable {
+			p.print("?")
+		}
+		p.printPHPIdent(typ.Name)
+	default:
+		panic(fmt.Sprintf("unknown PHP type %T", typ))
 	}
-	return t.Name.String()
 }
 
-func (id *PHPIdent) String() string {
-	var b strings.Builder
+func (p *printer) printPHPIdent(id *PHPIdent) {
 	for i, part := range id.Parts {
 		if i > 0 || id.Global {
-			b.WriteRune('\\')
+			p.print("\\")
 		}
-		b.WriteString(part)
+		p.print(part)
 	}
-	return b.String()
+}
+
+// The following is taken from https://golang.org/src/go/printer/printer.go.
+//
+// Copyright (c) 2009 The Go Authors. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+//
+//    * Redistributions of source code must retain the above copyright
+// notice, this list of conditions and the following disclaimer.
+//    * Redistributions in binary form must reproduce the above
+// copyright notice, this list of conditions and the following disclaimer
+// in the documentation and/or other materials provided with the
+// distribution.
+//    * Neither the name of Google Inc. nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+// A trimmer is an io.Writer filter for stripping tabwriter.Escape
+// characters, trailing blanks and tabs, and for converting formfeed
+// and vtab characters into newlines and htabs (in case no tabwriter
+// is used). Text bracketed by tabwriter.Escape characters is passed
+// through unchanged.
+//
+type trimmer struct {
+	output io.Writer
+	state  int
+	space  []byte
+}
+
+// trimmer is implemented as a state machine.
+// It can be in one of the following states:
+const (
+	inSpace  = iota // inside space
+	inEscape        // inside text bracketed by tabwriter.Escapes
+	inText          // inside text
+)
+
+func (p *trimmer) resetSpace() {
+	p.state = inSpace
+	p.space = p.space[0:0]
+}
+
+var aNewline = []byte("\n")
+
+func (p *trimmer) Write(data []byte) (n int, err error) {
+	// invariants:
+	// p.state == inSpace:
+	//	p.space is unwritten
+	// p.state == inEscape, inText:
+	//	data[m:n] is unwritten
+	m := 0
+	var b byte
+	for n, b = range data {
+		if b == '\v' {
+			b = '\t' // convert to htab
+		}
+		switch p.state {
+		case inSpace:
+			switch b {
+			case '\t', ' ':
+				p.space = append(p.space, b)
+			case '\n', '\f':
+				p.resetSpace() // discard trailing space
+				_, err = p.output.Write(aNewline)
+			case tabwriter.Escape:
+				_, err = p.output.Write(p.space)
+				p.state = inEscape
+				m = n + 1 // +1: skip tabwriter.Escape
+			default:
+				_, err = p.output.Write(p.space)
+				p.state = inText
+				m = n
+			}
+		case inEscape:
+			if b == tabwriter.Escape {
+				_, err = p.output.Write(data[m:n])
+				p.resetSpace()
+			}
+		case inText:
+			switch b {
+			case '\t', ' ':
+				_, err = p.output.Write(data[m:n])
+				p.resetSpace()
+				p.space = append(p.space, b)
+			case '\n', '\f':
+				_, err = p.output.Write(data[m:n])
+				p.resetSpace()
+				if err == nil {
+					_, err = p.output.Write(aNewline)
+				}
+			case tabwriter.Escape:
+				_, err = p.output.Write(data[m:n])
+				p.state = inEscape
+				m = n + 1 // +1: skip tabwriter.Escape
+			}
+		default:
+			panic("unreachable")
+		}
+		if err != nil {
+			return
+		}
+	}
+	n = len(data)
+
+	switch p.state {
+	case inEscape, inText:
+		_, err = p.output.Write(data[m:n])
+		p.resetSpace()
+	}
+
+	return
 }
