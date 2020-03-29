@@ -1,6 +1,7 @@
 package phpdoc
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"text/tabwriter"
@@ -8,65 +9,73 @@ import (
 
 func Fprint(w io.Writer, node interface{}) error {
 	w = &trimmer{output: w}
-	p := &printer{output: w}
-	p.printNode(node)
-	return p.err
+	buf := bufio.NewWriter(w)
+	p := &printer{buf: buf}
+	p.print(node)
+	if p.err != nil {
+		return p.err
+	}
+	return p.buf.Flush()
 }
 
 type printer struct {
-	output io.Writer
-	err    error // sticky
+	buf *bufio.Writer
+	err error // sticky
 }
 
 func (p *printer) print(args ...interface{}) {
-	if p.err != nil {
-		return
+	for _, arg := range args {
+		if p.err != nil {
+			return
+		}
+
+		switch arg := arg.(type) {
+		case *PHPDoc:
+			p.print("/**\n")
+			for _, line := range arg.Lines {
+				p.print(" * ", line, '\n')
+			}
+			p.print(" */\n")
+		case Line:
+			p.printLine(arg)
+		case PHPType:
+			p.printPHPType(arg)
+		case string:
+			_, p.err = p.buf.WriteString(arg)
+		case rune:
+			_, p.err = p.buf.WriteRune(arg)
+		default:
+			p.err = fmt.Errorf("unsupported type %T", arg)
+		}
 	}
-	_, p.err = fmt.Fprint(p.output, args...)
 }
 
-func (p *printer) printNode(node interface{}) {
-	if p.err != nil {
-		return
-	}
-
-	switch n := node.(type) {
-	case *PHPDoc:
-		p.print("/**\n")
-		for _, line := range n.Lines {
-			p.print(" * ")
-			p.printNode(line)
-			p.print("\n")
-		}
-		p.print(" */\n")
+func (p *printer) printLine(line Line) {
+	switch l := line.(type) {
 	case *TextLine:
-		p.print(n.Value)
+		p.print(l.Value)
 	case TagLine:
-		p.printTag(n)
+		p.printTag(l)
 	default:
-		p.err = fmt.Errorf("unsupported node type %T", n)
+		panic(fmt.Sprintf("unknown line type %T", line))
 	}
 }
 
 func (p *printer) printTag(tag TagLine) {
 	switch tag := tag.(type) {
 	case *ParamTag:
-		p.print("@param ")
-		p.printPHPType(tag.Type)
-		p.print(" ")
+		p.print("@param ", tag.Type, ' ')
 		if tag.Variadic {
 			p.print("...")
 		}
-		p.print("$")
-		p.print(tag.Var)
+		p.print('$', tag.Var)
 		if tag.Desc != "" {
-			p.print(" ", tag.Desc)
+			p.print(' ', tag.Desc)
 		}
 	case *ReturnTag:
-		p.print("@return ")
-		p.printPHPType(tag.Type)
+		p.print("@return ", tag.Type)
 		if tag.Desc != "" {
-			p.print(" ", tag.Desc)
+			p.print(' ', tag.Desc)
 		}
 	case *PropertyTag:
 		p.print("@property")
@@ -79,15 +88,14 @@ func (p *printer) printTag(tag TagLine) {
 		case tag.WriteOnly:
 			p.print("-write")
 		}
-		p.print(" ")
-		p.printPHPType(tag.Type)
+		p.print(' ', tag.Type)
 		if tag.Desc != "" {
-			p.print(" ", tag.Desc)
+			p.print(' ', tag.Desc)
 		}
 	case *OtherTag:
-		p.print("@", tag.Name)
+		p.print('@', tag.Name)
 		if tag.Desc != "" {
-			p.print(" ", tag.Desc)
+			p.print(' ', tag.Desc)
 		}
 	default:
 		panic(fmt.Sprintf("unknown tag line %T", tag))
@@ -111,22 +119,18 @@ func (p *printer) printPHPType(typ PHPType) {
 			p.printPHPType(typ)
 		}
 	case *PHPParenType:
-		p.print("(")
-		p.printPHPType(typ.Type)
-		p.print(")")
+		p.print('(', typ.Type, ')')
 	case *PHPArrayType:
-		p.printPHPType(typ.Elem)
-		p.print("[]")
+		p.print(typ.Elem, "[]")
 	case *PHPGenericType:
-		p.printPHPType(typ.Base)
-		p.print("<")
+		p.print(typ.Base, '<')
 		for i, typ := range typ.Generics {
 			if i > 0 {
 				p.print(", ")
 			}
 			p.printPHPType(typ)
 		}
-		p.print(">")
+		p.print('>')
 	case *PHPIdentType:
 		if typ.Nullable {
 			p.print("?")
@@ -140,7 +144,7 @@ func (p *printer) printPHPType(typ PHPType) {
 func (p *printer) printPHPIdent(id *PHPIdent) {
 	for i, part := range id.Parts {
 		if i > 0 || id.Global {
-			p.print("\\")
+			p.print('\\')
 		}
 		p.print(part)
 	}
