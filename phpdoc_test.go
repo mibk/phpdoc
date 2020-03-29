@@ -94,7 +94,7 @@ var parseTests = []struct {
 */
 ----
 /**
- * @param string ...$bar
+ * @param  string ...$bar
  * @return ?float
  */
 `},
@@ -108,9 +108,9 @@ var parseTests = []struct {
 ----
 /**
  * @author Name <not known>
- * @param DateTime|string|null $bar Must be   from this century
- * @param mixed $foo
- * @return float Always positive
+ * @param  DateTime|string|null $bar Must be   from this century
+ * @param  mixed                $foo
+ * @return float                Always positive
  */
 `},
 	{"tags and text", `
@@ -120,7 +120,7 @@ This function does
 * * that.
 
  * @author   Jack
-It's deprecated now.
+It's	deprecated now.
 
 @deprecated Don't use
 @return bool
@@ -132,10 +132,10 @@ It's deprecated now.
  * * that.
  *
  * @author Jack
- * It's deprecated now.
+ * It's	deprecated now.
  *
  * @deprecated Don't use
- * @return bool
+ * @return     bool
  */
 `},
 	{"properties", `
@@ -146,9 +146,9 @@ It's deprecated now.
 */
 ----
 /**
- * @property \Foo $a
- * @property-read array<int, string> $b
- * @property-write int[] $c
+ * @property       \Foo               $a
+ * @property-read  array<int, string> $b
+ * @property-write int[]              $c
  */
 `},
 }

@@ -9,19 +9,30 @@ import (
 
 func Fprint(w io.Writer, node interface{}) error {
 	w = &trimmer{output: w}
-	buf := bufio.NewWriter(w)
+	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.StripEscape)
+	buf := bufio.NewWriter(tw)
 	p := &printer{buf: buf}
 	p.print(node)
 	if p.err != nil {
 		return p.err
 	}
-	return p.buf.Flush()
+	if err := p.buf.Flush(); err != nil {
+		return err
+	}
+	return tw.Flush()
 }
 
 type printer struct {
 	buf *bufio.Writer
 	err error // sticky
 }
+
+type whitespace byte
+
+const (
+	nextcol whitespace = '\v'
+	tabesc  whitespace = tabwriter.Escape
+)
 
 func (p *printer) print(args ...interface{}) {
 	for _, arg := range args {
@@ -44,6 +55,8 @@ func (p *printer) print(args ...interface{}) {
 			_, p.err = p.buf.WriteString(arg)
 		case rune:
 			_, p.err = p.buf.WriteRune(arg)
+		case whitespace:
+			p.err = p.buf.WriteByte(byte(arg))
 		default:
 			p.err = fmt.Errorf("unsupported type %T", arg)
 		}
@@ -53,7 +66,7 @@ func (p *printer) print(args ...interface{}) {
 func (p *printer) printLine(line Line) {
 	switch l := line.(type) {
 	case *TextLine:
-		p.print(l.Value)
+		p.print(tabesc, l.Value, tabesc)
 	case TagLine:
 		p.printTag(l)
 	default:
@@ -64,18 +77,18 @@ func (p *printer) printLine(line Line) {
 func (p *printer) printTag(tag TagLine) {
 	switch tag := tag.(type) {
 	case *ParamTag:
-		p.print("@param ", tag.Type, ' ')
+		p.print("@param", nextcol, tag.Type, nextcol)
 		if tag.Variadic {
 			p.print("...")
 		}
 		p.print('$', tag.Var)
 		if tag.Desc != "" {
-			p.print(' ', tag.Desc)
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
 	case *ReturnTag:
-		p.print("@return ", tag.Type)
+		p.print("@return", nextcol, tag.Type)
 		if tag.Desc != "" {
-			p.print(' ', tag.Desc)
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
 	case *PropertyTag:
 		p.print("@property")
@@ -88,14 +101,14 @@ func (p *printer) printTag(tag TagLine) {
 		case tag.WriteOnly:
 			p.print("-write")
 		}
-		p.print(' ', tag.Type)
+		p.print(nextcol, tag.Type)
 		if tag.Desc != "" {
-			p.print(' ', tag.Desc)
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
 	case *OtherTag:
 		p.print('@', tag.Name)
 		if tag.Desc != "" {
-			p.print(' ', tag.Desc)
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
 	default:
 		panic(fmt.Sprintf("unknown tag line %T", tag))
