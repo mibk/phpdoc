@@ -1,6 +1,7 @@
 package phpdoc_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -137,57 +138,6 @@ It's deprecated now.
  * @return bool
  */
 `},
-	{"arrays", `
-/**
-@param int [ ] []$arr
-@return string|string[]
-*/
-----
-/**
- * @param int[][] $arr
- * @return string|string[]
- */
-`},
-	{"generics", `
-/**
-@param array < string, array<string, int > []> $arr
-*/
-----
-/**
- * @param array<string, array<string, int>[]> $arr
- */
-`},
-	{"intersection", `
-/**
-@param  Traversable&Countable $map
-*/
-----
-/**
- * @param Traversable&Countable $map
- */
-`},
-	{"parentheses", `
-/**
-@param  ( int |float )[] $num
-*/
-----
-/**
- * @param (int|float)[] $num
- */
-`},
-	{"qualified names", `
-/**
-@param  \Foo\ Bar \DateTime $a
-@param   Other\DateTime     $b
-@return \ Traversable
-*/
-----
-/**
- * @param \Foo\Bar\DateTime $a
- * @param Other\DateTime $b
- * @return \Traversable
- */
-`},
 	{"properties", `
 /**
 @property  \ Foo $a
@@ -203,7 +153,7 @@ It's deprecated now.
 `},
 }
 
-func TestParser(t *testing.T) {
+func TestPrinting(t *testing.T) {
 	for _, tt := range parseTests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := strings.Split(tt.test, "----\n")
@@ -212,12 +162,12 @@ func TestParser(t *testing.T) {
 			}
 
 			input, want := strings.TrimSpace(s[0]), s[1]
-			parserTestCase(t, input, want)
+			printerTestCase(t, input, want)
 		})
 	}
 }
 
-func parserTestCase(t *testing.T, input, want string) {
+func printerTestCase(t *testing.T, input, want string) {
 	t.Helper()
 	sc := phpdoc.NewScanner([]byte(input))
 	p := phpdoc.NewParser(sc)
@@ -232,5 +182,88 @@ func parserTestCase(t *testing.T, input, want string) {
 	}
 	if got.String() != want {
 		t.Errorf("\n got: %q\nwant: %q", got, want)
+	}
+}
+
+func TestParsingTypes(t *testing.T) {
+	type (
+		union     = phpdoc.PHPUnionType
+		intersect = phpdoc.PHPIntersectType
+		array     = phpdoc.PHPArrayType
+		parens    = phpdoc.PHPParenType
+		generic   = phpdoc.PHPGenericType
+		ident     = phpdoc.PHPIdentType
+		name      = phpdoc.PHPIdent
+	)
+
+	types := func(types ...phpdoc.PHPType) []phpdoc.PHPType { return types }
+	parts := func(parts ...string) []string { return parts }
+
+	tests := []struct {
+		typ  string
+		want phpdoc.PHPType
+	}{
+		{
+			typ:  `? float`,
+			want: &ident{Name: &name{Parts: parts("float")}, Nullable: true},
+		},
+		{
+			typ:  `int [ ] []`,
+			want: &array{Elem: &array{Elem: &ident{Name: &name{Parts: parts("int")}}}},
+		},
+		{
+			typ: `array < string, array<string, int > []>`,
+			want: &generic{Base: &ident{Name: &name{Parts: parts("array")}}, Generics: types(
+				&ident{Name: &name{Parts: parts("string")}},
+				&array{Elem: &generic{
+					Base: &ident{Name: &name{Parts: parts("array")}},
+					Generics: types(
+						&ident{Name: &name{Parts: parts("string")}},
+						&ident{Name: &name{Parts: parts("int")}},
+					),
+				}},
+			)},
+		},
+		{
+			typ: `Traversable &Countable`,
+			want: &intersect{Types: types(
+				&ident{Name: &name{Parts: parts("Traversable")}},
+				&ident{Name: &name{Parts: parts("Countable")}},
+			)},
+		},
+		{
+			typ: `( int |float )[]`,
+			want: &array{Elem: &parens{Type: &union{Types: types(
+				&ident{Name: &name{Parts: parts("int")}},
+				&ident{Name: &name{Parts: parts("float")}},
+			)}}},
+		},
+		{
+			typ:  `\Foo\ Bar \DateTime`,
+			want: &ident{Name: &name{Parts: parts("Foo", "Bar", "DateTime"), Global: true}},
+		},
+		{
+			typ:  `Other\DateTime`,
+			want: &ident{Name: &name{Parts: parts("Other", "DateTime")}},
+		},
+		{
+			typ:  `\ Traversable`,
+			want: &ident{Name: &name{Parts: parts("Traversable"), Global: true}},
+		},
+	}
+
+	for _, tt := range tests {
+		sc := phpdoc.NewScanner([]byte(tt.typ))
+		p := phpdoc.NewParser(sc)
+
+		got, err := p.ParseType()
+		if err != nil {
+			t.Fatalf("%q: unexpected err: %v", tt.typ, err)
+		}
+
+		allowUnexportedFields := cmp.Exporter(func(reflect.Type) bool { return true })
+		if diff := cmp.Diff(got, tt.want, allowUnexportedFields); diff != "" {
+			t.Errorf("%q: types don't match (-got +want)\n%s", tt.typ, diff)
+		}
 	}
 }
