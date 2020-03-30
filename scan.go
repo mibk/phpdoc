@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"unicode/utf8"
 )
@@ -58,8 +59,8 @@ type Scanner struct {
 	peeked rune
 }
 
-func NewScanner(input []byte) *Scanner {
-	return &Scanner{r: bufio.NewReader(bytes.NewReader(input))}
+func NewScanner(r io.Reader) *Scanner {
+	return &Scanner{r: bufio.NewReader(r)}
 }
 
 func (sc *Scanner) Next() Token {

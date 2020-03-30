@@ -17,7 +17,7 @@ func TestScanner(t *testing.T) {
 	* @return string[]|array<string, ?string>
 */`
 
-	sc := phpdoc.NewScanner([]byte(input))
+	sc := phpdoc.NewScanner(strings.NewReader(input))
 
 	var got []phpdoc.Token
 	for {
@@ -169,7 +169,7 @@ func TestPrinting(t *testing.T) {
 
 func printerTestCase(t *testing.T, input, want string) {
 	t.Helper()
-	sc := phpdoc.NewScanner([]byte(input))
+	sc := phpdoc.NewScanner(strings.NewReader(input))
 	p := phpdoc.NewParser(sc)
 	doc, err := p.Parse()
 	if err != nil {
@@ -253,7 +253,7 @@ func TestParsingTypes(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		sc := phpdoc.NewScanner([]byte(tt.typ))
+		sc := phpdoc.NewScanner(strings.NewReader(tt.typ))
 		p := phpdoc.NewParser(sc)
 
 		got, err := p.ParseType()
