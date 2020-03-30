@@ -63,8 +63,10 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 	}
 }
 
-// PHPDoc
-//	'/**' [ newline ] Line [ newline Line ] ... '*/'
+// The syntax comments roughly follow the notation as defined at
+// https://golang.org/ref/spec#Notation.
+
+// PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
 func (p *Parser) parseDoc() *PHPDoc {
 	p.next()
 	p.expect(OpenDoc)
@@ -93,9 +95,8 @@ func (p *Parser) parseLines() []Line {
 	}
 }
 
-// Line
-//	TextLine
-//	TagLine
+// Line     = TextLine | TagLine .
+// TextLine = Desc .
 func (p *Parser) parseLine() Line {
 	p.consume(Whitespace, Asterisk, Whitespace)
 	if p.tok.Type == Tag {
@@ -105,6 +106,10 @@ func (p *Parser) parseLine() Line {
 	}
 }
 
+// TagLine = ParamTag |
+//           ReturnTag |
+//           PropertyTag |
+//           OtherTag .
 func (p *Parser) parseTag() TagLine {
 	name := p.tok.Text
 	p.expect(Tag)
@@ -122,6 +127,7 @@ func (p *Parser) parseTag() TagLine {
 	}
 }
 
+// ParamTag = "@param" PHPType [ "..." ] var [ Desc ] .
 func (p *Parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
 	tag.Type = p.parseType()
@@ -134,6 +140,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 	return tag
 }
 
+// ReturnTag = "@return" PHPType [ Desc ] .
 func (p *Parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
 	tag.Type = p.parseType()
@@ -141,6 +148,7 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 	return tag
 }
 
+// PropertyTag = ( "@property" | "@property-read" | "@property-write" ) PHPType var [ Desc ] .
 func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
 	tag.Type = p.parseType()
@@ -155,12 +163,14 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	return tag
 }
 
+// OtherTag = tag [ Desc ] .
 func (p *Parser) parseOtherTag(name string) *OtherTag {
 	tag := &OtherTag{Name: name}
 	tag.Desc = p.parseDesc()
 	return tag
 }
 
+// PHPType = AtomicType | UnionType | IntersectType .
 func (p *Parser) parseType() PHPType {
 	typ := p.parseAtomicType()
 	switch p.tok.Type {
@@ -172,6 +182,7 @@ func (p *Parser) parseType() PHPType {
 	return typ
 }
 
+// UnionType = AtomicType "|" AtomicType { "|" AtomicType } .
 func (p *Parser) parseUnionType(init PHPType) PHPType {
 	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
@@ -183,6 +194,7 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 	return ut
 }
 
+// IntersectType = AtomicType "&" AtomicType { "&" AtomicType } .
 func (p *Parser) parseIntersectType(init PHPType) PHPType {
 	ut := &PHPIntersectType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
@@ -194,6 +206,8 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 	return ut
 }
 
+// AtomicType = ParenType | GenericType | IdentType | ArrayType .
+// ArrayType  = AtomicType "[" "]" .
 func (p *Parser) parseAtomicType() PHPType {
 	var typ PHPType
 	if p.got(OpenParen) {
@@ -211,6 +225,7 @@ func (p *Parser) parseAtomicType() PHPType {
 	return typ
 }
 
+// ParenType = "(" PHPType ")" .
 func (p *Parser) parseParenType() PHPType {
 	t := new(PHPParenType)
 	t.Type = p.parseType()
@@ -218,6 +233,7 @@ func (p *Parser) parseParenType() PHPType {
 	return t
 }
 
+// GenericType = IdentType "<" PHPType { "," PHPType } ">" .
 func (p *Parser) parseGenericType(base PHPType) PHPType {
 	var generics []PHPType
 	for {
@@ -231,6 +247,7 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 	return &PHPGenericType{Base: base, Generics: generics}
 }
 
+// IdentType = [ "?" ] IdentName .
 func (p *Parser) parseIdentType() PHPType {
 	typ := new(PHPIdentType)
 	if p.got(Nullable) {
@@ -240,6 +257,7 @@ func (p *Parser) parseIdentType() PHPType {
 	return typ
 }
 
+// IdentName = [ "\\" ] ident { "\\" ident } .
 func (p *Parser) parseIdentName() *PHPIdent {
 	id := new(PHPIdent)
 	if p.got(Backslash) {
@@ -255,6 +273,7 @@ func (p *Parser) parseIdentName() *PHPIdent {
 	return id
 }
 
+// Desc = { any } .
 func (p *Parser) parseDesc() string {
 	var b strings.Builder
 	for ; p.tok.Type != Newline && p.tok.Type != CloseDoc; p.nextTok() {
