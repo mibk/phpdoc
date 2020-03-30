@@ -68,11 +68,20 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
 func (p *Parser) parseDoc() *PHPDoc {
+	doc := new(PHPDoc)
 	p.next()
+	for {
+		p.consume(Newline)
+		if p.tok.Type != Whitespace {
+			break
+		}
+		doc.Indent = p.tok.Text
+		p.next()
+	}
 	p.expect(OpenDoc)
-	lines := p.parseLines()
+	doc.Lines = p.parseLines()
 	p.expect(CloseDoc)
-	return &PHPDoc{Lines: lines}
+	return doc
 }
 
 func (p *Parser) parseLines() []Line {

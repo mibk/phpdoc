@@ -99,19 +99,19 @@ var parseTests = []struct {
  */
 `},
 	{"more params", `
-/**
+   /**
 	@author   Name <not known>
 @param DateTime | string|null $bar Must be   from this century
 @param mixed $foo
  *@return float    Always positive
 */
 ----
-/**
- * @author Name <not known>
- * @param  DateTime|string|null $bar Must be   from this century
- * @param  mixed                $foo
- * @return float                Always positive
- */
+   /**
+    * @author Name <not known>
+    * @param  DateTime|string|null $bar Must be   from this century
+    * @param  mixed                $foo
+    * @return float                Always positive
+    */
 `},
 	{"tags and text", `
 /**
@@ -161,7 +161,7 @@ func TestPrinting(t *testing.T) {
 				t.Fatal("invalid test format")
 			}
 
-			input, want := strings.TrimSpace(s[0]), s[1]
+			input, want := s[0], s[1]
 			printerTestCase(t, input, want)
 		})
 	}

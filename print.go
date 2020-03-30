@@ -42,11 +42,11 @@ func (p *printer) print(args ...interface{}) {
 
 		switch arg := arg.(type) {
 		case *PHPDoc:
-			p.print("/**\n")
+			p.print(arg.Indent, "/**\n")
 			for _, line := range arg.Lines {
-				p.print(" * ", line, '\n')
+				p.print(arg.Indent, " * ", line, '\n')
 			}
-			p.print(" */\n")
+			p.print(arg.Indent, " */\n")
 		case Line:
 			p.printLine(arg)
 		case PHPType:
