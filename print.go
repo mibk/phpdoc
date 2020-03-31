@@ -44,7 +44,7 @@ func (p *printer) print(args ...interface{}) {
 		switch arg := arg.(type) {
 		case *PHPDoc:
 			p.print(tabesc, arg.Indent, tabesc, "/**")
-			if len(arg.Lines) == 1 {
+			if arg.PreferOneline && len(arg.Lines) == 1 {
 				p.print(' ')
 				p.print(arg.Lines[0])
 			} else {

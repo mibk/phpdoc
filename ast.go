@@ -1,8 +1,9 @@
 package phpdoc
 
 type PHPDoc struct {
-	Indent string // … each line
-	Lines  []Line
+	Lines         []Line
+	Indent        string // … each line
+	PreferOneline bool
 }
 
 type Line interface{ aLine() }

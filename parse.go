@@ -79,6 +79,9 @@ func (p *Parser) parseDoc() *PHPDoc {
 		p.nextTok()
 	}
 	p.expect(OpenDoc)
+	if !p.got(Newline) {
+		doc.PreferOneline = true
+	}
 	doc.Lines = p.parseLines()
 	p.expect(CloseDoc)
 	return doc
@@ -86,7 +89,6 @@ func (p *Parser) parseDoc() *PHPDoc {
 
 func (p *Parser) parseLines() []Line {
 	var lines []Line
-	p.consume(Newline)
 	for {
 		if p.err != nil {
 			return nil
