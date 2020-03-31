@@ -69,7 +69,7 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
 func (p *Parser) parseDoc() *PHPDoc {
 	doc := new(PHPDoc)
-	p.next()
+	p.nextTok()
 	for {
 		p.consume(Newline)
 		if p.tok.Type != Whitespace {

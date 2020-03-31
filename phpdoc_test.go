@@ -139,17 +139,17 @@ It's	deprecated now.
  */
 `},
 	{"properties", `
-/**
+	/**
 @property  \ Foo $a
 @property-read    array<int,string>    $b
 @property-write int [] $c
 */
 ----
-/**
- * @property       \Foo               $a
- * @property-read  array<int, string> $b
- * @property-write int[]              $c
- */
+	/**
+	 * @property       \Foo               $a
+	 * @property-read  array<int, string> $b
+	 * @property-write int[]              $c
+	 */
 `},
 }
 
