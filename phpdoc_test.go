@@ -98,6 +98,12 @@ var parseTests = []struct {
  * @return ?float
  */
 `},
+	{"oneline", `
+  /**
+	@param \ DateTime $date    */
+----
+  /** @param \DateTime $date */
+`},
 	{"more params", `
    /**
 	@author   Name <not known>

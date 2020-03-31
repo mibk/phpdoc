@@ -32,6 +32,7 @@ type whitespace byte
 const (
 	nextcol whitespace = '\v'
 	tabesc  whitespace = tabwriter.Escape
+	newline whitespace = '\n'
 )
 
 func (p *printer) print(args ...interface{}) {
@@ -42,11 +43,18 @@ func (p *printer) print(args ...interface{}) {
 
 		switch arg := arg.(type) {
 		case *PHPDoc:
-			p.print(tabesc, arg.Indent, tabesc, "/**\n")
-			for _, line := range arg.Lines {
-				p.print(tabesc, arg.Indent, tabesc, " * ", line, '\n')
+			p.print(tabesc, arg.Indent, tabesc, "/**")
+			if len(arg.Lines) == 1 {
+				p.print(' ')
+				p.print(arg.Lines[0])
+			} else {
+				p.print(newline)
+				for _, line := range arg.Lines {
+					p.print(tabesc, arg.Indent, tabesc, " * ", line, newline)
+				}
+				p.print(tabesc, arg.Indent, tabesc)
 			}
-			p.print(tabesc, arg.Indent, tabesc, " */\n")
+			p.print(" */", newline)
 		case Line:
 			p.printLine(arg)
 		case PHPType:
