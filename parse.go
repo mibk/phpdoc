@@ -76,7 +76,7 @@ func (p *Parser) parseDoc() *PHPDoc {
 			break
 		}
 		doc.Indent = p.tok.Text
-		p.next()
+		p.nextTok()
 	}
 	p.expect(OpenDoc)
 	doc.Lines = p.parseLines()
