@@ -111,10 +111,10 @@ var parseTests = []struct {
 `},
 	{"single line", `
   /**
-@param \ Traversable $t*/
+@var \ Traversable*/
 ----
   /**
-   * @param \Traversable $t
+   * @var \Traversable
    */
 `},
 	{"more params", `

@@ -177,12 +177,14 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	return tag
 }
 
-// VarTag = "@var" PHPType var [ Desc ] .
+// VarTag = "@var" PHPType [ var ] [ Desc ] .
 func (p *Parser) parseVarTag() *VarTag {
 	tag := new(VarTag)
 	tag.Type = p.parseType()
-	tag.Var = p.tok.Text[1:]
-	p.expect(Var)
+	if p.tok.Type == Var {
+		tag.Var = p.tok.Text[1:]
+		p.next()
+	}
 	tag.Desc = p.parseDesc()
 	return tag
 }
