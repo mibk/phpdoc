@@ -13,32 +13,32 @@ func _() {
 	_ = x[Newline-2]
 	_ = x[Whitespace-3]
 	_ = x[Asterisk-4]
-	_ = x[Other-5]
-	_ = x[OpenDoc-6]
-	_ = x[CloseDoc-7]
-	_ = x[Tag-8]
-	_ = x[Var-9]
-	_ = x[Backslash-10]
-	_ = x[Nullable-11]
-	_ = x[OpenParen-12]
-	_ = x[CloseParen-13]
-	_ = x[OpenBrack-14]
-	_ = x[CloseBrack-15]
-	_ = x[OpenBrace-16]
-	_ = x[CloseBrace-17]
-	_ = x[OpenAngle-18]
-	_ = x[CloseAngle-19]
-	_ = x[Comma-20]
-	_ = x[Ellipsis-21]
-	_ = x[Union-22]
-	_ = x[Intersect-23]
-	_ = x[Ident-24]
-	_ = x[Array-25]
+	_ = x[OpenDoc-5]
+	_ = x[CloseDoc-6]
+	_ = x[Backslash-7]
+	_ = x[Query-8]
+	_ = x[Lparen-9]
+	_ = x[Rparen-10]
+	_ = x[Lbrack-11]
+	_ = x[Rbrack-12]
+	_ = x[Lbrace-13]
+	_ = x[Rbrace-14]
+	_ = x[Lt-15]
+	_ = x[Gt-16]
+	_ = x[Comma-17]
+	_ = x[Ellipsis-18]
+	_ = x[Or-19]
+	_ = x[And-20]
+	_ = x[Array-21]
+	_ = x[Ident-22]
+	_ = x[Tag-23]
+	_ = x[Var-24]
+	_ = x[Other-25]
 }
 
-const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOtherOpenDocCloseDocTagVarBackslashNullableOpenParenCloseParenOpenBrackCloseBrackOpenBraceCloseBraceOpenAngleCloseAngleCommaEllipsisUnionIntersectIdentArray"
+const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOpenDocCloseDocBackslashQueryLparenRparenLbrackRbrackLbraceRbraceLtGtCommaEllipsisOrAndArrayIdentTagVarOther"
 
-var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 38, 45, 53, 56, 59, 68, 76, 85, 95, 104, 114, 123, 133, 142, 152, 157, 165, 170, 179, 184, 189}
+var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 40, 48, 57, 62, 68, 74, 80, 86, 92, 98, 100, 102, 107, 115, 117, 120, 125, 130, 133, 136, 141}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

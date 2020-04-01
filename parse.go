@@ -198,9 +198,9 @@ func (p *Parser) parseOtherTag(name string) *OtherTag {
 func (p *Parser) parseType() PHPType {
 	typ := p.parseAtomicType()
 	switch p.tok.Type {
-	case Union:
+	case Or:
 		return p.parseUnionType(typ)
-	case Intersect:
+	case And:
 		return p.parseIntersectType(typ)
 	}
 	return typ
@@ -211,7 +211,7 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
-	for p.got(Union) {
+	for p.got(Or) {
 		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)
 	}
@@ -223,7 +223,7 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 	ut := &PHPIntersectType{Types: make([]PHPType, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
-	for p.got(Intersect) {
+	for p.got(And) {
 		typ := p.parseAtomicType()
 		ut.Types = append(ut.Types, typ)
 	}
@@ -236,25 +236,25 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 // ArrayType    = AtomicType "[" "]" .
 func (p *Parser) parseAtomicType() PHPType {
 	var typ PHPType
-	if p.got(OpenParen) {
+	if p.got(Lparen) {
 		typ = p.parseParenType()
 	} else {
-		nullable := p.got(Nullable)
+		nullable := p.got(Query)
 		if p.got(Array) {
 			typ = p.parseArrayShapeType()
 		} else {
 			typ = p.parseIdentType()
 		}
 		// TODO: Forbid generic params for arrays with a shape?
-		if p.got(OpenAngle) {
+		if p.got(Lt) {
 			typ = p.parseGenericType(typ)
 		}
 		if nullable {
 			typ = &PHPNullableType{Type: typ}
 		}
 	}
-	for p.got(OpenBrack) {
-		p.expect(CloseBrack)
+	for p.got(Lbrack) {
+		p.expect(Rbrack)
 		typ = &PHPArrayType{Elem: typ}
 	}
 	return typ
@@ -264,7 +264,7 @@ func (p *Parser) parseAtomicType() PHPType {
 func (p *Parser) parseParenType() PHPType {
 	t := new(PHPParenType)
 	t.Type = p.parseType()
-	p.expect(CloseParen)
+	p.expect(Rparen)
 	return t
 }
 
@@ -272,7 +272,7 @@ func (p *Parser) parseParenType() PHPType {
 // ArrayShape     = "{" PHPType { "," PHPType } "}" .
 func (p *Parser) parseArrayShapeType() PHPType {
 	typ := new(PHPArrayShapeType)
-	if p.got(OpenBrace) {
+	if p.got(Lbrace) {
 		for {
 			elem := new(PHPArrayElem)
 			elem.Type = p.parseType()
@@ -281,7 +281,7 @@ func (p *Parser) parseArrayShapeType() PHPType {
 				break
 			}
 		}
-		p.expect(CloseBrace)
+		p.expect(Rbrace)
 	}
 	return typ
 }
@@ -296,7 +296,7 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 			break
 		}
 	}
-	p.expect(CloseAngle)
+	p.expect(Gt)
 	return &PHPGenericType{Base: base, Generics: generics}
 }
 

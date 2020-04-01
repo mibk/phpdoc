@@ -28,28 +28,31 @@ const (
 	Newline // \n
 	Whitespace
 	Asterisk // *
-	Other
-	OpenDoc    // /**
-	CloseDoc   // */
-	Tag        // @foo
-	Var        // $bar
-	Backslash  // \
-	Nullable   // ?
-	OpenParen  // (
-	CloseParen // )
-	OpenBrack  // [
-	CloseBrack // ]
-	OpenBrace  // {
-	CloseBrace // }
-	OpenAngle  // <
-	CloseAngle // >
-	Comma      // ,
-	Ellipsis   // ...
-	Union      // |
-	Intersect  // &
-	Ident      // baz
+
+	OpenDoc  // /**
+	CloseDoc // */
+
+	Backslash // \
+	Query     // ?
+	Lparen    // (
+	Rparen    // )
+	Lbrack    // [
+	Rbrack    // ]
+	Lbrace    // {
+	Rbrace    // }
+	Lt        // <
+	Gt        // >
+	Comma     // ,
+	Ellipsis  // ...
+	Or        // |
+	And       // &
 
 	Array // array
+
+	Ident // baz
+	Tag   // @foo
+	Var   // $bar
+	Other
 )
 
 const eof = -1
@@ -125,23 +128,23 @@ func (sc *Scanner) lexAny() Token {
 	case '\\':
 		return Token{Type: Backslash, Text: "\\"}
 	case '?':
-		return Token{Type: Nullable, Text: "?"}
+		return Token{Type: Query, Text: "?"}
 	case '(':
-		return Token{Type: OpenParen, Text: "("}
+		return Token{Type: Lparen, Text: "("}
 	case ')':
-		return Token{Type: CloseParen, Text: ")"}
+		return Token{Type: Rparen, Text: ")"}
 	case '[':
-		return Token{Type: OpenBrack, Text: "["}
+		return Token{Type: Lbrack, Text: "["}
 	case ']':
-		return Token{Type: CloseBrack, Text: "]"}
+		return Token{Type: Rbrack, Text: "]"}
 	case '{':
-		return Token{Type: OpenBrace, Text: "{"}
+		return Token{Type: Lbrace, Text: "{"}
 	case '}':
-		return Token{Type: CloseBrace, Text: "}"}
+		return Token{Type: Rbrace, Text: "}"}
 	case '<':
-		return Token{Type: OpenAngle, Text: "<"}
+		return Token{Type: Lt, Text: "<"}
 	case '>':
-		return Token{Type: CloseAngle, Text: ">"}
+		return Token{Type: Gt, Text: ">"}
 	case ',':
 		return Token{Type: Comma, Text: ","}
 	case '.':
@@ -154,9 +157,9 @@ func (sc *Scanner) lexAny() Token {
 		}
 		return sc.scanOther(".")
 	case '|':
-		return Token{Type: Union, Text: "|"}
+		return Token{Type: Or, Text: "|"}
 	case '&':
-		return Token{Type: Intersect, Text: "&"}
+		return Token{Type: And, Text: "&"}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':
