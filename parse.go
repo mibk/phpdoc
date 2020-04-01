@@ -230,16 +230,21 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 	return ut
 }
 
-// AtomicType = ParenType | GenericType | IdentType | ArrayType .
-// ArrayType  = AtomicType "[" "]" .
+// AtomicType   = ParenType | NullableType | ArrayType .
+// NullableType = [ "?" ] ( GenericType | IdentType ) .
+// ArrayType    = AtomicType "[" "]" .
 func (p *Parser) parseAtomicType() PHPType {
 	var typ PHPType
 	if p.got(OpenParen) {
 		typ = p.parseParenType()
 	} else {
+		nullable := p.got(Nullable)
 		typ = p.parseIdentType()
 		if p.got(OpenAngle) {
 			typ = p.parseGenericType(typ)
+		}
+		if nullable {
+			typ = &PHPNullableType{Type: typ}
 		}
 	}
 	for p.got(OpenBrack) {
@@ -271,19 +276,9 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 	return &PHPGenericType{Base: base, Generics: generics}
 }
 
-// IdentType = [ "?" ] IdentName .
-func (p *Parser) parseIdentType() PHPType {
-	typ := new(PHPIdentType)
-	if p.got(Nullable) {
-		typ.Nullable = true
-	}
-	typ.Name = p.parseIdentName()
-	return typ
-}
-
-// IdentName = [ "\\" ] ident { "\\" ident } .
-func (p *Parser) parseIdentName() *PHPIdent {
-	id := new(PHPIdent)
+// IdentType = [ "\\" ] ident { "\\" ident } .
+func (p *Parser) parseIdentType() *PHPIdentType {
+	id := new(PHPIdentType)
 	if p.got(Backslash) {
 		id.Global = true
 	}

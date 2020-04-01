@@ -86,6 +86,11 @@ type PHPArrayType struct {
 	Elem PHPType
 }
 
+type PHPNullableType struct {
+	phpType
+	Type PHPType
+}
+
 type PHPGenericType struct {
 	phpType
 	Base     PHPType
@@ -93,12 +98,6 @@ type PHPGenericType struct {
 }
 
 type PHPIdentType struct {
-	phpType
-	Name     *PHPIdent
-	Nullable bool
-}
-
-type PHPIdent struct {
 	phpType
 	Parts  []string
 	Global bool

@@ -148,6 +148,8 @@ func (p *printer) printPHPType(typ PHPType) {
 		p.print('(', typ.Type, ')')
 	case *PHPArrayType:
 		p.print(typ.Elem, "[]")
+	case *PHPNullableType:
+		p.print('?', typ.Type)
 	case *PHPGenericType:
 		p.print(typ.Base, '<')
 		for i, typ := range typ.Generics {
@@ -158,21 +160,14 @@ func (p *printer) printPHPType(typ PHPType) {
 		}
 		p.print('>')
 	case *PHPIdentType:
-		if typ.Nullable {
-			p.print("?")
+		for i, part := range typ.Parts {
+			if i > 0 || typ.Global {
+				p.print('\\')
+			}
+			p.print(part)
 		}
-		p.printPHPIdent(typ.Name)
 	default:
 		panic(fmt.Sprintf("unknown PHP type %T", typ))
-	}
-}
-
-func (p *printer) printPHPIdent(id *PHPIdent) {
-	for i, part := range id.Parts {
-		if i > 0 || id.Global {
-			p.print('\\')
-		}
-		p.print(part)
 	}
 }
 

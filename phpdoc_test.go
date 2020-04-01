@@ -204,9 +204,9 @@ func TestParsingTypes(t *testing.T) {
 		intersect = phpdoc.PHPIntersectType
 		array     = phpdoc.PHPArrayType
 		parens    = phpdoc.PHPParenType
+		nullable  = phpdoc.PHPNullableType
 		generic   = phpdoc.PHPGenericType
 		ident     = phpdoc.PHPIdentType
-		name      = phpdoc.PHPIdent
 	)
 
 	types := func(types ...phpdoc.PHPType) []phpdoc.PHPType { return types }
@@ -218,50 +218,50 @@ func TestParsingTypes(t *testing.T) {
 	}{
 		{
 			typ:  `? float`,
-			want: &ident{Name: &name{Parts: parts("float")}, Nullable: true},
+			want: &nullable{Type: &ident{Parts: parts("float")}},
 		},
 		{
 			typ:  `int [ ] []`,
-			want: &array{Elem: &array{Elem: &ident{Name: &name{Parts: parts("int")}}}},
+			want: &array{Elem: &array{Elem: &ident{Parts: parts("int")}}},
 		},
 		{
-			typ: `array < string, array<string, int > []>`,
-			want: &generic{Base: &ident{Name: &name{Parts: parts("array")}}, Generics: types(
-				&ident{Name: &name{Parts: parts("string")}},
-				&array{Elem: &generic{
-					Base: &ident{Name: &name{Parts: parts("array")}},
+			typ: `array < string, ?array<string, int > []>`,
+			want: &generic{Base: &ident{Parts: parts("array")}, Generics: types(
+				&ident{Parts: parts("string")},
+				&array{Elem: &nullable{Type: &generic{
+					Base: &ident{Parts: parts("array")},
 					Generics: types(
-						&ident{Name: &name{Parts: parts("string")}},
-						&ident{Name: &name{Parts: parts("int")}},
+						&ident{Parts: parts("string")},
+						&ident{Parts: parts("int")},
 					),
-				}},
+				}}},
 			)},
 		},
 		{
 			typ: `Traversable &Countable`,
 			want: &intersect{Types: types(
-				&ident{Name: &name{Parts: parts("Traversable")}},
-				&ident{Name: &name{Parts: parts("Countable")}},
+				&ident{Parts: parts("Traversable")},
+				&ident{Parts: parts("Countable")},
 			)},
 		},
 		{
 			typ: `( int |float )[]`,
 			want: &array{Elem: &parens{Type: &union{Types: types(
-				&ident{Name: &name{Parts: parts("int")}},
-				&ident{Name: &name{Parts: parts("float")}},
+				&ident{Parts: parts("int")},
+				&ident{Parts: parts("float")},
 			)}}},
 		},
 		{
 			typ:  `\Foo\ Bar \DateTime`,
-			want: &ident{Name: &name{Parts: parts("Foo", "Bar", "DateTime"), Global: true}},
+			want: &ident{Parts: parts("Foo", "Bar", "DateTime"), Global: true},
 		},
 		{
 			typ:  `Other\DateTime`,
-			want: &ident{Name: &name{Parts: parts("Other", "DateTime")}},
+			want: &ident{Parts: parts("Other", "DateTime")},
 		},
 		{
 			typ:  `\ Traversable`,
-			want: &ident{Name: &name{Parts: parts("Traversable"), Global: true}},
+			want: &ident{Parts: parts("Traversable"), Global: true},
 		},
 	}
 
