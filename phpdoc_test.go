@@ -12,7 +12,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param (\Traversable&\Countable)|array $map
+	@param (\Traversable&\Countable)|array{int} $map
 	@param int|null ...$_0_žluťoučký_9
 	* @return string[]|array<string, ?string>
 */`
@@ -42,7 +42,10 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Ident, "Countable"},
 		{phpdoc.CloseParen, ")"},
 		{phpdoc.Union, "|"},
-		{phpdoc.Ident, "array"},
+		{phpdoc.Array, "array"},
+		{phpdoc.OpenBrace, "{"},
+		{phpdoc.Ident, "int"},
+		{phpdoc.CloseBrace, "}"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Var, "$map"},
 		{phpdoc.Newline, "\n"},
@@ -65,7 +68,7 @@ func TestScanner(t *testing.T) {
 		{phpdoc.OpenBrack, "["},
 		{phpdoc.CloseBrack, "]"},
 		{phpdoc.Union, "|"},
-		{phpdoc.Ident, "array"},
+		{phpdoc.Array, "array"},
 		{phpdoc.OpenAngle, "<"},
 		{phpdoc.Ident, "string"},
 		{phpdoc.Comma, ","},
@@ -156,12 +159,14 @@ It's	deprecated now.
 @property  \ Foo $a
 @property-read    array<int,string>    $b
 @property-write int [] $c
+@property array    {int  ,\ Foo }$d
 */
 ----
 	/**
 	 * @property       \Foo               $a
 	 * @property-read  array<int, string> $b
 	 * @property-write int[]              $c
+	 * @property       array{int, \Foo}   $d
 	 */
 `},
 }
@@ -200,13 +205,15 @@ func printerTestCase(t *testing.T, input, want string) {
 
 func TestParsingTypes(t *testing.T) {
 	type (
-		union     = phpdoc.PHPUnionType
-		intersect = phpdoc.PHPIntersectType
-		array     = phpdoc.PHPArrayType
-		parens    = phpdoc.PHPParenType
-		nullable  = phpdoc.PHPNullableType
-		generic   = phpdoc.PHPGenericType
-		ident     = phpdoc.PHPIdentType
+		union      = phpdoc.PHPUnionType
+		intersect  = phpdoc.PHPIntersectType
+		array      = phpdoc.PHPArrayType
+		parens     = phpdoc.PHPParenType
+		nullable   = phpdoc.PHPNullableType
+		arrayShape = phpdoc.PHPArrayShapeType
+		arrayElem  = phpdoc.PHPArrayElem
+		generic    = phpdoc.PHPGenericType
+		ident      = phpdoc.PHPIdentType
 	)
 
 	types := func(types ...phpdoc.PHPType) []phpdoc.PHPType { return types }
@@ -226,10 +233,10 @@ func TestParsingTypes(t *testing.T) {
 		},
 		{
 			typ: `array < string, ?array<string, int > []>`,
-			want: &generic{Base: &ident{Parts: parts("array")}, Generics: types(
+			want: &generic{Base: new(arrayShape), Generics: types(
 				&ident{Parts: parts("string")},
 				&array{Elem: &nullable{Type: &generic{
-					Base: &ident{Parts: parts("array")},
+					Base: new(arrayShape),
 					Generics: types(
 						&ident{Parts: parts("string")},
 						&ident{Parts: parts("int")},
@@ -262,6 +269,16 @@ func TestParsingTypes(t *testing.T) {
 		{
 			typ:  `\ Traversable`,
 			want: &ident{Parts: parts("Traversable"), Global: true},
+		},
+		{
+			typ: `array{int, string | \ DateTime}`,
+			want: &arrayShape{Elems: []*arrayElem{
+				{Type: &ident{Parts: parts("int")}},
+				{Type: &union{Types: types(
+					&ident{Parts: parts("string")},
+					&ident{Parts: parts("DateTime"), Global: true},
+				)}},
+			}},
 		},
 	}
 

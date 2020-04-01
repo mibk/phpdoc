@@ -150,6 +150,19 @@ func (p *printer) printPHPType(typ PHPType) {
 		p.print(typ.Elem, "[]")
 	case *PHPNullableType:
 		p.print('?', typ.Type)
+	case *PHPArrayShapeType:
+		p.print("array")
+		if len(typ.Elems) == 0 {
+			break
+		}
+		p.print('{')
+		for i, elem := range typ.Elems {
+			if i > 0 {
+				p.print(", ")
+			}
+			p.print(elem.Type)
+		}
+		p.print('}')
 	case *PHPGenericType:
 		p.print(typ.Base, '<')
 		for i, typ := range typ.Generics {

@@ -39,6 +39,8 @@ const (
 	CloseParen // )
 	OpenBrack  // [
 	CloseBrack // ]
+	OpenBrace  // {
+	CloseBrace // }
 	OpenAngle  // <
 	CloseAngle // >
 	Comma      // ,
@@ -46,6 +48,8 @@ const (
 	Union      // |
 	Intersect  // &
 	Ident      // baz
+
+	Array // array
 )
 
 const eof = -1
@@ -130,6 +134,10 @@ func (sc *Scanner) lexAny() Token {
 		return Token{Type: OpenBrack, Text: "["}
 	case ']':
 		return Token{Type: CloseBrack, Text: "]"}
+	case '{':
+		return Token{Type: OpenBrace, Text: "{"}
+	case '}':
+		return Token{Type: CloseBrace, Text: "}"}
 	case '<':
 		return Token{Type: OpenAngle, Text: "<"}
 	case '>':
@@ -234,8 +242,12 @@ func (sc *Scanner) scanWhitespace(init rune) Token {
 
 func (sc *Scanner) scanOther(init string) Token {
 	if init == "" {
-		id := sc.lexIdent()
-		if id != "" {
+		switch id := sc.lexIdent(); id {
+		case "":
+			break
+		case "array":
+			return Token{Type: Array, Text: id}
+		default:
 			return Token{Type: Ident, Text: id}
 		}
 	}

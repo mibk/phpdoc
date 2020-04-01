@@ -91,6 +91,16 @@ type PHPNullableType struct {
 	Type PHPType
 }
 
+type PHPArrayShapeType struct {
+	phpType
+	Elems []*PHPArrayElem
+}
+
+type PHPArrayElem struct {
+	// TODO: Add Key
+	Type PHPType
+}
+
 type PHPGenericType struct {
 	phpType
 	Base     PHPType

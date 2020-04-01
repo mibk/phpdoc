@@ -231,7 +231,8 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 }
 
 // AtomicType   = ParenType | NullableType | ArrayType .
-// NullableType = [ "?" ] ( GenericType | IdentType ) .
+// NullableType = [ "?" ] ( GenericType | BasicType ) .
+// BasicType    = IdentType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
 func (p *Parser) parseAtomicType() PHPType {
 	var typ PHPType
@@ -239,7 +240,12 @@ func (p *Parser) parseAtomicType() PHPType {
 		typ = p.parseParenType()
 	} else {
 		nullable := p.got(Nullable)
-		typ = p.parseIdentType()
+		if p.got(Array) {
+			typ = p.parseArrayShapeType()
+		} else {
+			typ = p.parseIdentType()
+		}
+		// TODO: Forbid generic params for arrays with a shape?
 		if p.got(OpenAngle) {
 			typ = p.parseGenericType(typ)
 		}
@@ -262,7 +268,25 @@ func (p *Parser) parseParenType() PHPType {
 	return t
 }
 
-// GenericType = IdentType "<" PHPType { "," PHPType } ">" .
+// ArrayShapeType = array [ ArrayShape ] .
+// ArrayShape     = "{" PHPType { "," PHPType } "}" .
+func (p *Parser) parseArrayShapeType() PHPType {
+	typ := new(PHPArrayShapeType)
+	if p.got(OpenBrace) {
+		for {
+			elem := new(PHPArrayElem)
+			elem.Type = p.parseType()
+			typ.Elems = append(typ.Elems, elem)
+			if !p.got(Comma) {
+				break
+			}
+		}
+		p.expect(CloseBrace)
+	}
+	return typ
+}
+
+// GenericType = BasicType "<" PHPType { "," PHPType } ">" .
 func (p *Parser) parseGenericType(base PHPType) PHPType {
 	var generics []PHPType
 	for {
