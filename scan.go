@@ -210,18 +210,23 @@ func (sc *Scanner) lexTag() string {
 }
 
 func (sc *Scanner) scanVar() Token {
-	id := sc.lexIdent()
-	if id == "" {
-		return sc.scanOther("$")
+	switch id := sc.lexIdent(); {
+	case id == "", strings.ContainsRune(id, '-'):
+		return sc.scanOther("$" + id)
+	default:
+		return Token{Type: Var, Text: "$" + id}
 	}
-	return Token{Type: Var, Text: "$" + id}
 }
 
 func (sc *Scanner) lexIdent() string {
 	var b strings.Builder
 	for {
 		switch r := sc.next(); {
-		case r == '_' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= utf8.RuneSelf:
+		case r == '_' || r == '-' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= utf8.RuneSelf:
+			// A dash (-) actually isn't allowed in a PHP identifier,
+			// but it's used in meta-types (e.g. class-name). See
+			// https://psalm.dev/docs/annotating_code/type_syntax/scalar_types/
+			// for more information.
 			b.WriteRune(r)
 		case r >= '0' && r <= '9':
 			if b.Len() > 0 {

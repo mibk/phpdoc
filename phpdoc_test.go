@@ -283,6 +283,12 @@ func TestParsingTypes(t *testing.T) {
 				)}},
 			}},
 		},
+		{
+			typ: `class-string<T>`,
+			want: &generic{Base: &ident{Parts: parts("class-string")},
+				Generics: types(&ident{Parts: parts("T")}),
+			},
+		},
 	}
 
 	for _, tt := range tests {
