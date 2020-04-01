@@ -172,6 +172,18 @@ It's	deprecated now.
 	 * @property       array{0: int, foo?: \Foo} $d
 	 */
 `},
+	{"template", `
+/**
+@template    T foo
+@template  U of \ Traversable bar
+@template   WW as \ Countable */
+----
+/**
+ * @template T                 foo
+ * @template U of \Traversable bar
+ * @template WW of \Countable
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

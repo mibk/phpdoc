@@ -121,6 +121,7 @@ func (p *Parser) parseLine() Line {
 //           ReturnTag |
 //           PropertyTag |
 //           VarTag |
+//           TemplateTag |
 //           OtherTag .
 func (p *Parser) parseTag() TagLine {
 	name := p.tok.Text
@@ -135,6 +136,8 @@ func (p *Parser) parseTag() TagLine {
 		return p.parsePropertyTag(name)
 	case "@var":
 		return p.parseVarTag()
+	case "@template":
+		return p.parseTemplateTag()
 	default:
 		return p.parseOtherTag(name[1:])
 		return nil
@@ -184,6 +187,19 @@ func (p *Parser) parseVarTag() *VarTag {
 	if p.tok.Type == Var {
 		tag.Var = p.tok.Text[1:]
 		p.next()
+	}
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+// TemplateTag = "@template" ident [ ( "of | "as" ) PHPType ] [ Desc ] .
+func (p *Parser) parseTemplateTag() *TemplateTag {
+	tag := new(TemplateTag)
+	tag.Param = p.tok.Text
+	p.expect(Ident)
+	if p.tok.Type == Ident && p.tok.Text == "of" || p.tok.Text == "as" {
+		p.next()
+		tag.Bound = p.parseType()
 	}
 	tag.Desc = p.parseDesc()
 	return tag

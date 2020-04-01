@@ -54,6 +54,13 @@ type VarTag struct {
 	Desc string
 }
 
+type TemplateTag struct {
+	tagLine
+	Param string
+	Bound PHPType // or nil
+	Desc  string
+}
+
 type OtherTag struct {
 	tagLine
 	Name string

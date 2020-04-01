@@ -121,6 +121,14 @@ func (p *printer) printTag(tag TagLine) {
 		if tag.Desc != "" {
 			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
+	case *TemplateTag:
+		p.print("@template", nextcol, tag.Param)
+		if tag.Bound != nil {
+			p.print(" of ", tag.Bound)
+		}
+		if tag.Desc != "" {
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
+		}
 	case *OtherTag:
 		p.print('@', tag.Name)
 		if tag.Desc != "" {
