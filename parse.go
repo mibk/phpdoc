@@ -269,12 +269,25 @@ func (p *Parser) parseParenType() PHPType {
 }
 
 // ArrayShapeType = array [ ArrayShape ] .
-// ArrayShape     = "{" PHPType { "," PHPType } "}" .
+// ArrayShape     = "{" KeyType { "," KeyType } "}" .
+// KeyType        = ArrayKey [ "?" ] ":" PHPType .
+// ArrayKey       = ident | decimal .
 func (p *Parser) parseArrayShapeType() PHPType {
 	typ := new(PHPArrayShapeType)
 	if p.got(Lbrace) {
 		for {
 			elem := new(PHPArrayElem)
+			switch p.tok.Type {
+			case Ident, Decimal:
+				elem.Key = p.tok.Text
+				p.next()
+			default:
+				// TODO: Consider not requiring array keys.
+				p.errorf("expecting %v or %v, found %v", Ident, Decimal, p.tok)
+				return nil
+			}
+			elem.Optional = p.got(Query)
+			p.expect(Colon)
 			elem.Type = p.parseType()
 			typ.Elems = append(typ.Elems, elem)
 			if !p.got(Comma) {

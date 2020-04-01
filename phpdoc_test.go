@@ -12,7 +12,7 @@ import (
 
 func TestScanner(t *testing.T) {
 	const input = `/**
-	@param (\Traversable&\Countable)|array{int} $map
+	@param (\Traversable&\Countable)|array{11 :int} $map
 	@param int|null ...$_0_žluťoučký_9
 	* @return string[]|array<string, ?string>
 */`
@@ -44,6 +44,9 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Or, "|"},
 		{phpdoc.Array, "array"},
 		{phpdoc.Lbrace, "{"},
+		{phpdoc.Decimal, "11"},
+		{phpdoc.Whitespace, " "},
+		{phpdoc.Colon, ":"},
 		{phpdoc.Ident, "int"},
 		{phpdoc.Rbrace, "}"},
 		{phpdoc.Whitespace, " "},
@@ -159,14 +162,14 @@ It's	deprecated now.
 @property  \ Foo $a
 @property-read    array<int,string>    $b
 @property-write int [] $c
-@property array    {int  ,\ Foo }$d
+@property array    {0 :int  ,foo?:\ Foo }$d
 */
 ----
 	/**
-	 * @property       \Foo               $a
-	 * @property-read  array<int, string> $b
-	 * @property-write int[]              $c
-	 * @property       array{int, \Foo}   $d
+	 * @property       \Foo                      $a
+	 * @property-read  array<int, string>        $b
+	 * @property-write int[]                     $c
+	 * @property       array{0: int, foo?: \Foo} $d
 	 */
 `},
 }
@@ -271,10 +274,10 @@ func TestParsingTypes(t *testing.T) {
 			want: &ident{Parts: parts("Traversable"), Global: true},
 		},
 		{
-			typ: `array{int, string | \ DateTime}`,
+			typ: `array{20?:int, foo :string | \ DateTime}`,
 			want: &arrayShape{Elems: []*arrayElem{
-				{Type: &ident{Parts: parts("int")}},
-				{Type: &union{Types: types(
+				{Key: "20", Type: &ident{Parts: parts("int")}, Optional: true},
+				{Key: "foo", Type: &union{Types: types(
 					&ident{Parts: parts("string")},
 					&ident{Parts: parts("DateTime"), Global: true},
 				)}},

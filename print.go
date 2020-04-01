@@ -160,7 +160,11 @@ func (p *printer) printPHPType(typ PHPType) {
 			if i > 0 {
 				p.print(", ")
 			}
-			p.print(elem.Type)
+			p.print(elem.Key)
+			if elem.Optional {
+				p.print('?')
+			}
+			p.print(": ", elem.Type)
 		}
 		p.print('}')
 	case *PHPGenericType:

@@ -43,6 +43,7 @@ const (
 	Lt        // <
 	Gt        // >
 	Comma     // ,
+	Colon     // :
 	Ellipsis  // ...
 	Or        // |
 	And       // &
@@ -52,6 +53,9 @@ const (
 	Ident // baz
 	Tag   // @foo
 	Var   // $bar
+
+	Decimal // 1
+
 	Other
 )
 
@@ -147,6 +151,8 @@ func (sc *Scanner) lexAny() Token {
 		return Token{Type: Gt, Text: ">"}
 	case ',':
 		return Token{Type: Comma, Text: ","}
+	case ':':
+		return Token{Type: Colon, Text: ":"}
 	case '.':
 		if sc.peek() == '.' {
 			if sc.next(); sc.peek() == '.' {
@@ -165,6 +171,9 @@ func (sc *Scanner) lexAny() Token {
 	case ' ', '\t':
 		return sc.scanWhitespace(r)
 	default:
+		if isDigit(r) {
+			return sc.scanDecimal(r)
+		}
 		sc.backup()
 		return sc.scanOther("")
 	}
@@ -225,6 +234,19 @@ func (sc *Scanner) lexIdent() string {
 			return b.String()
 		}
 	}
+}
+
+func (sc *Scanner) scanDecimal(r rune) Token {
+	var b strings.Builder
+	b.WriteRune(r)
+	for isDigit(sc.peek()) {
+		b.WriteRune(sc.next())
+	}
+	return Token{Type: Decimal, Text: b.String()}
+}
+
+func isDigit(r rune) bool {
+	return '0' <= r && r <= '9'
 }
 
 func (sc *Scanner) scanWhitespace(init rune) Token {

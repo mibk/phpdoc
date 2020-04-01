@@ -97,8 +97,9 @@ type PHPArrayShapeType struct {
 }
 
 type PHPArrayElem struct {
-	// TODO: Add Key
-	Type PHPType
+	Key      string
+	Type     PHPType
+	Optional bool
 }
 
 type PHPGenericType struct {
