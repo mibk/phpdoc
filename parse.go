@@ -120,6 +120,7 @@ func (p *Parser) parseLine() Line {
 // TagLine = ParamTag |
 //           ReturnTag |
 //           PropertyTag |
+//           VarTag |
 //           OtherTag .
 func (p *Parser) parseTag() TagLine {
 	name := p.tok.Text
@@ -132,6 +133,8 @@ func (p *Parser) parseTag() TagLine {
 		return p.parseReturnTag()
 	case "@property", "@property-read", "@property-write":
 		return p.parsePropertyTag(name)
+	case "@var":
+		return p.parseVarTag()
 	default:
 		return p.parseOtherTag(name[1:])
 		return nil
@@ -171,6 +174,16 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	case strings.HasSuffix(name, "-write"):
 		tag.WriteOnly = true
 	}
+	return tag
+}
+
+// VarTag = "@var" PHPType var [ Desc ] .
+func (p *Parser) parseVarTag() *VarTag {
+	tag := new(VarTag)
+	tag.Type = p.parseType()
+	tag.Var = p.tok.Text[1:]
+	p.expect(Var)
+	tag.Desc = p.parseDesc()
 	return tag
 }
 

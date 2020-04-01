@@ -113,6 +113,11 @@ func (p *printer) printTag(tag TagLine) {
 		if tag.Desc != "" {
 			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
+	case *VarTag:
+		p.print("@var", nextcol, tag.Type, nextcol, '$', tag.Var)
+		if tag.Desc != "" {
+			p.print(nextcol, tabesc, tag.Desc, tabesc)
+		}
 	case *OtherTag:
 		p.print('@', tag.Name)
 		if tag.Desc != "" {

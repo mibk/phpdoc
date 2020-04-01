@@ -99,9 +99,9 @@ var parseTests = []struct {
  */
 `},
 	{"oneline", `
-  /**@param \ DateTime $date    */
+  /**@var \ DateTime $date    */
 ----
-  /** @param \DateTime $date */
+  /** @var \DateTime $date */
 `},
 	{"single line", `
   /**

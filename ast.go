@@ -47,6 +47,13 @@ type PropertyTag struct {
 	Desc                string
 }
 
+type VarTag struct {
+	tagLine
+	Type PHPType
+	Var  string
+	Desc string
+}
+
 type OtherTag struct {
 	tagLine
 	Name string
