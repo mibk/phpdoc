@@ -11,85 +11,6 @@ import (
 	"mibk.io/phpdoc/phptype"
 )
 
-func TestScanner(t *testing.T) {
-	const input = `/**
-	@param (\Traversable&\Countable)|array{11 :int} $map
-	@param int|null ...$_0_žluťoučký_9
-	* @return string[]|array<string, ?string>
-*/`
-
-	sc := phpdoc.NewScanner(strings.NewReader(input))
-
-	var got []phpdoc.Token
-	for {
-		tok := sc.Next()
-		got = append(got, tok)
-		if tok.Type == phpdoc.EOF {
-			break
-		}
-	}
-
-	want := []phpdoc.Token{
-		{phpdoc.OpenDoc, "/**"},
-		{phpdoc.Newline, "\n"},
-		{phpdoc.Whitespace, "\t"},
-		{phpdoc.TagName, "@param"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Lparen, "("},
-		{phpdoc.Backslash, "\\"},
-		{phpdoc.Ident, "Traversable"},
-		{phpdoc.And, "&"},
-		{phpdoc.Backslash, "\\"},
-		{phpdoc.Ident, "Countable"},
-		{phpdoc.Rparen, ")"},
-		{phpdoc.Or, "|"},
-		{phpdoc.Array, "array"},
-		{phpdoc.Lbrace, "{"},
-		{phpdoc.Decimal, "11"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Colon, ":"},
-		{phpdoc.Ident, "int"},
-		{phpdoc.Rbrace, "}"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.VarName, "$map"},
-		{phpdoc.Newline, "\n"},
-		{phpdoc.Whitespace, "\t"},
-		{phpdoc.TagName, "@param"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Ident, "int"},
-		{phpdoc.Or, "|"},
-		{phpdoc.Ident, "null"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Ellipsis, "..."},
-		{phpdoc.VarName, "$_0_žluťoučký_9"},
-		{phpdoc.Newline, "\n"},
-		{phpdoc.Whitespace, "\t"},
-		{phpdoc.Asterisk, "*"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.TagName, "@return"},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Ident, "string"},
-		{phpdoc.Lbrack, "["},
-		{phpdoc.Rbrack, "]"},
-		{phpdoc.Or, "|"},
-		{phpdoc.Array, "array"},
-		{phpdoc.Lt, "<"},
-		{phpdoc.Ident, "string"},
-		{phpdoc.Comma, ","},
-		{phpdoc.Whitespace, " "},
-		{phpdoc.Query, "?"},
-		{phpdoc.Ident, "string"},
-		{phpdoc.Gt, ">"},
-		{phpdoc.Newline, "\n"},
-		{phpdoc.CloseDoc, `*/`},
-		{phpdoc.EOF, ""},
-	}
-
-	if diff := cmp.Diff(got, want); diff != "" {
-		t.Errorf("tokens don't match (-got +want)\n%s", diff)
-	}
-}
-
 var parseTests = []struct {
 	name string
 	test string
@@ -202,8 +123,7 @@ func TestPrinting(t *testing.T) {
 }
 
 func printerTestCase(t *testing.T, input, want string) {
-	sc := phpdoc.NewScanner(strings.NewReader(input))
-	p := phpdoc.NewParser(sc)
+	p := phpdoc.NewParser(strings.NewReader(input))
 	doc, err := p.Parse()
 	if err != nil {
 		t.Fatal(err)
@@ -304,8 +224,7 @@ func TestParsingTypes(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		sc := phpdoc.NewScanner(strings.NewReader(tt.typ))
-		p := phpdoc.NewParser(sc)
+		p := phpdoc.NewParser(strings.NewReader(tt.typ))
 
 		got, err := p.ParseType()
 		if err != nil {

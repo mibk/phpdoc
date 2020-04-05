@@ -1,4 +1,4 @@
-package phpdoc
+package token
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 )
 
 type Token struct {
-	Type TokenType
+	Type Type
 	Text string
 }
 
@@ -17,13 +17,13 @@ func (t Token) String() string {
 	return fmt.Sprintf("%v(%q)", t.Type, t.Text)
 }
 
-//go:generate stringer -type TokenType -linecomment
+//go:generate stringer -type Type -linecomment
 
-type TokenType int
+type Type int
 
 const (
-	EOF     TokenType = iota
-	Newline           // \n
+	EOF     Type = iota
+	Newline      // \n
 	Whitespace
 
 	symbolStart

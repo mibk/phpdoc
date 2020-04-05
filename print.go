@@ -6,6 +6,7 @@ import (
 	"io"
 	"text/tabwriter"
 
+	"mibk.io/phpdoc/internal/token"
 	"mibk.io/phpdoc/phptype"
 )
 
@@ -45,7 +46,7 @@ func (p *printer) print(args ...interface{}) {
 
 		switch arg := arg.(type) {
 		case *PHPDoc:
-			p.print(tabesc, arg.Indent, tabesc, OpenDoc)
+			p.print(tabesc, arg.Indent, tabesc, token.OpenDoc)
 			if arg.PreferOneline && len(arg.Lines) == 1 {
 				p.print(' ')
 				p.print(arg.Lines[0])
@@ -56,12 +57,12 @@ func (p *printer) print(args ...interface{}) {
 				}
 				p.print(tabesc, arg.Indent, tabesc)
 			}
-			p.print(' ', CloseDoc, newline)
+			p.print(' ', token.CloseDoc, newline)
 		case Line:
 			p.printLine(arg)
 		case phptype.Type:
 			p.printPHPType(arg)
-		case TokenType:
+		case token.Type:
 			_, p.err = p.buf.WriteString(arg.String())
 		case string:
 			_, p.err = p.buf.WriteString(arg)
@@ -91,7 +92,7 @@ func (p *printer) printTag(tag Tag) {
 	case *ParamTag:
 		p.print("@param", nextcol, tag.Type, nextcol)
 		if tag.Variadic {
-			p.print(Ellipsis)
+			p.print(token.Ellipsis)
 		}
 		p.print('$', tag.Var)
 	case *ReturnTag:
@@ -132,53 +133,53 @@ func (p *printer) printPHPType(typ phptype.Type) {
 	case *phptype.Union:
 		for i, typ := range typ.Types {
 			if i > 0 {
-				p.print(Or)
+				p.print(token.Or)
 			}
 			p.printPHPType(typ)
 		}
 	case *phptype.Intersect:
 		for i, typ := range typ.Types {
 			if i > 0 {
-				p.print(And)
+				p.print(token.And)
 			}
 			p.printPHPType(typ)
 		}
 	case *phptype.Paren:
-		p.print(Lparen, typ.Type, Rparen)
+		p.print(token.Lparen, typ.Type, token.Rparen)
 	case *phptype.Array:
-		p.print(typ.Elem, Lbrack, Rbrack)
+		p.print(typ.Elem, token.Lbrack, token.Rbrack)
 	case *phptype.Nullable:
-		p.print(Query, typ.Type)
+		p.print(token.Query, typ.Type)
 	case *phptype.ArrayShape:
 		p.print("array")
 		if len(typ.Elems) == 0 {
 			break
 		}
-		p.print(Lbrace)
+		p.print(token.Lbrace)
 		for i, elem := range typ.Elems {
 			if i > 0 {
-				p.print(Comma, ' ')
+				p.print(token.Comma, ' ')
 			}
 			p.print(elem.Key)
 			if elem.Optional {
-				p.print(Query)
+				p.print(token.Query)
 			}
-			p.print(Colon, ' ', elem.Type)
+			p.print(token.Colon, ' ', elem.Type)
 		}
-		p.print(Rbrace)
+		p.print(token.Rbrace)
 	case *phptype.Generic:
-		p.print(typ.Base, Lt)
+		p.print(typ.Base, token.Lt)
 		for i, typ := range typ.TypeParams {
 			if i > 0 {
-				p.print(Comma, ' ')
+				p.print(token.Comma, ' ')
 			}
 			p.printPHPType(typ)
 		}
-		p.print(Gt)
+		p.print(token.Gt)
 	case *phptype.Ident:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {
-				p.print(Backslash)
+				p.print(token.Backslash)
 			}
 			p.print(part)
 		}

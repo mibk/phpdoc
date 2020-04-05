@@ -80,8 +80,7 @@ func formatDocs(out io.Writer, in io.Reader) error {
 			w.Write(data[:m])
 		}
 
-		sc := phpdoc.NewScanner(bytes.NewReader(data[m:n]))
-		p := phpdoc.NewParser(sc)
+		p := phpdoc.NewParser(bytes.NewReader(data[m:n]))
 		if doc, err := p.Parse(); err != nil {
 			log.Println(err)
 			w.Write(data[m:n])
