@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"text/tabwriter"
+
+	"mibk.io/phpdoc/phptype"
 )
 
 func Fprint(w io.Writer, node interface{}) error {
@@ -57,7 +59,7 @@ func (p *printer) print(args ...interface{}) {
 			p.print(" */", newline)
 		case Line:
 			p.printLine(arg)
-		case PHPType:
+		case phptype.Type:
 			p.printPHPType(arg)
 		case string:
 			_, p.err = p.buf.WriteString(arg)
@@ -124,29 +126,29 @@ func (p *printer) printTag(tag Tag) {
 	}
 }
 
-func (p *printer) printPHPType(typ PHPType) {
+func (p *printer) printPHPType(typ phptype.Type) {
 	switch typ := typ.(type) {
-	case *PHPUnionType:
+	case *phptype.Union:
 		for i, typ := range typ.Types {
 			if i > 0 {
 				p.print("|")
 			}
 			p.printPHPType(typ)
 		}
-	case *PHPIntersectType:
+	case *phptype.Intersect:
 		for i, typ := range typ.Types {
 			if i > 0 {
 				p.print("&")
 			}
 			p.printPHPType(typ)
 		}
-	case *PHPParenType:
+	case *phptype.Paren:
 		p.print('(', typ.Type, ')')
-	case *PHPArrayType:
+	case *phptype.Array:
 		p.print(typ.Elem, "[]")
-	case *PHPNullableType:
+	case *phptype.Nullable:
 		p.print('?', typ.Type)
-	case *PHPArrayShapeType:
+	case *phptype.ArrayShape:
 		p.print("array")
 		if len(typ.Elems) == 0 {
 			break
@@ -163,7 +165,7 @@ func (p *printer) printPHPType(typ PHPType) {
 			p.print(": ", elem.Type)
 		}
 		p.print('}')
-	case *PHPGenericType:
+	case *phptype.Generic:
 		p.print(typ.Base, '<')
 		for i, typ := range typ.TypeParams {
 			if i > 0 {
@@ -172,7 +174,7 @@ func (p *printer) printPHPType(typ PHPType) {
 			p.printPHPType(typ)
 		}
 		p.print('>')
-	case *PHPIdentType:
+	case *phptype.Ident:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {
 				p.print('\\')

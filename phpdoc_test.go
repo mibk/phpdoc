@@ -8,6 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 
 	"mibk.io/phpdoc"
+	"mibk.io/phpdoc/phptype"
 )
 
 func TestScanner(t *testing.T) {
@@ -220,23 +221,23 @@ func printerTestCase(t *testing.T, input, want string) {
 
 func TestParsingTypes(t *testing.T) {
 	type (
-		union      = phpdoc.PHPUnionType
-		intersect  = phpdoc.PHPIntersectType
-		array      = phpdoc.PHPArrayType
-		parens     = phpdoc.PHPParenType
-		nullable   = phpdoc.PHPNullableType
-		arrayShape = phpdoc.PHPArrayShapeType
-		arrayElem  = phpdoc.PHPArrayElem
-		generic    = phpdoc.PHPGenericType
-		ident      = phpdoc.PHPIdentType
+		union      = phptype.Union
+		intersect  = phptype.Intersect
+		array      = phptype.Array
+		parens     = phptype.Paren
+		nullable   = phptype.Nullable
+		arrayShape = phptype.ArrayShape
+		arrayElem  = phptype.ArrayElem
+		generic    = phptype.Generic
+		ident      = phptype.Ident
 	)
 
-	types := func(types ...phpdoc.PHPType) []phpdoc.PHPType { return types }
+	types := func(types ...phptype.Type) []phptype.Type { return types }
 	parts := func(parts ...string) []string { return parts }
 
 	tests := []struct {
 		typ  string
-		want phpdoc.PHPType
+		want phptype.Type
 	}{
 		{
 			typ:  `? float`,

@@ -3,6 +3,8 @@ package phpdoc
 import (
 	"fmt"
 	"strings"
+
+	"mibk.io/phpdoc/phptype"
 )
 
 type Parser struct {
@@ -213,7 +215,7 @@ func (p *Parser) parseOtherTag(name string) *OtherTag {
 }
 
 // PHPType = AtomicType | UnionType | IntersectType .
-func (p *Parser) parseType() PHPType {
+func (p *Parser) parseType() phptype.Type {
 	typ := p.parseAtomicType()
 	switch p.tok.Type {
 	case Or:
@@ -225,8 +227,8 @@ func (p *Parser) parseType() PHPType {
 }
 
 // UnionType = AtomicType "|" AtomicType { "|" AtomicType } .
-func (p *Parser) parseUnionType(init PHPType) PHPType {
-	ut := &PHPUnionType{Types: make([]PHPType, 0, 2)}
+func (p *Parser) parseUnionType(init phptype.Type) phptype.Type {
+	ut := &phptype.Union{Types: make([]phptype.Type, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
 	for p.got(Or) {
@@ -237,8 +239,8 @@ func (p *Parser) parseUnionType(init PHPType) PHPType {
 }
 
 // IntersectType = AtomicType "&" AtomicType { "&" AtomicType } .
-func (p *Parser) parseIntersectType(init PHPType) PHPType {
-	ut := &PHPIntersectType{Types: make([]PHPType, 0, 2)}
+func (p *Parser) parseIntersectType(init phptype.Type) phptype.Type {
+	ut := &phptype.Intersect{Types: make([]phptype.Type, 0, 2)}
 	ut.Types = append(ut.Types, init)
 
 	for p.got(And) {
@@ -252,8 +254,8 @@ func (p *Parser) parseIntersectType(init PHPType) PHPType {
 // NullableType = [ "?" ] ( GenericType | BasicType ) .
 // BasicType    = IdentType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
-func (p *Parser) parseAtomicType() PHPType {
-	var typ PHPType
+func (p *Parser) parseAtomicType() phptype.Type {
+	var typ phptype.Type
 	if p.got(Lparen) {
 		typ = p.parseParenType()
 	} else {
@@ -268,19 +270,19 @@ func (p *Parser) parseAtomicType() PHPType {
 			typ = p.parseGenericType(typ)
 		}
 		if nullable {
-			typ = &PHPNullableType{Type: typ}
+			typ = &phptype.Nullable{Type: typ}
 		}
 	}
 	for p.got(Lbrack) {
 		p.expect(Rbrack)
-		typ = &PHPArrayType{Elem: typ}
+		typ = &phptype.Array{Elem: typ}
 	}
 	return typ
 }
 
 // ParenType = "(" PHPType ")" .
-func (p *Parser) parseParenType() PHPType {
-	t := new(PHPParenType)
+func (p *Parser) parseParenType() phptype.Type {
+	t := new(phptype.Paren)
 	t.Type = p.parseType()
 	p.expect(Rparen)
 	return t
@@ -290,11 +292,11 @@ func (p *Parser) parseParenType() PHPType {
 // ArrayShape     = "{" KeyType { "," KeyType } "}" .
 // KeyType        = ArrayKey [ "?" ] ":" PHPType .
 // ArrayKey       = ident | decimal .
-func (p *Parser) parseArrayShapeType() PHPType {
-	typ := new(PHPArrayShapeType)
+func (p *Parser) parseArrayShapeType() phptype.Type {
+	typ := new(phptype.ArrayShape)
 	if p.got(Lbrace) {
 		for {
-			elem := new(PHPArrayElem)
+			elem := new(phptype.ArrayElem)
 			switch p.tok.Type {
 			case Ident, Decimal:
 				elem.Key = p.tok.Text
@@ -318,8 +320,8 @@ func (p *Parser) parseArrayShapeType() PHPType {
 }
 
 // GenericType = BasicType "<" PHPType { "," PHPType } ">" .
-func (p *Parser) parseGenericType(base PHPType) PHPType {
-	var params []PHPType
+func (p *Parser) parseGenericType(base phptype.Type) phptype.Type {
+	var params []phptype.Type
 	for {
 		t := p.parseType()
 		params = append(params, t)
@@ -328,12 +330,12 @@ func (p *Parser) parseGenericType(base PHPType) PHPType {
 		}
 	}
 	p.expect(Gt)
-	return &PHPGenericType{Base: base, TypeParams: params}
+	return &phptype.Generic{Base: base, TypeParams: params}
 }
 
 // IdentType = [ "\\" ] ident { "\\" ident } .
-func (p *Parser) parseIdentType() *PHPIdentType {
-	id := new(PHPIdentType)
+func (p *Parser) parseIdentType() *phptype.Ident {
+	id := new(phptype.Ident)
 	if p.got(Backslash) {
 		id.Global = true
 	}

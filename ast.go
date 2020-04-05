@@ -1,5 +1,7 @@
 package phpdoc
 
+import "mibk.io/phpdoc/phptype"
+
 type PHPDoc struct {
 	Lines         []Line
 	Indent        string // … each line
@@ -29,7 +31,7 @@ func (*tag) aTag() {}
 
 type ParamTag struct {
 	tag
-	Type     PHPType
+	Type     phptype.Type
 	Variadic bool
 	Var      string
 	Desc     string
@@ -37,20 +39,20 @@ type ParamTag struct {
 
 type ReturnTag struct {
 	tag
-	Type PHPType
+	Type phptype.Type
 	Desc string
 }
 
 type PropertyTag struct {
 	tag
 	ReadOnly, WriteOnly bool
-	Type                PHPType
+	Type                phptype.Type
 	Desc                string
 }
 
 type VarTag struct {
 	tag
-	Type PHPType
+	Type phptype.Type
 	Var  string
 	Desc string
 }
@@ -58,7 +60,7 @@ type VarTag struct {
 type TemplateTag struct {
 	tag
 	Param string
-	Bound PHPType // or nil
+	Bound phptype.Type // or nil
 	Desc  string
 }
 
@@ -74,57 +76,3 @@ func (t *PropertyTag) Description() string { return t.Desc }
 func (t *VarTag) Description() string      { return t.Desc }
 func (t *TemplateTag) Description() string { return t.Desc }
 func (t *OtherTag) Description() string    { return t.Desc }
-
-type PHPType interface{ aType() }
-
-type phpType struct{}
-
-func (*phpType) aType() {}
-
-type PHPUnionType struct {
-	phpType
-	Types []PHPType
-}
-
-type PHPIntersectType struct {
-	phpType
-	Types []PHPType
-}
-
-type PHPParenType struct {
-	phpType
-	Type PHPType
-}
-
-type PHPArrayType struct {
-	phpType
-	Elem PHPType
-}
-
-type PHPNullableType struct {
-	phpType
-	Type PHPType
-}
-
-type PHPArrayShapeType struct {
-	phpType
-	Elems []*PHPArrayElem
-}
-
-type PHPArrayElem struct {
-	Key      string
-	Type     PHPType
-	Optional bool
-}
-
-type PHPGenericType struct {
-	phpType
-	Base       PHPType
-	TypeParams []PHPType
-}
-
-type PHPIdentType struct {
-	phpType
-	Parts  []string
-	Global bool
-}

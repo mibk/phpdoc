@@ -1,6 +1,8 @@
 package phpdoc
 
-func (p *Parser) ParseType() (PHPType, error) {
+import "mibk.io/phpdoc/phptype"
+
+func (p *Parser) ParseType() (phptype.Type, error) {
 	p.next()
 	typ := p.parseType()
 	return typ, p.err
