@@ -123,7 +123,7 @@ func (p *printer) printTag(tag Tag) {
 	default:
 		panic(fmt.Sprintf("unknown tag line %T", tag))
 	}
-	if desc := tag.Description(); desc != "" {
+	if desc := tag.desc(); desc != "" {
 		p.print(nextcol, tabesc, desc, tabesc)
 	}
 }

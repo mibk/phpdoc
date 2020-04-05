@@ -22,7 +22,7 @@ type TextLine struct {
 type Tag interface {
 	Line
 	aTag()
-	Description() string
+	desc() string
 }
 
 type tag struct{ line }
@@ -70,9 +70,9 @@ type OtherTag struct {
 	Desc string
 }
 
-func (t *ParamTag) Description() string    { return t.Desc }
-func (t *ReturnTag) Description() string   { return t.Desc }
-func (t *PropertyTag) Description() string { return t.Desc }
-func (t *VarTag) Description() string      { return t.Desc }
-func (t *TemplateTag) Description() string { return t.Desc }
-func (t *OtherTag) Description() string    { return t.Desc }
+func (t *ParamTag) desc() string    { return t.Desc }
+func (t *ReturnTag) desc() string   { return t.Desc }
+func (t *PropertyTag) desc() string { return t.Desc }
+func (t *VarTag) desc() string      { return t.Desc }
+func (t *TemplateTag) desc() string { return t.Desc }
+func (t *OtherTag) desc() string    { return t.Desc }
