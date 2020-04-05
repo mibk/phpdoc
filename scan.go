@@ -2,7 +2,6 @@ package phpdoc
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -62,10 +61,6 @@ const eof = -1
 
 type Scanner struct {
 	r *bufio.Reader
-
-	buf    bytes.Buffer
-	last   rune
-	peeked rune
 }
 
 func NewScanner(r io.Reader) *Scanner {
@@ -77,24 +72,14 @@ func (sc *Scanner) Next() Token {
 }
 
 func (sc *Scanner) next() rune {
-	if sc.peeked != 0 {
-		r := sc.peeked
-		sc.peeked = 0
-
-		return r
-	}
-
 	r, _, err := sc.r.ReadRune()
 	if err != nil {
 		r = eof
 	}
-	sc.last = r
 	return r
 }
 
-func (sc *Scanner) backup() {
-	sc.peeked = sc.last
-}
+func (sc *Scanner) backup() { _ = sc.r.UnreadRune() }
 
 func (sc *Scanner) peek() rune {
 	r := sc.next()
@@ -252,13 +237,11 @@ func (sc *Scanner) scanWhitespace(init rune) Token {
 	b.WriteRune(init)
 	for {
 		switch r := sc.next(); r {
-		default:
-			sc.backup()
-			fallthrough
-		case eof:
-			return Token{Type: Whitespace, Text: b.String()}
 		case ' ', '\t':
 			b.WriteRune(r)
+		default:
+			sc.backup()
+			return Token{Type: Whitespace, Text: b.String()}
 		}
 	}
 }
@@ -279,13 +262,11 @@ func (sc *Scanner) scanOther(init string) Token {
 	b.WriteString(init)
 	for {
 		switch r := sc.next(); r {
-		case '\n', '@', '$', '*':
-			sc.backup()
-			fallthrough
-		case eof:
-			return Token{Type: Other, Text: b.String()}
 		default:
 			b.WriteRune(r)
+		case '\n', '@', '$', '*', eof:
+			sc.backup()
+			return Token{Type: Other, Text: b.String()}
 		}
 	}
 }
