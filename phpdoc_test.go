@@ -202,7 +202,6 @@ func TestPrinting(t *testing.T) {
 }
 
 func printerTestCase(t *testing.T, input, want string) {
-	t.Helper()
 	sc := phpdoc.NewScanner(strings.NewReader(input))
 	p := phpdoc.NewParser(sc)
 	doc, err := p.Parse()

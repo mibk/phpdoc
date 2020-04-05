@@ -17,7 +17,7 @@ func (t Token) String() string {
 	return fmt.Sprintf("%v(%q)", t.Type, t.Text)
 }
 
-//go:generate stringer -type TokenType
+//go:generate stringer -type TokenType -linecomment
 
 type TokenType int
 
@@ -25,11 +25,12 @@ const (
 	EOF     TokenType = iota
 	Newline           // \n
 	Whitespace
-	Asterisk // *
 
+	symbolStart
 	OpenDoc  // /**
 	CloseDoc // */
 
+	Asterisk  // *
 	Backslash // \
 	Query     // ?
 	Lparen    // (
@@ -45,14 +46,15 @@ const (
 	Ellipsis  // ...
 	Or        // |
 	And       // &
+	symbolEnd
 
 	Array // array
 
-	Ident   // baz
-	TagName // @foo
-	VarName // $bar
+	Ident
+	TagName
+	VarName
 
-	Decimal // 1
+	Decimal
 
 	Other
 )
@@ -68,7 +70,11 @@ func NewScanner(r io.Reader) *Scanner {
 }
 
 func (sc *Scanner) Next() Token {
-	return sc.scanAny()
+	tok := sc.scanAny()
+	if typ := tok.Type; typ > symbolStart && typ < symbolEnd {
+		tok.Text = typ.String()
+	}
+	return tok
 }
 
 func (sc *Scanner) read() rune {
@@ -106,44 +112,44 @@ func (sc *Scanner) scanAny() Token {
 			sc.read()
 			return Token{Type: CloseDoc, Text: "*/"}
 		}
-		return Token{Type: Asterisk, Text: "*"}
+		return Token{Type: Asterisk}
 	case '\\':
-		return Token{Type: Backslash, Text: "\\"}
+		return Token{Type: Backslash}
 	case '?':
-		return Token{Type: Query, Text: "?"}
+		return Token{Type: Query}
 	case '(':
-		return Token{Type: Lparen, Text: "("}
+		return Token{Type: Lparen}
 	case ')':
-		return Token{Type: Rparen, Text: ")"}
+		return Token{Type: Rparen}
 	case '[':
-		return Token{Type: Lbrack, Text: "["}
+		return Token{Type: Lbrack}
 	case ']':
-		return Token{Type: Rbrack, Text: "]"}
+		return Token{Type: Rbrack}
 	case '{':
-		return Token{Type: Lbrace, Text: "{"}
+		return Token{Type: Lbrace}
 	case '}':
-		return Token{Type: Rbrace, Text: "}"}
+		return Token{Type: Rbrace}
 	case '<':
-		return Token{Type: Lt, Text: "<"}
+		return Token{Type: Lt}
 	case '>':
-		return Token{Type: Gt, Text: ">"}
+		return Token{Type: Gt}
 	case ',':
-		return Token{Type: Comma, Text: ","}
+		return Token{Type: Comma}
 	case ':':
-		return Token{Type: Colon, Text: ":"}
+		return Token{Type: Colon}
 	case '.':
 		if sc.peek() == '.' {
 			if sc.read(); sc.peek() == '.' {
 				sc.read()
-				return Token{Type: Ellipsis, Text: "..."}
+				return Token{Type: Ellipsis}
 			}
 			return sc.scanOther("..")
 		}
 		return sc.scanOther(".")
 	case '|':
-		return Token{Type: Or, Text: "|"}
+		return Token{Type: Or}
 	case '&':
-		return Token{Type: And, Text: "&"}
+		return Token{Type: And}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':

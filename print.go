@@ -45,7 +45,7 @@ func (p *printer) print(args ...interface{}) {
 
 		switch arg := arg.(type) {
 		case *PHPDoc:
-			p.print(tabesc, arg.Indent, tabesc, "/**")
+			p.print(tabesc, arg.Indent, tabesc, OpenDoc)
 			if arg.PreferOneline && len(arg.Lines) == 1 {
 				p.print(' ')
 				p.print(arg.Lines[0])
@@ -56,11 +56,13 @@ func (p *printer) print(args ...interface{}) {
 				}
 				p.print(tabesc, arg.Indent, tabesc)
 			}
-			p.print(" */", newline)
+			p.print(' ', CloseDoc, newline)
 		case Line:
 			p.printLine(arg)
 		case phptype.Type:
 			p.printPHPType(arg)
+		case TokenType:
+			_, p.err = p.buf.WriteString(arg.String())
 		case string:
 			_, p.err = p.buf.WriteString(arg)
 		case rune:
@@ -89,7 +91,7 @@ func (p *printer) printTag(tag Tag) {
 	case *ParamTag:
 		p.print("@param", nextcol, tag.Type, nextcol)
 		if tag.Variadic {
-			p.print("...")
+			p.print(Ellipsis)
 		}
 		p.print('$', tag.Var)
 	case *ReturnTag:
@@ -131,53 +133,53 @@ func (p *printer) printPHPType(typ phptype.Type) {
 	case *phptype.Union:
 		for i, typ := range typ.Types {
 			if i > 0 {
-				p.print("|")
+				p.print(Or)
 			}
 			p.printPHPType(typ)
 		}
 	case *phptype.Intersect:
 		for i, typ := range typ.Types {
 			if i > 0 {
-				p.print("&")
+				p.print(And)
 			}
 			p.printPHPType(typ)
 		}
 	case *phptype.Paren:
-		p.print('(', typ.Type, ')')
+		p.print(Lparen, typ.Type, Rparen)
 	case *phptype.Array:
-		p.print(typ.Elem, "[]")
+		p.print(typ.Elem, Lbrack, Rbrack)
 	case *phptype.Nullable:
-		p.print('?', typ.Type)
+		p.print(Query, typ.Type)
 	case *phptype.ArrayShape:
 		p.print("array")
 		if len(typ.Elems) == 0 {
 			break
 		}
-		p.print('{')
+		p.print(Lbrace)
 		for i, elem := range typ.Elems {
 			if i > 0 {
-				p.print(", ")
+				p.print(Comma, ' ')
 			}
 			p.print(elem.Key)
 			if elem.Optional {
-				p.print('?')
+				p.print(Query)
 			}
-			p.print(": ", elem.Type)
+			p.print(Colon, ' ', elem.Type)
 		}
-		p.print('}')
+		p.print(Rbrace)
 	case *phptype.Generic:
-		p.print(typ.Base, '<')
+		p.print(typ.Base, Lt)
 		for i, typ := range typ.TypeParams {
 			if i > 0 {
-				p.print(", ")
+				p.print(Comma, ' ')
 			}
 			p.printPHPType(typ)
 		}
-		p.print('>')
+		p.print(Gt)
 	case *phptype.Ident:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {
-				p.print('\\')
+				p.print(Backslash)
 			}
 			p.print(part)
 		}
