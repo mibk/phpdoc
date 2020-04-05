@@ -201,7 +201,7 @@ func (p *Parser) parseTemplateTag() *TemplateTag {
 	tag := new(TemplateTag)
 	tag.Param = p.tok.Text
 	p.expect(token.Ident)
-	if p.tok.Type == token.Ident && p.tok.Text == "of" || p.tok.Text == "as" {
+	if p.tok.Type == token.Ident && (p.tok.Text == "of" || p.tok.Text == "as") {
 		p.next()
 		tag.Bound = p.parseType()
 	}
