@@ -106,26 +106,26 @@ func (p *Parser) parseLines() []Line {
 	}
 }
 
-// Line     = TextLine | TagLine .
+// Line     = TextLine | Tag .
 // TextLine = Desc .
 func (p *Parser) parseLine() Line {
 	p.consume(Whitespace, Asterisk, Whitespace)
-	if p.tok.Type == Tag {
+	if p.tok.Type == TagName {
 		return p.parseTag()
 	} else {
 		return &TextLine{Value: p.parseDesc()}
 	}
 }
 
-// TagLine = ParamTag |
-//           ReturnTag |
-//           PropertyTag |
-//           VarTag |
-//           TemplateTag |
-//           OtherTag .
-func (p *Parser) parseTag() TagLine {
+// Tag = ParamTag |
+//       ReturnTag |
+//       PropertyTag |
+//       VarTag |
+//       TemplateTag |
+//       OtherTag .
+func (p *Parser) parseTag() Tag {
 	name := p.tok.Text
-	p.expect(Tag)
+	p.expect(TagName)
 
 	switch name {
 	case "@param":
@@ -144,7 +144,7 @@ func (p *Parser) parseTag() TagLine {
 	}
 }
 
-// ParamTag = "@param" PHPType [ "..." ] var [ Desc ] .
+// ParamTag = "@param" PHPType [ "..." ] varname [ Desc ] .
 func (p *Parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
 	tag.Type = p.parseType()
@@ -152,7 +152,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 		tag.Variadic = true
 	}
 	tag.Var = p.tok.Text[1:]
-	p.expect(Var)
+	p.expect(VarName)
 	tag.Desc = p.parseDesc()
 	return tag
 }
@@ -165,7 +165,7 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 	return tag
 }
 
-// PropertyTag = ( "@property" | "@property-read" | "@property-write" ) PHPType var [ Desc ] .
+// PropertyTag = ( "@property" | "@property-read" | "@property-write" ) PHPType varname [ Desc ] .
 func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
 	tag.Type = p.parseType()
@@ -180,11 +180,11 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 	return tag
 }
 
-// VarTag = "@var" PHPType [ var ] [ Desc ] .
+// VarTag = "@var" PHPType [ varname ] [ Desc ] .
 func (p *Parser) parseVarTag() *VarTag {
 	tag := new(VarTag)
 	tag.Type = p.parseType()
-	if p.tok.Type == Var {
+	if p.tok.Type == VarName {
 		tag.Var = p.tok.Text[1:]
 		p.next()
 	}
@@ -205,7 +205,7 @@ func (p *Parser) parseTemplateTag() *TemplateTag {
 	return tag
 }
 
-// OtherTag = tag [ Desc ] .
+// OtherTag = tagname [ Desc ] .
 func (p *Parser) parseOtherTag(name string) *OtherTag {
 	tag := &OtherTag{Name: name}
 	tag.Desc = p.parseDesc()
@@ -319,16 +319,16 @@ func (p *Parser) parseArrayShapeType() PHPType {
 
 // GenericType = BasicType "<" PHPType { "," PHPType } ">" .
 func (p *Parser) parseGenericType(base PHPType) PHPType {
-	var generics []PHPType
+	var params []PHPType
 	for {
 		t := p.parseType()
-		generics = append(generics, t)
+		params = append(params, t)
 		if !p.got(Comma) {
 			break
 		}
 	}
 	p.expect(Gt)
-	return &PHPGenericType{Base: base, Generics: generics}
+	return &PHPGenericType{Base: base, TypeParams: params}
 }
 
 // IdentType = [ "\\" ] ident { "\\" ident } .

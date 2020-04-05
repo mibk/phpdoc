@@ -32,15 +32,15 @@ func _() {
 	_ = x[And-21]
 	_ = x[Array-22]
 	_ = x[Ident-23]
-	_ = x[Tag-24]
-	_ = x[Var-25]
+	_ = x[TagName-24]
+	_ = x[VarName-25]
 	_ = x[Decimal-26]
 	_ = x[Other-27]
 }
 
-const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOpenDocCloseDocBackslashQueryLparenRparenLbrackRbrackLbraceRbraceLtGtCommaColonEllipsisOrAndArrayIdentTagVarDecimalOther"
+const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOpenDocCloseDocBackslashQueryLparenRparenLbrackRbrackLbraceRbraceLtGtCommaColonEllipsisOrAndArrayIdentTagNameVarNameDecimalOther"
 
-var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 40, 48, 57, 62, 68, 74, 80, 86, 92, 98, 100, 102, 107, 112, 120, 122, 125, 130, 135, 138, 141, 148, 153}
+var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 40, 48, 57, 62, 68, 74, 80, 86, 92, 98, 100, 102, 107, 112, 120, 122, 125, 130, 135, 142, 149, 156, 161}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

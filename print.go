@@ -75,14 +75,14 @@ func (p *printer) printLine(line Line) {
 	switch l := line.(type) {
 	case *TextLine:
 		p.print(tabesc, l.Value, tabesc)
-	case TagLine:
+	case Tag:
 		p.printTag(l)
 	default:
 		panic(fmt.Sprintf("unknown line type %T", line))
 	}
 }
 
-func (p *printer) printTag(tag TagLine) {
+func (p *printer) printTag(tag Tag) {
 	switch tag := tag.(type) {
 	case *ParamTag:
 		p.print("@param", nextcol, tag.Type, nextcol)
@@ -180,7 +180,7 @@ func (p *printer) printPHPType(typ PHPType) {
 		p.print('}')
 	case *PHPGenericType:
 		p.print(typ.Base, '<')
-		for i, typ := range typ.Generics {
+		for i, typ := range typ.TypeParams {
 			if i > 0 {
 				p.print(", ")
 			}

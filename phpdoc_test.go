@@ -32,7 +32,7 @@ func TestScanner(t *testing.T) {
 		{phpdoc.OpenDoc, "/**"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
-		{phpdoc.Tag, "@param"},
+		{phpdoc.TagName, "@param"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Lparen, "("},
 		{phpdoc.Backslash, "\\"},
@@ -50,22 +50,22 @@ func TestScanner(t *testing.T) {
 		{phpdoc.Ident, "int"},
 		{phpdoc.Rbrace, "}"},
 		{phpdoc.Whitespace, " "},
-		{phpdoc.Var, "$map"},
+		{phpdoc.VarName, "$map"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
-		{phpdoc.Tag, "@param"},
+		{phpdoc.TagName, "@param"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "int"},
 		{phpdoc.Or, "|"},
 		{phpdoc.Ident, "null"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ellipsis, "..."},
-		{phpdoc.Var, "$_0_žluťoučký_9"},
+		{phpdoc.VarName, "$_0_žluťoučký_9"},
 		{phpdoc.Newline, "\n"},
 		{phpdoc.Whitespace, "\t"},
 		{phpdoc.Asterisk, "*"},
 		{phpdoc.Whitespace, " "},
-		{phpdoc.Tag, "@return"},
+		{phpdoc.TagName, "@return"},
 		{phpdoc.Whitespace, " "},
 		{phpdoc.Ident, "string"},
 		{phpdoc.Lbrack, "["},
@@ -248,11 +248,11 @@ func TestParsingTypes(t *testing.T) {
 		},
 		{
 			typ: `array < string, ?array<string, int > []>`,
-			want: &generic{Base: new(arrayShape), Generics: types(
+			want: &generic{Base: new(arrayShape), TypeParams: types(
 				&ident{Parts: parts("string")},
 				&array{Elem: &nullable{Type: &generic{
 					Base: new(arrayShape),
-					Generics: types(
+					TypeParams: types(
 						&ident{Parts: parts("string")},
 						&ident{Parts: parts("int")},
 					),
@@ -298,7 +298,7 @@ func TestParsingTypes(t *testing.T) {
 		{
 			typ: `class-string<T>`,
 			want: &generic{Base: &ident{Parts: parts("class-string")},
-				Generics: types(&ident{Parts: parts("T")}),
+				TypeParams: types(&ident{Parts: parts("T")}),
 			},
 		},
 	}

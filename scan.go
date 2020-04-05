@@ -50,9 +50,9 @@ const (
 
 	Array // array
 
-	Ident // baz
-	Tag   // @foo
-	Var   // $bar
+	Ident   // baz
+	TagName // @foo
+	VarName // $bar
 
 	Decimal // 1
 
@@ -193,7 +193,7 @@ func (sc *Scanner) scanTag() Token {
 	if id == "" {
 		return sc.scanOther("@")
 	}
-	return Token{Type: Tag, Text: "@" + id}
+	return Token{Type: TagName, Text: "@" + id}
 }
 
 func (sc *Scanner) lexTag() string {
@@ -214,7 +214,7 @@ func (sc *Scanner) scanVar() Token {
 	case id == "", strings.ContainsRune(id, '-'):
 		return sc.scanOther("$" + id)
 	default:
-		return Token{Type: Var, Text: "$" + id}
+		return Token{Type: VarName, Text: "$" + id}
 	}
 }
 

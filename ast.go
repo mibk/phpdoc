@@ -17,17 +17,17 @@ type TextLine struct {
 	Value string
 }
 
-type TagLine interface {
+type Tag interface {
 	Line
 	aTag()
 }
 
-type tagLine struct{ line }
+type tag struct{ line }
 
-func (*tagLine) aTag() {}
+func (*tag) aTag() {}
 
 type ParamTag struct {
-	tagLine
+	tag
 	Type     PHPType
 	Variadic bool
 	Var      string
@@ -35,34 +35,34 @@ type ParamTag struct {
 }
 
 type ReturnTag struct {
-	tagLine
+	tag
 	Type PHPType
 	Desc string
 }
 
 type PropertyTag struct {
-	tagLine
+	tag
 	ReadOnly, WriteOnly bool
 	Type                PHPType
 	Desc                string
 }
 
 type VarTag struct {
-	tagLine
+	tag
 	Type PHPType
 	Var  string
 	Desc string
 }
 
 type TemplateTag struct {
-	tagLine
+	tag
 	Param string
 	Bound PHPType // or nil
 	Desc  string
 }
 
 type OtherTag struct {
-	tagLine
+	tag
 	Name string
 	Desc string
 }
@@ -111,8 +111,8 @@ type PHPArrayElem struct {
 
 type PHPGenericType struct {
 	phpType
-	Base     PHPType
-	Generics []PHPType
+	Base       PHPType
+	TypeParams []PHPType
 }
 
 type PHPIdentType struct {
