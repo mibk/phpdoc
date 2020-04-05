@@ -34,28 +34,28 @@ func (p *Parser) next() {
 	p.consume(token.Whitespace)
 }
 
-func (p *Parser) expect(tt token.Type) {
-	if p.tok.Type != tt {
-		p.errorf("expecting %v, found %v", tt, p.tok)
+func (p *Parser) expect(typ token.Type) {
+	if p.tok.Type != typ {
+		p.errorf("expecting %v, found %v", typ, p.tok)
 	}
 	p.next()
 }
 
-func (p *Parser) got(tt token.Type) bool {
-	if p.tok.Type == tt {
+func (p *Parser) got(typ token.Type) bool {
+	if p.tok.Type == typ {
 		p.next()
 		return true
 	}
 	return false
 }
 
-func (p *Parser) consume(ttypes ...token.Type) {
-	if len(ttypes) == 0 {
+func (p *Parser) consume(types ...token.Type) {
+	if len(types) == 0 {
 		panic("not token types to consume provided")
 	}
 
-	for ; len(ttypes) > 0; ttypes = ttypes[1:] {
-		if p.tok.Type == ttypes[0] {
+	for ; len(types) > 0; types = types[1:] {
+		if p.tok.Type == types[0] {
 			p.nextTok()
 		}
 	}
@@ -230,26 +230,26 @@ func (p *Parser) parseType() phptype.Type {
 
 // UnionType = AtomicType "|" AtomicType { "|" AtomicType } .
 func (p *Parser) parseUnionType(init phptype.Type) phptype.Type {
-	ut := &phptype.Union{Types: make([]phptype.Type, 0, 2)}
-	ut.Types = append(ut.Types, init)
+	union := &phptype.Union{Types: make([]phptype.Type, 0, 2)}
+	union.Types = append(union.Types, init)
 
 	for p.got(token.Or) {
 		typ := p.parseAtomicType()
-		ut.Types = append(ut.Types, typ)
+		union.Types = append(union.Types, typ)
 	}
-	return ut
+	return union
 }
 
 // IntersectType = AtomicType "&" AtomicType { "&" AtomicType } .
 func (p *Parser) parseIntersectType(init phptype.Type) phptype.Type {
-	ut := &phptype.Intersect{Types: make([]phptype.Type, 0, 2)}
-	ut.Types = append(ut.Types, init)
+	intersect := &phptype.Intersect{Types: make([]phptype.Type, 0, 2)}
+	intersect.Types = append(intersect.Types, init)
 
 	for p.got(token.And) {
 		typ := p.parseAtomicType()
-		ut.Types = append(ut.Types, typ)
+		intersect.Types = append(intersect.Types, typ)
 	}
-	return ut
+	return intersect
 }
 
 // AtomicType   = ParenType | NullableType | ArrayType .
@@ -284,10 +284,10 @@ func (p *Parser) parseAtomicType() phptype.Type {
 
 // ParenType = "(" PHPType ")" .
 func (p *Parser) parseParenType() phptype.Type {
-	t := new(phptype.Paren)
-	t.Type = p.parseType()
+	typ := new(phptype.Paren)
+	typ.Type = p.parseType()
 	p.expect(token.Rparen)
-	return t
+	return typ
 }
 
 // ArrayShapeType = array [ ArrayShape ] .
