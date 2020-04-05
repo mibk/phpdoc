@@ -100,8 +100,7 @@ func (p *printer) printTag(tag Tag) {
 		p.print("@property")
 		switch {
 		case tag.ReadOnly && tag.WriteOnly:
-			// TODO: Return error?
-			p.print("<!invalid property state!>")
+			// Impossible, but…
 		case tag.ReadOnly:
 			p.print("-read")
 		case tag.WriteOnly:
