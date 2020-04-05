@@ -20,6 +20,7 @@ type TextLine struct {
 type Tag interface {
 	Line
 	aTag()
+	Description() string
 }
 
 type tag struct{ line }
@@ -66,6 +67,13 @@ type OtherTag struct {
 	Name string
 	Desc string
 }
+
+func (t *ParamTag) Description() string    { return t.Desc }
+func (t *ReturnTag) Description() string   { return t.Desc }
+func (t *PropertyTag) Description() string { return t.Desc }
+func (t *VarTag) Description() string      { return t.Desc }
+func (t *TemplateTag) Description() string { return t.Desc }
+func (t *OtherTag) Description() string    { return t.Desc }
 
 type PHPType interface{ aType() }
 

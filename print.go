@@ -90,14 +90,8 @@ func (p *printer) printTag(tag Tag) {
 			p.print("...")
 		}
 		p.print('$', tag.Var)
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
-		}
 	case *ReturnTag:
 		p.print("@return", nextcol, tag.Type)
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
-		}
 	case *PropertyTag:
 		p.print("@property")
 		switch {
@@ -110,32 +104,23 @@ func (p *printer) printTag(tag Tag) {
 			p.print("-write")
 		}
 		p.print(nextcol, tag.Type)
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
-		}
 	case *VarTag:
 		p.print("@var", nextcol, tag.Type)
 		if tag.Var != "" {
 			p.print(nextcol, '$', tag.Var)
-		}
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
 		}
 	case *TemplateTag:
 		p.print("@template", nextcol, tag.Param)
 		if tag.Bound != nil {
 			p.print(" of ", tag.Bound)
 		}
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
-		}
 	case *OtherTag:
 		p.print('@', tag.Name)
-		if tag.Desc != "" {
-			p.print(nextcol, tabesc, tag.Desc, tabesc)
-		}
 	default:
 		panic(fmt.Sprintf("unknown tag line %T", tag))
+	}
+	if desc := tag.Description(); desc != "" {
+		p.print(nextcol, tabesc, desc, tabesc)
 	}
 }
 
