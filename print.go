@@ -149,7 +149,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 	case *phptype.Array:
 		p.print(typ.Elem, token.Lbrack, token.Rbrack)
 	case *phptype.Nullable:
-		p.print(token.Query, typ.Type)
+		p.print(token.Qmark, typ.Type)
 	case *phptype.ArrayShape:
 		p.print("array")
 		if len(typ.Elems) == 0 {
@@ -162,7 +162,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			}
 			p.print(elem.Key)
 			if elem.Optional {
-				p.print(token.Query)
+				p.print(token.Qmark)
 			}
 			p.print(token.Colon, ' ', elem.Type)
 		}

@@ -16,7 +16,7 @@ func _() {
 	_ = x[CloseDoc-5]
 	_ = x[Asterisk-6]
 	_ = x[Backslash-7]
-	_ = x[Query-8]
+	_ = x[Qmark-8]
 	_ = x[Lparen-9]
 	_ = x[Rparen-10]
 	_ = x[Lbrack-11]

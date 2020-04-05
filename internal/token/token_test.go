@@ -74,7 +74,7 @@ func TestScanner(t *testing.T) {
 		{token.Ident, "string"},
 		{token.Comma, ","},
 		{token.Whitespace, " "},
-		{token.Query, "?"},
+		{token.Qmark, "?"},
 		{token.Ident, "string"},
 		{token.Gt, ">"},
 		{token.Newline, "\n"},

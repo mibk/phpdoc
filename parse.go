@@ -261,7 +261,7 @@ func (p *Parser) parseAtomicType() phptype.Type {
 	if p.got(token.Lparen) {
 		typ = p.parseParenType()
 	} else {
-		nullable := p.got(token.Query)
+		nullable := p.got(token.Qmark)
 		if p.got(token.Array) {
 			typ = p.parseArrayShapeType()
 		} else {
@@ -308,7 +308,7 @@ func (p *Parser) parseArrayShapeType() phptype.Type {
 				p.errorf("expecting %v or %v, found %v", token.Ident, token.Decimal, p.tok)
 				return nil
 			}
-			elem.Optional = p.got(token.Query)
+			elem.Optional = p.got(token.Qmark)
 			p.expect(token.Colon)
 			elem.Type = p.parseType()
 			typ.Elems = append(typ.Elems, elem)

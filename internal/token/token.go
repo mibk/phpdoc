@@ -32,7 +32,7 @@ const (
 
 	Asterisk  // *
 	Backslash // \
-	Query     // ?
+	Qmark     // ?
 	Lparen    // (
 	Rparen    // )
 	Lbrack    // [
@@ -116,7 +116,7 @@ func (sc *Scanner) scanAny() Token {
 	case '\\':
 		return Token{Type: Backslash}
 	case '?':
-		return Token{Type: Query}
+		return Token{Type: Qmark}
 	case '(':
 		return Token{Type: Lparen}
 	case ')':
