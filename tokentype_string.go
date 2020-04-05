@@ -9,38 +9,37 @@ func _() {
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
 	_ = x[EOF-0]
-	_ = x[Error-1]
-	_ = x[Newline-2]
-	_ = x[Whitespace-3]
-	_ = x[Asterisk-4]
-	_ = x[OpenDoc-5]
-	_ = x[CloseDoc-6]
-	_ = x[Backslash-7]
-	_ = x[Query-8]
-	_ = x[Lparen-9]
-	_ = x[Rparen-10]
-	_ = x[Lbrack-11]
-	_ = x[Rbrack-12]
-	_ = x[Lbrace-13]
-	_ = x[Rbrace-14]
-	_ = x[Lt-15]
-	_ = x[Gt-16]
-	_ = x[Comma-17]
-	_ = x[Colon-18]
-	_ = x[Ellipsis-19]
-	_ = x[Or-20]
-	_ = x[And-21]
-	_ = x[Array-22]
-	_ = x[Ident-23]
-	_ = x[TagName-24]
-	_ = x[VarName-25]
-	_ = x[Decimal-26]
-	_ = x[Other-27]
+	_ = x[Newline-1]
+	_ = x[Whitespace-2]
+	_ = x[Asterisk-3]
+	_ = x[OpenDoc-4]
+	_ = x[CloseDoc-5]
+	_ = x[Backslash-6]
+	_ = x[Query-7]
+	_ = x[Lparen-8]
+	_ = x[Rparen-9]
+	_ = x[Lbrack-10]
+	_ = x[Rbrack-11]
+	_ = x[Lbrace-12]
+	_ = x[Rbrace-13]
+	_ = x[Lt-14]
+	_ = x[Gt-15]
+	_ = x[Comma-16]
+	_ = x[Colon-17]
+	_ = x[Ellipsis-18]
+	_ = x[Or-19]
+	_ = x[And-20]
+	_ = x[Array-21]
+	_ = x[Ident-22]
+	_ = x[TagName-23]
+	_ = x[VarName-24]
+	_ = x[Decimal-25]
+	_ = x[Other-26]
 }
 
-const _TokenType_name = "EOFErrorNewlineWhitespaceAsteriskOpenDocCloseDocBackslashQueryLparenRparenLbrackRbrackLbraceRbraceLtGtCommaColonEllipsisOrAndArrayIdentTagNameVarNameDecimalOther"
+const _TokenType_name = "EOFNewlineWhitespaceAsteriskOpenDocCloseDocBackslashQueryLparenRparenLbrackRbrackLbraceRbraceLtGtCommaColonEllipsisOrAndArrayIdentTagNameVarNameDecimalOther"
 
-var _TokenType_index = [...]uint8{0, 3, 8, 15, 25, 33, 40, 48, 57, 62, 68, 74, 80, 86, 92, 98, 100, 102, 107, 112, 120, 122, 125, 130, 135, 142, 149, 156, 161}
+var _TokenType_index = [...]uint8{0, 3, 10, 20, 28, 35, 43, 52, 57, 63, 69, 75, 81, 87, 93, 95, 97, 102, 107, 115, 117, 120, 125, 130, 137, 144, 151, 156}
 
 func (i TokenType) String() string {
 	if i < 0 || i >= TokenType(len(_TokenType_index)-1) {

@@ -23,9 +23,8 @@ func (t Token) String() string {
 type TokenType int
 
 const (
-	EOF TokenType = iota
-	Error
-	Newline // \n
+	EOF     TokenType = iota
+	Newline           // \n
 	Whitespace
 	Asterisk // *
 
@@ -64,7 +63,6 @@ const eof = -1
 type Scanner struct {
 	r *bufio.Reader
 
-	err    error
 	buf    bytes.Buffer
 	last   rune
 	peeked rune
@@ -75,10 +73,6 @@ func NewScanner(r io.Reader) *Scanner {
 }
 
 func (sc *Scanner) Next() Token {
-	if sc.err != nil {
-		// TODO type Error
-		return Token{Type: EOF}
-	}
 	return sc.lexAny()
 }
 
@@ -93,7 +87,6 @@ func (sc *Scanner) next() rune {
 	r, _, err := sc.r.ReadRune()
 	if err != nil {
 		r = eof
-		sc.err = err
 	}
 	sc.last = r
 	return r

@@ -350,8 +350,14 @@ func (p *Parser) parseIdentType() *PHPIdentType {
 // Desc = { any } .
 func (p *Parser) parseDesc() string {
 	var b strings.Builder
-	for ; p.tok.Type != Newline && p.tok.Type != CloseDoc; p.nextTok() {
+LOOP:
+	for {
+		switch p.tok.Type {
+		case Newline, CloseDoc, EOF:
+			break LOOP
+		}
 		b.WriteString(p.tok.Text)
+		p.nextTok()
 	}
 	return strings.TrimSpace(b.String())
 }
