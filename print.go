@@ -135,14 +135,14 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			if i > 0 {
 				p.print(token.Or)
 			}
-			p.printPHPType(typ)
+			p.print(typ)
 		}
 	case *phptype.Intersect:
 		for i, typ := range typ.Types {
 			if i > 0 {
 				p.print(token.And)
 			}
-			p.printPHPType(typ)
+			p.print(typ)
 		}
 	case *phptype.Paren:
 		p.print(token.Lparen, typ.Type, token.Rparen)
@@ -151,7 +151,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 	case *phptype.Nullable:
 		p.print(token.Qmark, typ.Type)
 	case *phptype.ArrayShape:
-		p.print("array")
+		p.print(token.Array)
 		if len(typ.Elems) == 0 {
 			break
 		}
@@ -173,7 +173,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			if i > 0 {
 				p.print(token.Comma, ' ')
 			}
-			p.printPHPType(typ)
+			p.print(typ)
 		}
 		p.print(token.Gt)
 	case *phptype.Ident:
