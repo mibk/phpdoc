@@ -73,7 +73,7 @@ func NewScanner(r io.Reader) *Scanner {
 }
 
 func (sc *Scanner) Next() Token {
-	return sc.lexAny()
+	return sc.scanAny()
 }
 
 func (sc *Scanner) next() rune {
@@ -102,7 +102,7 @@ func (sc *Scanner) peek() rune {
 	return r
 }
 
-func (sc *Scanner) lexAny() Token {
+func (sc *Scanner) scanAny() Token {
 	switch r := sc.next(); r {
 	case eof:
 		return Token{Type: EOF}
@@ -182,14 +182,14 @@ func (sc *Scanner) scanOpenDoc() Token {
 }
 
 func (sc *Scanner) scanTag() Token {
-	id := sc.lexTag()
+	id := sc.scanTagName()
 	if id == "" {
 		return sc.scanOther("@")
 	}
 	return Token{Type: TagName, Text: "@" + id}
 }
 
-func (sc *Scanner) lexTag() string {
+func (sc *Scanner) scanTagName() string {
 	var b strings.Builder
 	for {
 		switch r := sc.next(); {
@@ -203,7 +203,7 @@ func (sc *Scanner) lexTag() string {
 }
 
 func (sc *Scanner) scanVar() Token {
-	switch id := sc.lexIdent(); {
+	switch id := sc.scanIdentName(); {
 	case id == "", strings.ContainsRune(id, '-'):
 		return sc.scanOther("$" + id)
 	default:
@@ -211,7 +211,7 @@ func (sc *Scanner) scanVar() Token {
 	}
 }
 
-func (sc *Scanner) lexIdent() string {
+func (sc *Scanner) scanIdentName() string {
 	var b strings.Builder
 	for {
 		switch r := sc.next(); {
@@ -265,7 +265,7 @@ func (sc *Scanner) scanWhitespace(init rune) Token {
 
 func (sc *Scanner) scanOther(init string) Token {
 	if init == "" {
-		switch id := sc.lexIdent(); id {
+		switch id := sc.scanIdentName(); id {
 		case "":
 			break
 		case "array":
