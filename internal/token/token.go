@@ -8,12 +8,24 @@ import (
 	"unicode/utf8"
 )
 
+type Pos struct {
+	Line, Column int
+}
+
+func (p Pos) String() string {
+	return fmt.Sprintf("%d:%d", p.Line, p.Column)
+}
+
 type Token struct {
 	Type Type
 	Text string
+	Pos  Pos
 }
 
 func (t Token) String() string {
+	if symbolStart < t.Type && t.Type < symbolEnd || t.Type <= Newline {
+		return t.Type.String()
+	}
 	return fmt.Sprintf("%v(%q)", t.Type, t.Text)
 }
 
@@ -63,29 +75,51 @@ const eof = -1
 
 type Scanner struct {
 	r *bufio.Reader
+
+	line, col   int
+	lastLineLen int
 }
 
 func NewScanner(r io.Reader) *Scanner {
-	return &Scanner{r: bufio.NewReader(r)}
+	return &Scanner{
+		r:    bufio.NewReader(r),
+		line: 1,
+		col:  1,
+	}
 }
 
 func (sc *Scanner) Next() Token {
+	pos := Pos{Line: sc.line, Column: sc.col}
 	tok := sc.scanAny()
-	if typ := tok.Type; typ > symbolStart && typ < symbolEnd {
+	if typ := tok.Type; symbolStart < typ && typ < symbolEnd {
 		tok.Text = typ.String()
 	}
+	tok.Pos = pos
 	return tok
 }
 
 func (sc *Scanner) read() rune {
 	r, _, err := sc.r.ReadRune()
 	if err != nil {
-		r = eof
+		return eof
+	}
+	if r == '\n' {
+		sc.line++
+		sc.lastLineLen, sc.col = sc.col, 1
+	} else {
+		sc.col++
 	}
 	return r
 }
 
-func (sc *Scanner) unread() { _ = sc.r.UnreadRune() }
+func (sc *Scanner) unread() {
+	sc.r.UnreadRune()
+	sc.col--
+	if sc.col == 0 {
+		sc.col = sc.lastLineLen
+		sc.line--
+	}
+}
 
 func (sc *Scanner) peek() rune {
 	r := sc.read()

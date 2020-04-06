@@ -9,6 +9,15 @@ import (
 	"mibk.io/phpdoc/phptype"
 )
 
+type SyntaxError struct {
+	Line, Column int
+	Err          error
+}
+
+func (e *SyntaxError) Error() string {
+	return fmt.Sprintf("line:%d:%d: %v", e.Line, e.Column, e.Err)
+}
+
 type Parser struct {
 	sc *token.Scanner
 
@@ -63,7 +72,9 @@ func (p *Parser) consume(types ...token.Type) {
 
 func (p *Parser) errorf(format string, args ...interface{}) {
 	if p.err == nil {
-		p.err = fmt.Errorf(format, args...)
+		se := &SyntaxError{Err: fmt.Errorf(format, args...)}
+		se.Line, se.Column = p.tok.Pos.Line, p.tok.Pos.Column
+		p.err = se
 	}
 }
 
