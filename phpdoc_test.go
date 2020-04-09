@@ -237,3 +237,42 @@ func TestParsingTypes(t *testing.T) {
 		}
 	}
 }
+
+func TestSyntaxErrors(t *testing.T) {
+	tests := []struct {
+		doc     string
+		wantErr string
+	}{
+		{
+			"/**",
+			`line:1:4: expecting */, found EOF`,
+		},
+		{
+			"/**\n@param",
+			`line:2:6: expecting Ident, found EOF`,
+		},
+		{
+			"/**\n@param array<int  string>",
+			`line:2:19: expecting >, found Ident("string")`,
+		},
+		{
+			"/**\n@param array<int, >",
+			`line:2:19: expecting Ident, found >`,
+		},
+	}
+
+	for _, tt := range tests {
+		p := phpdoc.NewParser(strings.NewReader(tt.doc))
+		doc, err := p.Parse()
+		errStr := "<nil>"
+		if err != nil {
+			if doc != nil {
+				t.Fatalf("%q: got %+v on err", tt.doc, doc)
+			}
+			errStr = err.Error()
+		}
+		if errStr != tt.wantErr {
+			t.Errorf("%q:\n got %s\nwant %s", tt.doc, errStr, tt.wantErr)
+		}
+	}
+}

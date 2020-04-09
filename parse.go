@@ -31,7 +31,10 @@ func NewParser(r io.Reader) *Parser {
 
 func (p *Parser) Parse() (*PHPDoc, error) {
 	doc := p.parseDoc()
-	return doc, p.err
+	if p.err != nil {
+		return nil, p.err
+	}
+	return doc, nil
 }
 
 func (p *Parser) nextTok() {
@@ -166,7 +169,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 	if p.got(token.Ellipsis) {
 		tag.Variadic = true
 	}
-	tag.Var = p.tok.Text[1:]
+	tag.Var = strings.TrimPrefix(p.tok.Text, "$")
 	p.expect(token.VarName)
 	tag.Desc = p.parseDesc()
 	return tag
