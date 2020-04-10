@@ -123,8 +123,7 @@ func TestPrinting(t *testing.T) {
 }
 
 func printerTestCase(t *testing.T, input, want string) {
-	p := phpdoc.NewParser(strings.NewReader(input))
-	doc, err := p.Parse()
+	doc, err := phpdoc.Parse(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -224,9 +223,7 @@ func TestParsingTypes(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		p := phpdoc.NewParser(strings.NewReader(tt.typ))
-
-		got, err := p.ParseType()
+		got, err := phpdoc.ParseType(strings.NewReader(tt.typ))
 		if err != nil {
 			t.Fatalf("%q: unexpected err: %v", tt.typ, err)
 		}
@@ -262,8 +259,7 @@ func TestSyntaxErrors(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		p := phpdoc.NewParser(strings.NewReader(tt.doc))
-		doc, err := p.Parse()
+		doc, err := phpdoc.Parse(strings.NewReader(tt.doc))
 		errStr := "<nil>"
 		if err != nil {
 			if doc != nil {

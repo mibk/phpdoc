@@ -18,18 +18,15 @@ func (e *SyntaxError) Error() string {
 	return fmt.Sprintf("line:%d:%d: %v", e.Line, e.Column, e.Err)
 }
 
-type Parser struct {
+type parser struct {
 	sc *token.Scanner
 
 	err error
 	tok token.Token
 }
 
-func NewParser(r io.Reader) *Parser {
-	return &Parser{sc: token.NewScanner(r)}
-}
-
-func (p *Parser) Parse() (*PHPDoc, error) {
+func Parse(r io.Reader) (*PHPDoc, error) {
+	p := &parser{sc: token.NewScanner(r)}
 	doc := p.parseDoc()
 	if p.err != nil {
 		return nil, p.err
@@ -37,23 +34,23 @@ func (p *Parser) Parse() (*PHPDoc, error) {
 	return doc, nil
 }
 
-func (p *Parser) nextTok() {
+func (p *parser) nextTok() {
 	p.tok = p.sc.Next()
 }
 
-func (p *Parser) next() {
+func (p *parser) next() {
 	p.nextTok()
 	p.consume(token.Whitespace)
 }
 
-func (p *Parser) expect(typ token.Type) {
+func (p *parser) expect(typ token.Type) {
 	if p.tok.Type != typ {
 		p.errorf("expecting %v, found %v", typ, p.tok)
 	}
 	p.next()
 }
 
-func (p *Parser) got(typ token.Type) bool {
+func (p *parser) got(typ token.Type) bool {
 	if p.tok.Type == typ {
 		p.next()
 		return true
@@ -61,7 +58,7 @@ func (p *Parser) got(typ token.Type) bool {
 	return false
 }
 
-func (p *Parser) consume(types ...token.Type) {
+func (p *parser) consume(types ...token.Type) {
 	if len(types) == 0 {
 		panic("not token types to consume provided")
 	}
@@ -73,7 +70,7 @@ func (p *Parser) consume(types ...token.Type) {
 	}
 }
 
-func (p *Parser) errorf(format string, args ...interface{}) {
+func (p *parser) errorf(format string, args ...interface{}) {
 	if p.err == nil {
 		se := &SyntaxError{Err: fmt.Errorf(format, args...)}
 		se.Line, se.Column = p.tok.Pos.Line, p.tok.Pos.Column
@@ -85,7 +82,7 @@ func (p *Parser) errorf(format string, args ...interface{}) {
 // https://golang.org/ref/spec#Notation.
 
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
-func (p *Parser) parseDoc() *PHPDoc {
+func (p *parser) parseDoc() *PHPDoc {
 	doc := new(PHPDoc)
 	p.nextTok()
 	for {
@@ -105,7 +102,7 @@ func (p *Parser) parseDoc() *PHPDoc {
 	return doc
 }
 
-func (p *Parser) parseLines() []Line {
+func (p *parser) parseLines() []Line {
 	var lines []Line
 	for {
 		if p.err != nil {
@@ -126,7 +123,7 @@ func (p *Parser) parseLines() []Line {
 
 // Line     = TextLine | Tag .
 // TextLine = Desc .
-func (p *Parser) parseLine() Line {
+func (p *parser) parseLine() Line {
 	p.consume(token.Whitespace, token.Asterisk, token.Whitespace)
 	if p.tok.Type == token.TagName {
 		return p.parseTag()
@@ -141,7 +138,7 @@ func (p *Parser) parseLine() Line {
 //       VarTag |
 //       TemplateTag |
 //       OtherTag .
-func (p *Parser) parseTag() Tag {
+func (p *parser) parseTag() Tag {
 	name := p.tok.Text
 	p.expect(token.TagName)
 
@@ -163,7 +160,7 @@ func (p *Parser) parseTag() Tag {
 }
 
 // ParamTag = "@param" PHPType [ "..." ] varname [ Desc ] .
-func (p *Parser) parseParamTag() *ParamTag {
+func (p *parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
 	tag.Type = p.parseType()
 	if p.got(token.Ellipsis) {
@@ -176,7 +173,7 @@ func (p *Parser) parseParamTag() *ParamTag {
 }
 
 // ReturnTag = "@return" PHPType [ Desc ] .
-func (p *Parser) parseReturnTag() *ReturnTag {
+func (p *parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
 	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
@@ -184,7 +181,7 @@ func (p *Parser) parseReturnTag() *ReturnTag {
 }
 
 // PropertyTag = ( "@property" | "@property-read" | "@property-write" ) PHPType varname [ Desc ] .
-func (p *Parser) parsePropertyTag(name string) *PropertyTag {
+func (p *parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
 	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
@@ -199,7 +196,7 @@ func (p *Parser) parsePropertyTag(name string) *PropertyTag {
 }
 
 // VarTag = "@var" PHPType [ varname ] [ Desc ] .
-func (p *Parser) parseVarTag() *VarTag {
+func (p *parser) parseVarTag() *VarTag {
 	tag := new(VarTag)
 	tag.Type = p.parseType()
 	if p.tok.Type == token.VarName {
@@ -211,7 +208,7 @@ func (p *Parser) parseVarTag() *VarTag {
 }
 
 // TemplateTag = "@template" ident [ ( "of | "as" ) PHPType ] [ Desc ] .
-func (p *Parser) parseTemplateTag() *TemplateTag {
+func (p *parser) parseTemplateTag() *TemplateTag {
 	tag := new(TemplateTag)
 	tag.Param = p.tok.Text
 	p.expect(token.Ident)
@@ -224,14 +221,14 @@ func (p *Parser) parseTemplateTag() *TemplateTag {
 }
 
 // OtherTag = tagname [ Desc ] .
-func (p *Parser) parseOtherTag(name string) *OtherTag {
+func (p *parser) parseOtherTag(name string) *OtherTag {
 	tag := &OtherTag{Name: name}
 	tag.Desc = p.parseDesc()
 	return tag
 }
 
 // PHPType = AtomicType | UnionType | IntersectType .
-func (p *Parser) parseType() phptype.Type {
+func (p *parser) parseType() phptype.Type {
 	typ := p.parseAtomicType()
 	switch p.tok.Type {
 	case token.Or:
@@ -243,7 +240,7 @@ func (p *Parser) parseType() phptype.Type {
 }
 
 // UnionType = AtomicType "|" AtomicType { "|" AtomicType } .
-func (p *Parser) parseUnionType(init phptype.Type) phptype.Type {
+func (p *parser) parseUnionType(init phptype.Type) phptype.Type {
 	union := &phptype.Union{Types: make([]phptype.Type, 0, 2)}
 	union.Types = append(union.Types, init)
 
@@ -255,7 +252,7 @@ func (p *Parser) parseUnionType(init phptype.Type) phptype.Type {
 }
 
 // IntersectType = AtomicType "&" AtomicType { "&" AtomicType } .
-func (p *Parser) parseIntersectType(init phptype.Type) phptype.Type {
+func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 	intersect := &phptype.Intersect{Types: make([]phptype.Type, 0, 2)}
 	intersect.Types = append(intersect.Types, init)
 
@@ -270,7 +267,7 @@ func (p *Parser) parseIntersectType(init phptype.Type) phptype.Type {
 // NullableType = [ "?" ] ( GenericType | BasicType ) .
 // BasicType    = IdentType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
-func (p *Parser) parseAtomicType() phptype.Type {
+func (p *parser) parseAtomicType() phptype.Type {
 	var typ phptype.Type
 	if p.got(token.Lparen) {
 		typ = p.parseParenType()
@@ -297,7 +294,7 @@ func (p *Parser) parseAtomicType() phptype.Type {
 }
 
 // ParenType = "(" PHPType ")" .
-func (p *Parser) parseParenType() phptype.Type {
+func (p *parser) parseParenType() phptype.Type {
 	typ := new(phptype.Paren)
 	typ.Type = p.parseType()
 	p.expect(token.Rparen)
@@ -308,7 +305,7 @@ func (p *Parser) parseParenType() phptype.Type {
 // ArrayShape     = "{" KeyType { "," KeyType } "}" .
 // KeyType        = ArrayKey [ "?" ] ":" PHPType .
 // ArrayKey       = ident | decimal .
-func (p *Parser) parseArrayShapeType() phptype.Type {
+func (p *parser) parseArrayShapeType() phptype.Type {
 	typ := new(phptype.ArrayShape)
 	if p.got(token.Lbrace) {
 		for {
@@ -336,7 +333,7 @@ func (p *Parser) parseArrayShapeType() phptype.Type {
 }
 
 // GenericType = BasicType "<" PHPType { "," PHPType } ">" .
-func (p *Parser) parseGenericType(base phptype.Type) phptype.Type {
+func (p *parser) parseGenericType(base phptype.Type) phptype.Type {
 	var params []phptype.Type
 	for {
 		t := p.parseType()
@@ -350,7 +347,7 @@ func (p *Parser) parseGenericType(base phptype.Type) phptype.Type {
 }
 
 // IdentType = [ "\\" ] ident { "\\" ident } .
-func (p *Parser) parseIdentType() *phptype.Ident {
+func (p *parser) parseIdentType() *phptype.Ident {
 	id := new(phptype.Ident)
 	if p.got(token.Backslash) {
 		id.Global = true
@@ -366,7 +363,7 @@ func (p *Parser) parseIdentType() *phptype.Ident {
 }
 
 // Desc = { any } .
-func (p *Parser) parseDesc() string {
+func (p *parser) parseDesc() string {
 	var b strings.Builder
 LOOP:
 	for {

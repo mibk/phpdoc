@@ -84,8 +84,7 @@ func formatDocs(filename string, out io.Writer, in io.Reader) error {
 			w.Write(data[:m])
 		}
 
-		p := phpdoc.NewParser(bytes.NewReader(data[m:n]))
-		if doc, err := p.Parse(); err != nil {
+		if doc, err := phpdoc.Parse(bytes.NewReader(data[m:n])); err != nil {
 			errPos := pos
 			if se, ok := err.(*phpdoc.SyntaxError); ok {
 				errPos = errPos.Add(Position{Line: se.Line, Column: se.Column})
