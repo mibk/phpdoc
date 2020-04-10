@@ -1,3 +1,4 @@
+// PHPDocfmt formats PHPDoc comments in PHP files.
 package main
 
 import (

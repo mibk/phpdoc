@@ -2,23 +2,27 @@ package phpdoc
 
 import "mibk.io/phpdoc/phptype"
 
+// A PHPDoc represents a PHPDoc comment.
 type PHPDoc struct {
 	Lines         []Line
 	Indent        string // … each line
 	PreferOneline bool
 }
 
+// A Line represents a line in a PHPDoc comment.
 type Line interface{ aLine() }
 
 type line struct{}
 
 func (*line) aLine() {}
 
+// A TextLine represents a regular, text-only line in a PHPDoc comment.
 type TextLine struct {
 	line
 	Value string
 }
 
+// A Tag represents a tag line in a PHPDoc comment (e.g. @author).
 type Tag interface {
 	Line
 	aTag()
@@ -29,6 +33,7 @@ type tag struct{ line }
 
 func (*tag) aTag() {}
 
+// A ParamTag represents a @param tag.
 type ParamTag struct {
 	tag
 	Type     phptype.Type
@@ -37,12 +42,15 @@ type ParamTag struct {
 	Desc     string
 }
 
+// A ReturnTag represents a @return tag.
 type ReturnTag struct {
 	tag
 	Type phptype.Type
 	Desc string
 }
 
+// A PropertyTag represents a @property tag, as well as its variants
+// @property-read and @property-write.
 type PropertyTag struct {
 	tag
 	ReadOnly, WriteOnly bool
@@ -50,6 +58,7 @@ type PropertyTag struct {
 	Desc                string
 }
 
+// A VarTag represents a @var tag.
 type VarTag struct {
 	tag
 	Type phptype.Type
@@ -57,6 +66,7 @@ type VarTag struct {
 	Desc string
 }
 
+// A TemplateTag represents a @template tag.
 type TemplateTag struct {
 	tag
 	Param string
@@ -64,6 +74,7 @@ type TemplateTag struct {
 	Desc  string
 }
 
+// A OtherTag represents an arbitrary tag without a special meaning.
 type OtherTag struct {
 	tag
 	Name string

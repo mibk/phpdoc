@@ -9,6 +9,7 @@ import (
 	"mibk.io/phpdoc/phptype"
 )
 
+// SyntaxError records an error and the position it occured on.
 type SyntaxError struct {
 	Line, Column int
 	Err          error
@@ -25,6 +26,7 @@ type parser struct {
 	tok token.Token
 }
 
+// Parse parses a single PHPDoc comment.
 func Parse(r io.Reader) (*PHPDoc, error) {
 	p := &parser{sc: token.NewScanner(r)}
 	doc := p.parseDoc()

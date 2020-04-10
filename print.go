@@ -10,6 +10,7 @@ import (
 	"mibk.io/phpdoc/phptype"
 )
 
+// Fprint "pretty-prints" an AST node to w.
 func Fprint(w io.Writer, node interface{}) error {
 	w = &trimmer{output: w}
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.StripEscape)
