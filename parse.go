@@ -36,12 +36,13 @@ func Parse(r io.Reader) (*PHPDoc, error) {
 	return doc, nil
 }
 
-func (p *parser) nextTok() {
+func (p *parser) next0() {
 	p.tok = p.sc.Next()
 }
 
+// next is like next0 but skips whitespace.
 func (p *parser) next() {
-	p.nextTok()
+	p.next0()
 	p.consume(token.Whitespace)
 }
 
@@ -67,7 +68,7 @@ func (p *parser) consume(types ...token.Type) {
 
 	for ; len(types) > 0; types = types[1:] {
 		if p.tok.Type == types[0] {
-			p.nextTok()
+			p.next0()
 		}
 	}
 }
@@ -86,14 +87,14 @@ func (p *parser) errorf(format string, args ...interface{}) {
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
 func (p *parser) parseDoc() *PHPDoc {
 	doc := new(PHPDoc)
-	p.nextTok()
+	p.next0()
 	for {
 		p.consume(token.Newline)
 		if p.tok.Type != token.Whitespace {
 			break
 		}
 		doc.Indent = p.tok.Text
-		p.nextTok()
+		p.next0()
 	}
 	p.expect(token.OpenDoc)
 	if !p.got(token.Newline) {
@@ -374,7 +375,7 @@ LOOP:
 			break LOOP
 		}
 		b.WriteString(p.tok.Text)
-		p.nextTok()
+		p.next0()
 	}
 	return strings.TrimSpace(b.String())
 }
