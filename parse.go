@@ -124,7 +124,7 @@ func (p *parser) parseLines() []Line {
 	}
 }
 
-// Line     = TextLine | Tag .
+// Line     = [ asterisk ] ( TextLine | Tag ) .
 // TextLine = Desc .
 func (p *parser) parseLine() Line {
 	p.consume(token.Whitespace, token.Asterisk, token.Whitespace)
