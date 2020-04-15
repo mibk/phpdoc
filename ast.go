@@ -66,6 +66,13 @@ type VarTag struct {
 	Desc string
 }
 
+// A ThrowsTag represents a @throws tag.
+type ThrowsTag struct {
+	tag
+	Class phptype.Type
+	Desc  string
+}
+
 // A TemplateTag represents a @template tag.
 type TemplateTag struct {
 	tag
@@ -85,5 +92,6 @@ func (t *ParamTag) desc() string    { return t.Desc }
 func (t *ReturnTag) desc() string   { return t.Desc }
 func (t *PropertyTag) desc() string { return t.Desc }
 func (t *VarTag) desc() string      { return t.Desc }
+func (t *ThrowsTag) desc() string   { return t.Desc }
 func (t *TemplateTag) desc() string { return t.Desc }
 func (t *OtherTag) desc() string    { return t.Desc }

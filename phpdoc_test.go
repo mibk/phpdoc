@@ -65,6 +65,7 @@ It's	deprecated now.
 
 @deprecated Don't use
 @return bool
+@throws  \  InvalidArgumentException
 */
 ----
 /**
@@ -77,6 +78,7 @@ It's	deprecated now.
  *
  * @deprecated Don't use
  * @return     bool
+ * @throws     \InvalidArgumentException
  */
 `},
 	{"properties", `

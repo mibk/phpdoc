@@ -139,6 +139,7 @@ func (p *parser) parseLine() Line {
 //       ReturnTag |
 //       PropertyTag |
 //       VarTag |
+//       ThrowsTag |
 //       TemplateTag |
 //       OtherTag .
 func (p *parser) parseTag() Tag {
@@ -154,6 +155,8 @@ func (p *parser) parseTag() Tag {
 		return p.parsePropertyTag(name)
 	case "@var":
 		return p.parseVarTag()
+	case "@throws":
+		return p.parseThrowsTag()
 	case "@template":
 		return p.parseTemplateTag()
 	default:
@@ -206,6 +209,14 @@ func (p *parser) parseVarTag() *VarTag {
 		tag.Var = p.tok.Text[1:]
 		p.next()
 	}
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+// ThrowsTag = "@throws" PHPType [ Desc ] .
+func (p *parser) parseThrowsTag() *ThrowsTag {
+	tag := new(ThrowsTag)
+	tag.Class = p.parseType()
 	tag.Desc = p.parseDesc()
 	return tag
 }

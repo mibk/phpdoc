@@ -114,6 +114,8 @@ func (p *printer) printTag(tag Tag) {
 		if tag.Var != "" {
 			p.print(nextcol, '$', tag.Var)
 		}
+	case *ThrowsTag:
+		p.print("@throws", nextcol, tag.Class)
 	case *TemplateTag:
 		p.print("@template", nextcol, tag.Param)
 		if tag.Bound != nil {
