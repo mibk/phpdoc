@@ -11,6 +11,47 @@ import (
 	"mibk.io/phpdoc/phptype"
 )
 
+func TestParsingDoc(t *testing.T) {
+	lines := func(lines ...phpdoc.Line) []phpdoc.Line { return lines }
+	typ := func(name string) phptype.Type { return &phptype.Ident{Parts: []string{name}} }
+
+	tests := []struct {
+		doc  string
+		want interface{}
+	}{
+		{
+			doc:  `/** */`,
+			want: &phpdoc.PHPDoc{PreferOneline: true},
+		},
+		{
+			doc: `/** Foo  $xx. */`,
+			want: &phpdoc.PHPDoc{
+				Lines:         lines(&phpdoc.TextLine{Value: "Foo  $xx."}),
+				PreferOneline: true,
+			},
+		},
+		{
+			doc: `/** @var Foo $bar Baz   x*/`,
+			want: &phpdoc.PHPDoc{
+				Lines:         lines(&phpdoc.VarTag{Type: typ("Foo"), Var: "bar", Desc: "Baz   x"}),
+				PreferOneline: true,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		got, err := phpdoc.Parse(strings.NewReader(tt.doc))
+		if err != nil {
+			t.Fatalf("%q: unexpected err: %v", tt.doc, err)
+		}
+
+		allowUnexportedFields := cmp.Exporter(func(reflect.Type) bool { return true })
+		if diff := cmp.Diff(got, tt.want, allowUnexportedFields); diff != "" {
+			t.Errorf("%q: docs don't match (-got +want)\n%s", tt.doc, diff)
+		}
+	}
+}
+
 func TestParsingTypes(t *testing.T) {
 	type (
 		union      = phptype.Union
