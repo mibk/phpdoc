@@ -55,6 +55,7 @@ type PropertyTag struct {
 	tag
 	ReadOnly, WriteOnly bool
 	Type                phptype.Type
+	Var                 string
 	Desc                string
 }
 

@@ -37,6 +37,13 @@ func TestParsingDoc(t *testing.T) {
 				PreferOneline: true,
 			},
 		},
+		{
+			doc: `/** @property int $id {primary} */`,
+			want: &phpdoc.PHPDoc{
+				Lines:         lines(&phpdoc.PropertyTag{Type: typ("int"), Var: "id", Desc: "{primary}"}),
+				PreferOneline: true,
+			},
+		},
 	}
 
 	for _, tt := range tests {

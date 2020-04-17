@@ -190,6 +190,8 @@ func (p *parser) parseReturnTag() *ReturnTag {
 func (p *parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
 	tag.Type = p.parseType()
+	tag.Var = strings.TrimPrefix(p.tok.Text, "$")
+	p.expect(token.VarName)
 	tag.Desc = p.parseDesc()
 
 	switch {

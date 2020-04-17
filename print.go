@@ -108,7 +108,7 @@ func (p *printer) printTag(tag Tag) {
 		case tag.WriteOnly:
 			p.print("-write")
 		}
-		p.print(nextcol, tag.Type)
+		p.print(nextcol, tag.Type, nextcol, '$', tag.Var)
 	case *VarTag:
 		p.print("@var", nextcol, tag.Type)
 		if tag.Var != "" {
