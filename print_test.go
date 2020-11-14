@@ -131,6 +131,6 @@ func printerTestCase(t *testing.T, input, want string) {
 		t.Fatalf("printing: unexpected err: %v", err)
 	}
 	if got.String() != want {
-		t.Errorf("\n got: %q\nwant: %q", got, want)
+		t.Errorf("\n got: %s\nwant: %s", got, want)
 	}
 }
