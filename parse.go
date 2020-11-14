@@ -140,6 +140,7 @@ func (p *parser) parseLine() Line {
 //       PropertyTag |
 //       VarTag |
 //       ThrowsTag |
+//       ImplementsTag |
 //       TemplateTag |
 //       OtherTag .
 func (p *parser) parseTag() Tag {
@@ -157,6 +158,8 @@ func (p *parser) parseTag() Tag {
 		return p.parseVarTag()
 	case "@throws":
 		return p.parseThrowsTag()
+	case "@implements":
+		return p.parseImplementsTag()
 	case "@template":
 		return p.parseTemplateTag()
 	default:
@@ -219,6 +222,14 @@ func (p *parser) parseVarTag() *VarTag {
 func (p *parser) parseThrowsTag() *ThrowsTag {
 	tag := new(ThrowsTag)
 	tag.Class = p.parseType()
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+// ImplementsTag = "@implements" PHPType [ Desc ] .
+func (p *parser) parseImplementsTag() *ImplementsTag {
+	tag := new(ImplementsTag)
+	tag.Interface = p.parseType()
 	tag.Desc = p.parseDesc()
 	return tag
 }

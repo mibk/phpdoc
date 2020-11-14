@@ -62,6 +62,7 @@ It's	deprecated now.
 @deprecated Don't use
 @return bool
 @throws  \  InvalidArgumentException
+@implements   Comparable <self >
 */
 ----
 /**
@@ -75,6 +76,7 @@ It's	deprecated now.
  * @deprecated Don't use
  * @return     bool
  * @throws     \InvalidArgumentException
+ * @implements Comparable<self>
  */
 `},
 	{"properties", `
