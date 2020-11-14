@@ -116,6 +116,8 @@ func (p *printer) printTag(tag Tag) {
 		}
 	case *ThrowsTag:
 		p.print("@throws", nextcol, tag.Class)
+	case *ImplementsTag:
+		p.print("@implements", nextcol, tag.Interface)
 	case *TemplateTag:
 		p.print("@template", nextcol, tag.Param)
 		if tag.Bound != nil {

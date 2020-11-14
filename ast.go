@@ -74,6 +74,13 @@ type ThrowsTag struct {
 	Desc  string
 }
 
+// An ImplementsTag represents a @implements tag.
+type ImplementsTag struct {
+	tag
+	Interface phptype.Type
+	Desc      string
+}
+
 // A TemplateTag represents a @template tag.
 type TemplateTag struct {
 	tag
@@ -89,10 +96,11 @@ type OtherTag struct {
 	Desc string
 }
 
-func (t *ParamTag) desc() string    { return t.Desc }
-func (t *ReturnTag) desc() string   { return t.Desc }
-func (t *PropertyTag) desc() string { return t.Desc }
-func (t *VarTag) desc() string      { return t.Desc }
-func (t *ThrowsTag) desc() string   { return t.Desc }
-func (t *TemplateTag) desc() string { return t.Desc }
-func (t *OtherTag) desc() string    { return t.Desc }
+func (t *ParamTag) desc() string      { return t.Desc }
+func (t *ReturnTag) desc() string     { return t.Desc }
+func (t *PropertyTag) desc() string   { return t.Desc }
+func (t *VarTag) desc() string        { return t.Desc }
+func (t *ThrowsTag) desc() string     { return t.Desc }
+func (t *ImplementsTag) desc() string { return t.Desc }
+func (t *TemplateTag) desc() string   { return t.Desc }
+func (t *OtherTag) desc() string      { return t.Desc }
