@@ -79,15 +79,15 @@ It's	deprecated now.
 `},
 	{"properties", `
 	/**
-@property  \ Foo $a
-@property-read    array<int,string>    $b
+@property  \ Foo $a Foo
+@property-read    array<int,string>    $b   bar
 @property-write int [] $c
 @property array    {0 :int  ,foo?:\ Foo }$d
 */
 ----
 	/**
-	 * @property       \Foo                      $a
-	 * @property-read  array<int, string>        $b
+	 * @property       \Foo                      $a Foo
+	 * @property-read  array<int, string>        $b bar
 	 * @property-write int[]                     $c
 	 * @property       array{0: int, foo?: \Foo} $d
 	 */
