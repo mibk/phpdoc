@@ -21,25 +21,25 @@ func TestParsingDoc(t *testing.T) {
 	}{
 		{
 			doc:  `/** */`,
-			want: &phpdoc.PHPDoc{PreferOneline: true},
+			want: &phpdoc.Block{PreferOneline: true},
 		},
 		{
 			doc: `/** Foo  $xx. */`,
-			want: &phpdoc.PHPDoc{
+			want: &phpdoc.Block{
 				Lines:         lines(&phpdoc.TextLine{Value: "Foo  $xx."}),
 				PreferOneline: true,
 			},
 		},
 		{
 			doc: `/** @var Foo $bar Baz   x*/`,
-			want: &phpdoc.PHPDoc{
+			want: &phpdoc.Block{
 				Lines:         lines(&phpdoc.VarTag{Type: typ("Foo"), Var: "bar", Desc: "Baz   x"}),
 				PreferOneline: true,
 			},
 		},
 		{
 			doc: `/** @property int $id {primary} */`,
-			want: &phpdoc.PHPDoc{
+			want: &phpdoc.Block{
 				Lines:         lines(&phpdoc.PropertyTag{Type: typ("int"), Var: "id", Desc: "{primary}"}),
 				PreferOneline: true,
 			},

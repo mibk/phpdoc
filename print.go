@@ -46,7 +46,7 @@ func (p *printer) print(args ...interface{}) {
 		}
 
 		switch arg := arg.(type) {
-		case *PHPDoc:
+		case *Block:
 			p.print(tabesc, arg.Indent, tabesc, token.OpenDoc)
 			if arg.PreferOneline && len(arg.Lines) == 1 {
 				p.print(' ')

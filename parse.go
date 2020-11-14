@@ -27,7 +27,7 @@ type parser struct {
 }
 
 // Parse parses a single PHPDoc comment.
-func Parse(r io.Reader) (*PHPDoc, error) {
+func Parse(r io.Reader) (*Block, error) {
 	p := &parser{sc: token.NewScanner(r)}
 	doc := p.parseDoc()
 	if p.err != nil {
@@ -85,8 +85,8 @@ func (p *parser) errorf(format string, args ...interface{}) {
 // https://golang.org/ref/spec#Notation.
 
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
-func (p *parser) parseDoc() *PHPDoc {
-	doc := new(PHPDoc)
+func (p *parser) parseDoc() *Block {
+	doc := new(Block)
 	p.next0()
 	for {
 		p.consume(token.Newline)

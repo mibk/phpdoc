@@ -2,8 +2,8 @@ package phpdoc
 
 import "mibk.io/phpdoc/phptype"
 
-// A PHPDoc represents a PHPDoc comment.
-type PHPDoc struct {
+// A Block represents a PHPDoc comment block.
+type Block struct {
 	Lines         []Line
 	Indent        string // … each line
 	PreferOneline bool
