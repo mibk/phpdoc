@@ -37,6 +37,7 @@ func (*tag) aTag() {}
 type ParamTag struct {
 	tag
 	Type     phptype.Type
+	ByRef    bool // pass by reference
 	Variadic bool
 	Var      string
 	Desc     string

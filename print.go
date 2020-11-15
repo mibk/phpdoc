@@ -92,6 +92,9 @@ func (p *printer) printTag(tag Tag) {
 	switch tag := tag.(type) {
 	case *ParamTag:
 		p.print("@param", nextcol, tag.Type, nextcol)
+		if tag.ByRef {
+			p.print(token.And)
+		}
 		if tag.Variadic {
 			p.print(token.Ellipsis)
 		}

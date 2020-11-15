@@ -22,8 +22,10 @@ func (e *SyntaxError) Error() string {
 type parser struct {
 	sc *token.Scanner
 
-	err error
-	tok token.Token
+	err  error
+	tok  token.Token
+	prev token.Token
+	alt  *token.Token // on backup
 }
 
 // Parse parses a single PHPDoc comment.
@@ -36,12 +38,26 @@ func Parse(r io.Reader) (*Block, error) {
 	return doc, nil
 }
 
+func (p *parser) backup() {
+	if p.alt != nil {
+		panic("cannot backup twice")
+	}
+	p.alt = new(token.Token)
+	*p.alt = p.tok
+	p.tok = p.prev
+}
+
 func (p *parser) next0() {
+	if p.alt != nil {
+		p.tok, p.alt = *p.alt, nil
+		return
+	}
 	p.tok = p.sc.Next()
 }
 
 // next is like next0 but skips whitespace.
 func (p *parser) next() {
+	p.prev = p.tok
 	p.next0()
 	p.consume(token.Whitespace)
 }
@@ -168,10 +184,13 @@ func (p *parser) parseTag() Tag {
 	}
 }
 
-// ParamTag = "@param" PHPType [ "..." ] varname [ Desc ] .
+// ParamTag = "@param" PHPType [ "&" ] [ "..." ] varname [ Desc ] .
 func (p *parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
 	tag.Type = p.parseType()
+	if p.got(token.And) {
+		tag.ByRef = true
+	}
 	if p.got(token.Ellipsis) {
 		tag.Variadic = true
 	}
@@ -284,7 +303,11 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 	intersect.Types = append(intersect.Types, init)
 
 	for p.got(token.And) {
-		typ := p.parseAtomicType()
+		typ, ok := p.tryParseAtomicType()
+		if !ok {
+			p.backup()
+			break
+		}
 		intersect.Types = append(intersect.Types, typ)
 	}
 	return intersect
@@ -295,6 +318,14 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 // BasicType    = IdentType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
 func (p *parser) parseAtomicType() phptype.Type {
+	typ, ok := p.tryParseAtomicType()
+	if !ok {
+		p.errorf("expecting %v or basic type, found %v", token.Lparen, p.tok)
+	}
+	return typ
+}
+
+func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 	var typ phptype.Type
 	if p.got(token.Lparen) {
 		typ = p.parseParenType()
@@ -302,8 +333,8 @@ func (p *parser) parseAtomicType() phptype.Type {
 		nullable := p.got(token.Qmark)
 		if p.got(token.Array) {
 			typ = p.parseArrayShapeType()
-		} else {
-			typ = p.parseIdentType()
+		} else if typ, ok = p.parseIdentType(); !ok {
+			return nil, false
 		}
 		// TODO: Forbid generic params for arrays with a shape?
 		if p.got(token.Lt) {
@@ -317,7 +348,7 @@ func (p *parser) parseAtomicType() phptype.Type {
 		p.expect(token.Rbrack)
 		typ = &phptype.Array{Elem: typ}
 	}
-	return typ
+	return typ, true
 }
 
 // ParenType = "(" PHPType ")" .
@@ -374,7 +405,12 @@ func (p *parser) parseGenericType(base phptype.Type) phptype.Type {
 }
 
 // IdentType = [ "\\" ] ident { "\\" ident } .
-func (p *parser) parseIdentType() *phptype.Ident {
+func (p *parser) parseIdentType() (_ *phptype.Ident, ok bool) {
+	switch p.tok.Type {
+	default:
+		return nil, false
+	case token.Backslash, token.Ident:
+	}
 	id := new(phptype.Ident)
 	if p.got(token.Backslash) {
 		id.Global = true
@@ -386,7 +422,7 @@ func (p *parser) parseIdentType() *phptype.Ident {
 			break
 		}
 	}
-	return id
+	return id, true
 }
 
 // Desc = { any } .
