@@ -184,18 +184,10 @@ func (p *parser) parseTag() Tag {
 	}
 }
 
-// ParamTag = "@param" PHPType [ "&" ] [ "..." ] varname [ Desc ] .
+// ParamTag = "@param" Param [ Desc ] .
 func (p *parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
-	tag.Type = p.parseType()
-	if p.got(token.And) {
-		tag.ByRef = true
-	}
-	if p.got(token.Ellipsis) {
-		tag.Variadic = true
-	}
-	tag.Var = strings.TrimPrefix(p.tok.Text, "$")
-	p.expect(token.VarName)
+	tag.Param = p.parseParam()
 	tag.Desc = p.parseDesc()
 	return tag
 }
@@ -315,7 +307,7 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 
 // AtomicType   = ParenType | NullableType | ArrayType .
 // NullableType = [ "?" ] ( GenericType | BasicType ) .
-// BasicType    = IdentType | ArrayShapeType .
+// BasicType    = IdentType | CallableType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
 func (p *parser) parseAtomicType() phptype.Type {
 	typ, ok := p.tryParseAtomicType()
@@ -333,6 +325,8 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 		nullable := p.got(token.Qmark)
 		if p.got(token.Array) {
 			typ = p.parseArrayShapeType()
+		} else if p.got(token.Callable) {
+			typ = p.parseCallableType()
 		} else if typ, ok = p.parseIdentType(); !ok {
 			return nil, false
 		}
@@ -357,6 +351,44 @@ func (p *parser) parseParenType() phptype.Type {
 	typ.Type = p.parseType()
 	p.expect(token.Rparen)
 	return typ
+}
+
+// CallableType  = callable [ FuncSignature ] .
+// FuncSignature = "(" [ ParamList [ "," ] ] ")" [ ":" PHPType ] .
+// ParamList     = Param { "," Param } .
+func (p *parser) parseCallableType() phptype.Type {
+	typ := new(phptype.Callable)
+	if !p.got(token.Lparen) {
+		return typ
+	}
+	for !p.got(token.Rparen) && !p.got(token.EOF) {
+		// TODO: Do we need to check for EOF?
+		par := p.parseParam()
+		typ.Params = append(typ.Params, par)
+		if p.got(token.Rparen) {
+			break
+		}
+		p.expect(token.Comma)
+	}
+	if p.got(token.Colon) {
+		typ.Result = p.parseType()
+	}
+	return typ
+}
+
+// Param = PHPType [ "&" ] [ "..." ] varname .
+func (p *parser) parseParam() *phptype.Param {
+	par := new(phptype.Param)
+	par.Type = p.parseType()
+	if p.got(token.And) {
+		par.ByRef = true
+	}
+	if p.got(token.Ellipsis) {
+		par.Variadic = true
+	}
+	par.Var = strings.TrimPrefix(p.tok.Text, "$")
+	p.expect(token.VarName)
+	return par
 }
 
 // ArrayShapeType = array [ ArrayShape ] .
