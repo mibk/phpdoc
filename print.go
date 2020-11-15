@@ -91,14 +91,7 @@ func (p *printer) printLine(line Line) {
 func (p *printer) printTag(tag Tag) {
 	switch tag := tag.(type) {
 	case *ParamTag:
-		p.print("@param", nextcol, tag.Type, nextcol)
-		if tag.ByRef {
-			p.print(token.And)
-		}
-		if tag.Variadic {
-			p.print(token.Ellipsis)
-		}
-		p.print('$', tag.Var)
+		p.print("@param", nextcol, tag.Param.Type, nextcol, tag.Param)
 	case *ReturnTag:
 		p.print("@return", nextcol, tag.Type)
 	case *PropertyTag:
@@ -158,6 +151,21 @@ func (p *printer) printPHPType(typ phptype.Type) {
 		p.print(typ.Elem, token.Lbrack, token.Rbrack)
 	case *phptype.Nullable:
 		p.print(token.Qmark, typ.Type)
+	case *phptype.Callable:
+		p.print(token.Callable)
+		if len(typ.Params) > 0 || typ.Result != nil {
+			p.print(token.Lparen)
+			for i, par := range typ.Params {
+				if i > 0 {
+					p.print(token.Comma, ' ')
+				}
+				p.print(par.Type, ' ', par)
+			}
+			p.print(token.Rparen)
+			if typ.Result != nil {
+				p.print(token.Colon, ' ', typ.Result)
+			}
+		}
 	case *phptype.ArrayShape:
 		p.print(token.Array)
 		if len(typ.Elems) == 0 {
@@ -184,6 +192,14 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			p.print(typ)
 		}
 		p.print(token.Gt)
+	case *phptype.Param:
+		if typ.ByRef {
+			p.print(token.And)
+		}
+		if typ.Variadic {
+			p.print(token.Ellipsis)
+		}
+		p.print('$', typ.Var)
 	case *phptype.Ident:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {

@@ -110,6 +110,23 @@ It's	deprecated now.
  * @template WW of \Countable
  */
 `},
+	{"callable", `
+/**
+@param  callable$m
+@param  callable(): string $k
+@param callable  ( int  $a ,string& ...$b, ): string |int$x
+@param int... $y
+@return callable  ( int $a , int $b ) :void
+*/
+----
+/**
+ * @param  callable                                    $m
+ * @param  callable(): string                          $k
+ * @param  callable(int $a, string &...$b): string|int $x
+ * @param  int                                         ...$y
+ * @return callable(int $a, int $b): void
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

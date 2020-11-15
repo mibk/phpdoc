@@ -68,3 +68,17 @@ type Ident struct {
 	Parts  []string
 	Global bool // fully qualified
 }
+
+type Param struct {
+	typ
+	Type     Type
+	ByRef    bool // pass by reference
+	Variadic bool
+	Var      string
+}
+
+type Callable struct {
+	typ
+	Params []*Param
+	Result Type
+}

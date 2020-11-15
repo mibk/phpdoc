@@ -60,7 +60,8 @@ const (
 	And       // &
 	symbolEnd
 
-	Array // array
+	Array    // array
+	Callable // callable
 
 	Ident
 	TagName
@@ -293,6 +294,8 @@ func (sc *Scanner) scanOther(init string) Token {
 			break
 		case "array":
 			return Token{Type: Array, Text: id}
+		case "callable":
+			return Token{Type: Callable, Text: id}
 		default:
 			return Token{Type: Ident, Text: id}
 		}

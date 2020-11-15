@@ -36,11 +36,8 @@ func (*tag) aTag() {}
 // A ParamTag represents a @param tag.
 type ParamTag struct {
 	tag
-	Type     phptype.Type
-	ByRef    bool // pass by reference
-	Variadic bool
-	Var      string
-	Desc     string
+	Param *phptype.Param
+	Desc  string
 }
 
 // A ReturnTag represents a @return tag.
