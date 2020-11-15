@@ -168,7 +168,7 @@ func TestSyntaxErrors(t *testing.T) {
 		},
 		{
 			"/**\n@param",
-			`line:2:6: expecting Ident, found EOF`,
+			`line:2:6: expecting ( or basic type, found EOF`,
 		},
 		{
 			"/**\n@param array<int  string>",
@@ -176,7 +176,7 @@ func TestSyntaxErrors(t *testing.T) {
 		},
 		{
 			"/**\n@param array<int, >",
-			`line:2:19: expecting Ident, found >`,
+			`line:2:19: expecting ( or basic type, found >`,
 		},
 	}
 

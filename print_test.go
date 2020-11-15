@@ -13,12 +13,14 @@ var printTests = []struct {
 }{
 	{"basic", `
 /**
-	@param string ... $bar
+	@param array &  $x
+	@param string&  ... $bar
 	@return ? float
 */
 ----
 /**
- * @param  string ...$bar
+ * @param  array  &$x
+ * @param  string &...$bar
  * @return ?float
  */
 `},
@@ -40,6 +42,7 @@ var printTests = []struct {
 	@author   Name <not known>
 @param DateTime | string|null $bar Must be   from this century
 @param mixed $foo
+@param  bool... $opts
  *@return float    Always positive
 */
 ----
@@ -47,6 +50,7 @@ var printTests = []struct {
     * @author Name <not known>
     * @param  DateTime|string|null $bar Must be   from this century
     * @param  mixed                $foo
+    * @param  bool                 ...$opts
     * @return float                Always positive
     */
 `},
