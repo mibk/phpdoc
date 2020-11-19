@@ -159,7 +159,10 @@ func (p *printer) printPHPType(typ phptype.Type) {
 				if i > 0 {
 					p.print(token.Comma, ' ')
 				}
-				p.print(par.Type, ' ', par)
+				p.print(par.Type)
+				if par.Var != "" {
+					p.print(' ', par)
+				}
 			}
 			p.print(token.Rparen)
 			if typ.Result != nil {
@@ -193,6 +196,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 		}
 		p.print(token.Gt)
 	case *phptype.Param:
+		// TODO: Really let other node print the type?
 		if typ.ByRef {
 			p.print(token.And)
 		}

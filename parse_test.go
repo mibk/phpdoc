@@ -178,6 +178,14 @@ func TestSyntaxErrors(t *testing.T) {
 			"/**\n@param array<int, >",
 			`line:2:19: expecting ( or basic type, found >`,
 		},
+		{
+			"/**\n@param callable(int&)",
+			`line:2:21: expecting VarName, found )`,
+		},
+		{
+			"/**@param int*/",
+			`line:1:14: expecting VarName, found */`,
+		},
 	}
 
 	for _, tt := range tests {
