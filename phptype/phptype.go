@@ -69,6 +69,9 @@ type Ident struct {
 	Global bool // fully qualified
 }
 
+// A This represents the $this special type.
+type This struct{ typ }
+
 type Param struct {
 	typ
 	Type     Type

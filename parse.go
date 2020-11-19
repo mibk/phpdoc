@@ -305,7 +305,8 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 	return intersect
 }
 
-// AtomicType   = ParenType | NullableType | ArrayType .
+// AtomicType   = ParenType | ThisType | NullableType | ArrayType .
+// ThisType     = "$this" .
 // NullableType = [ "?" ] ( GenericType | BasicType ) .
 // BasicType    = IdentType | CallableType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
@@ -321,6 +322,8 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 	var typ phptype.Type
 	if p.got(token.Lparen) {
 		typ = p.parseParenType()
+	} else if p.got(token.This) {
+		typ = new(phptype.This)
 	} else {
 		nullable := p.got(token.Qmark)
 		if p.got(token.Array) {

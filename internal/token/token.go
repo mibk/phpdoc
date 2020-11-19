@@ -60,6 +60,7 @@ const (
 	And       // &
 	symbolEnd
 
+	This     // $this
 	Array    // array
 	Callable // callable
 
@@ -232,6 +233,8 @@ func (sc *Scanner) scanVar() Token {
 	switch id := sc.scanIdentName(); {
 	case id == "", strings.ContainsRune(id, '-'):
 		return sc.scanOther("$" + id)
+	case id == "this":
+		return Token{Type: This, Text: "$this"}
 	default:
 		return Token{Type: VarName, Text: "$" + id}
 	}
