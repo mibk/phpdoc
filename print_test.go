@@ -115,6 +115,7 @@ It's	deprecated now.
 @param  callable$m
 @param  callable(): string $k
 @param callable  ( int  $a ,string& ...$b, ): string |int$x
+@param  callable (bool ,string ) $n
 @param int... $y
 @return callable  ( int $a , int $b ) :void
 */
@@ -123,6 +124,7 @@ It's	deprecated now.
  * @param  callable                                    $m
  * @param  callable(): string                          $k
  * @param  callable(int $a, string &...$b): string|int $x
+ * @param  callable(bool, string)                      $n
  * @param  int                                         ...$y
  * @return callable(int $a, int $b): void
  */

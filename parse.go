@@ -187,7 +187,7 @@ func (p *parser) parseTag() Tag {
 // ParamTag = "@param" Param [ Desc ] .
 func (p *parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
-	tag.Param = p.parseParam()
+	tag.Param = p.parseParam(true)
 	tag.Desc = p.parseDesc()
 	return tag
 }
@@ -363,7 +363,7 @@ func (p *parser) parseCallableType() phptype.Type {
 	}
 	for !p.got(token.Rparen) && !p.got(token.EOF) {
 		// TODO: Do we need to check for EOF?
-		par := p.parseParam()
+		par := p.parseParam(false)
 		typ.Params = append(typ.Params, par)
 		if p.got(token.Rparen) {
 			break
@@ -376,18 +376,23 @@ func (p *parser) parseCallableType() phptype.Type {
 	return typ
 }
 
-// Param = PHPType [ "&" ] [ "..." ] varname .
-func (p *parser) parseParam() *phptype.Param {
+// Param = PHPType [ [ "&" ] [ "..." ] varname ] .
+func (p *parser) parseParam(needVar bool) *phptype.Param {
 	par := new(phptype.Param)
 	par.Type = p.parseType()
 	if p.got(token.And) {
+		needVar = true
 		par.ByRef = true
 	}
 	if p.got(token.Ellipsis) {
+		needVar = true
 		par.Variadic = true
 	}
-	par.Var = strings.TrimPrefix(p.tok.Text, "$")
-	p.expect(token.VarName)
+	if v := strings.TrimPrefix(p.tok.Text, "$"); p.got(token.VarName) {
+		par.Var = v
+	} else if needVar {
+		p.expect(token.VarName)
+	}
 	return par
 }
 
