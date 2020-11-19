@@ -211,6 +211,8 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			}
 			p.print(part)
 		}
+	case *phptype.This:
+		p.print(token.This)
 	default:
 		panic(fmt.Sprintf("unknown PHP type %T", typ))
 	}

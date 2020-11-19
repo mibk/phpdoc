@@ -186,6 +186,10 @@ func TestSyntaxErrors(t *testing.T) {
 			"/**@param int*/",
 			`line:1:14: expecting VarName, found */`,
 		},
+		{
+			"/**@param string $this*/",
+			`line:1:18: expecting VarName, found $this("$this")`,
+		},
 	}
 
 	for _, tt := range tests {
