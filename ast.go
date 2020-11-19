@@ -72,11 +72,25 @@ type ThrowsTag struct {
 	Desc  string
 }
 
-// An ImplementsTag represents a @implements tag.
+// An ExtendsTag represents an @extends tag.
+type ExtendsTag struct {
+	tag
+	Class phptype.Type
+	Desc  string
+}
+
+// An ImplementsTag represents an @implements tag.
 type ImplementsTag struct {
 	tag
 	Interface phptype.Type
 	Desc      string
+}
+
+// A UsesTag represents a @uses tag.
+type UsesTag struct {
+	tag
+	Trait phptype.Type
+	Desc  string
 }
 
 // A TemplateTag represents a @template tag.
@@ -99,6 +113,8 @@ func (t *ReturnTag) desc() string     { return t.Desc }
 func (t *PropertyTag) desc() string   { return t.Desc }
 func (t *VarTag) desc() string        { return t.Desc }
 func (t *ThrowsTag) desc() string     { return t.Desc }
+func (t *ExtendsTag) desc() string    { return t.Desc }
 func (t *ImplementsTag) desc() string { return t.Desc }
+func (t *UsesTag) desc() string       { return t.Desc }
 func (t *TemplateTag) desc() string   { return t.Desc }
 func (t *OtherTag) desc() string      { return t.Desc }
