@@ -174,8 +174,12 @@ func (p *parser) parseTag() Tag {
 		return p.parseVarTag()
 	case "@throws":
 		return p.parseThrowsTag()
+	case "@extends":
+		return p.parseExtendsTag()
 	case "@implements":
 		return p.parseImplementsTag()
+	case "@uses":
+		return p.parseUsesTag()
 	case "@template":
 		return p.parseTemplateTag()
 	default:
@@ -237,10 +241,26 @@ func (p *parser) parseThrowsTag() *ThrowsTag {
 	return tag
 }
 
+// ExtendsTag = "@extends" PHPType [ Desc ] .
+func (p *parser) parseExtendsTag() *ExtendsTag {
+	tag := new(ExtendsTag)
+	tag.Class = p.parseType()
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
 // ImplementsTag = "@implements" PHPType [ Desc ] .
 func (p *parser) parseImplementsTag() *ImplementsTag {
 	tag := new(ImplementsTag)
 	tag.Interface = p.parseType()
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+// UsesTag = "@uses" PHPType [ Desc ] .
+func (p *parser) parseUsesTag() *UsesTag {
+	tag := new(UsesTag)
+	tag.Trait = p.parseType()
 	tag.Desc = p.parseDesc()
 	return tag
 }

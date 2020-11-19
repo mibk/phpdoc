@@ -67,6 +67,8 @@ It's	deprecated now.
 @return bool
 @throws  \  InvalidArgumentException
 @implements   Comparable <self >
+@extends \ DateTime
+@uses \ HandyOne
 */
 ----
 /**
@@ -81,6 +83,8 @@ It's	deprecated now.
  * @return     bool
  * @throws     \InvalidArgumentException
  * @implements Comparable<self>
+ * @extends    \DateTime
+ * @uses       \HandyOne
  */
 `},
 	{"properties", `
