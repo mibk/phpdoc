@@ -91,9 +91,9 @@ func NewScanner(r io.Reader) *Scanner {
 	}
 }
 
-func (sc *Scanner) Next() Token {
-	pos := Pos{Line: sc.line, Column: sc.col}
-	tok := sc.scanAny()
+func (s *Scanner) Next() Token {
+	pos := Pos{Line: s.line, Column: s.col}
+	tok := s.scanAny()
 	if typ := tok.Type; symbolStart < typ && typ < symbolEnd {
 		tok.Text = typ.String()
 	}
@@ -101,62 +101,62 @@ func (sc *Scanner) Next() Token {
 	return tok
 }
 
-func (sc *Scanner) read() rune {
-	if sc.done {
+func (s *Scanner) read() rune {
+	if s.done {
 		return eof
 	}
-	r, _, err := sc.r.ReadRune()
+	r, _, err := s.r.ReadRune()
 	if err != nil {
-		sc.done = true
+		s.done = true
 		return eof
 	}
 	if r == '\n' {
-		sc.line++
-		sc.lastLineLen, sc.col = sc.col, 1
+		s.line++
+		s.lastLineLen, s.col = s.col, 1
 	} else {
-		sc.col++
+		s.col++
 	}
 	return r
 }
 
-func (sc *Scanner) unread() {
-	if sc.done {
+func (s *Scanner) unread() {
+	if s.done {
 		return
 	}
-	if err := sc.r.UnreadRune(); err != nil {
+	if err := s.r.UnreadRune(); err != nil {
 		// UnreadRune returns an error only on invalid use.
 		panic(err)
 	}
-	sc.col--
-	if sc.col == 0 {
-		sc.col = sc.lastLineLen
-		sc.line--
+	s.col--
+	if s.col == 0 {
+		s.col = s.lastLineLen
+		s.line--
 	}
 }
 
-func (sc *Scanner) peek() rune {
-	r := sc.read()
-	sc.unread()
+func (s *Scanner) peek() rune {
+	r := s.read()
+	s.unread()
 	return r
 }
 
-func (sc *Scanner) scanAny() Token {
-	switch r := sc.read(); r {
+func (s *Scanner) scanAny() Token {
+	switch r := s.read(); r {
 	case eof:
 		return Token{Type: EOF}
 	case '/':
-		if sc.peek() == '*' {
-			sc.read()
-			return sc.scanOpenDoc()
+		if s.peek() == '*' {
+			s.read()
+			return s.scanOpenDoc()
 		}
-		return sc.scanOther("/")
+		return s.scanOther("/")
 	case '@':
-		return sc.scanTag()
+		return s.scanTag()
 	case '$':
-		return sc.scanVar()
+		return s.scanVar()
 	case '*':
-		if sc.peek() == '/' {
-			sc.read()
+		if s.peek() == '/' {
+			s.read()
 			return Token{Type: CloseDoc, Text: "*/"}
 		}
 		return Token{Type: Asterisk}
@@ -185,14 +185,14 @@ func (sc *Scanner) scanAny() Token {
 	case ':':
 		return Token{Type: Colon}
 	case '.':
-		if sc.peek() == '.' {
-			if sc.read(); sc.peek() == '.' {
-				sc.read()
+		if s.peek() == '.' {
+			if s.read(); s.peek() == '.' {
+				s.read()
 				return Token{Type: Ellipsis}
 			}
-			return sc.scanOther("..")
+			return s.scanOther("..")
 		}
-		return sc.scanOther(".")
+		return s.scanOther(".")
 	case '|':
 		return Token{Type: Or}
 	case '&':
@@ -200,50 +200,50 @@ func (sc *Scanner) scanAny() Token {
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':
-		return sc.scanWhitespace(r)
+		return s.scanWhitespace(r)
 	default:
 		if isDigit(r) {
-			return sc.scanDecimal(r)
+			return s.scanDecimal(r)
 		}
-		sc.unread()
-		return sc.scanOther("")
+		s.unread()
+		return s.scanOther("")
 	}
 }
 
-func (sc *Scanner) scanOpenDoc() Token {
-	r := sc.read()
+func (s *Scanner) scanOpenDoc() Token {
+	r := s.read()
 	if r == '*' {
 		return Token{Type: OpenDoc, Text: "/**"}
 	}
-	sc.unread()
-	return sc.scanOther("/*")
+	s.unread()
+	return s.scanOther("/*")
 }
 
-func (sc *Scanner) scanTag() Token {
-	id := sc.scanTagName()
+func (s *Scanner) scanTag() Token {
+	id := s.scanTagName()
 	if id == "" {
-		return sc.scanOther("@")
+		return s.scanOther("@")
 	}
 	return Token{Type: TagName, Text: "@" + id}
 }
 
-func (sc *Scanner) scanTagName() string {
+func (s *Scanner) scanTagName() string {
 	var b strings.Builder
 	for {
-		switch r := sc.read(); {
+		switch r := s.read(); {
 		case r == '-' || r >= 'a' && r <= 'z':
 			b.WriteRune(r)
 		default:
-			sc.unread()
+			s.unread()
 			return b.String()
 		}
 	}
 }
 
-func (sc *Scanner) scanVar() Token {
-	switch id := sc.scanIdentName(); {
+func (s *Scanner) scanVar() Token {
+	switch id := s.scanIdentName(); {
 	case id == "", strings.ContainsRune(id, '-'):
-		return sc.scanOther("$" + id)
+		return s.scanOther("$" + id)
 	case id == "this":
 		return Token{Type: This, Text: "$this"}
 	default:
@@ -251,10 +251,10 @@ func (sc *Scanner) scanVar() Token {
 	}
 }
 
-func (sc *Scanner) scanIdentName() string {
+func (s *Scanner) scanIdentName() string {
 	var b strings.Builder
 	for {
-		switch r := sc.read(); {
+		switch r := s.read(); {
 		case r == '_' || r == '-' || r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= utf8.RuneSelf:
 			// A dash (-) actually isn't allowed in a PHP identifier,
 			// but it's used in meta-types (e.g. class-name). See
@@ -268,17 +268,17 @@ func (sc *Scanner) scanIdentName() string {
 			}
 			fallthrough
 		default:
-			sc.unread()
+			s.unread()
 			return b.String()
 		}
 	}
 }
 
-func (sc *Scanner) scanDecimal(r rune) Token {
+func (s *Scanner) scanDecimal(r rune) Token {
 	var b strings.Builder
 	b.WriteRune(r)
-	for isDigit(sc.peek()) {
-		b.WriteRune(sc.read())
+	for isDigit(s.peek()) {
+		b.WriteRune(s.read())
 	}
 	return Token{Type: Decimal, Text: b.String()}
 }
@@ -287,23 +287,23 @@ func isDigit(r rune) bool {
 	return '0' <= r && r <= '9'
 }
 
-func (sc *Scanner) scanWhitespace(init rune) Token {
+func (s *Scanner) scanWhitespace(init rune) Token {
 	var b strings.Builder
 	b.WriteRune(init)
 	for {
-		switch r := sc.read(); r {
+		switch r := s.read(); r {
 		case ' ', '\t':
 			b.WriteRune(r)
 		default:
-			sc.unread()
+			s.unread()
 			return Token{Type: Whitespace, Text: b.String()}
 		}
 	}
 }
 
-func (sc *Scanner) scanOther(init string) Token {
+func (s *Scanner) scanOther(init string) Token {
 	if init == "" {
-		switch id := sc.scanIdentName(); id {
+		switch id := s.scanIdentName(); id {
 		case "":
 			break
 		case "array":
@@ -318,11 +318,11 @@ func (sc *Scanner) scanOther(init string) Token {
 	var b strings.Builder
 	b.WriteString(init)
 	for {
-		switch r := sc.read(); r {
+		switch r := s.read(); r {
 		default:
 			b.WriteRune(r)
 		case '\n', '@', '$', '*', eof:
-			sc.unread()
+			s.unread()
 			return Token{Type: Other, Text: b.String()}
 		}
 	}
