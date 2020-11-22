@@ -76,7 +76,8 @@ const (
 const eof = -1
 
 type Scanner struct {
-	r *bufio.Reader
+	r    *bufio.Reader
+	done bool
 
 	line, col   int
 	lastLineLen int
@@ -101,8 +102,12 @@ func (sc *Scanner) Next() Token {
 }
 
 func (sc *Scanner) read() rune {
+	if sc.done {
+		return eof
+	}
 	r, _, err := sc.r.ReadRune()
 	if err != nil {
+		sc.done = true
 		return eof
 	}
 	if r == '\n' {
@@ -115,7 +120,13 @@ func (sc *Scanner) read() rune {
 }
 
 func (sc *Scanner) unread() {
-	sc.r.UnreadRune()
+	if sc.done {
+		return
+	}
+	if err := sc.r.UnreadRune(); err != nil {
+		// UnreadRune returns an error only on invalid use.
+		panic(err)
+	}
 	sc.col--
 	if sc.col == 0 {
 		sc.col = sc.lastLineLen
