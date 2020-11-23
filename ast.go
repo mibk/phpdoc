@@ -60,6 +60,7 @@ type PropertyTag struct {
 // A MethodTag represents a @method tag.
 type MethodTag struct {
 	tag
+	Static bool
 	Result phptype.Type // or nil
 	Name   string
 	Params []*phptype.Param

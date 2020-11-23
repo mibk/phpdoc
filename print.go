@@ -107,6 +107,9 @@ func (p *printer) printTag(tag Tag) {
 		p.print(nextcol, tag.Type, nextcol, '$', tag.Var)
 	case *MethodTag:
 		p.print("@method", nextcol)
+		if tag.Static {
+			p.print(token.Static, ' ')
+		}
 		if tag.Result != nil {
 			p.print(tag.Result, ' ')
 		}

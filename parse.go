@@ -227,6 +227,7 @@ func (p *parser) parsePropertyTag(name string) *PropertyTag {
 // MethodTag = "@method" [ PHPType ] ident "(" [ ParamList [ "," ] ] ")" [ Desc ] .
 func (p *parser) parseMethodTag() *MethodTag {
 	tag := new(MethodTag)
+	tag.Static = p.got(token.Static)
 	tag.Result = p.parseType()
 	tag.Name = p.tok.Text
 	if !p.got(token.Ident) {

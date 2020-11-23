@@ -63,6 +63,7 @@ const (
 	This     // $this
 	Array    // array
 	Callable // callable
+	Static   // static
 
 	Ident
 	TagName
@@ -310,6 +311,8 @@ func (s *Scanner) scanOther(init string) Token {
 			return Token{Type: Array, Text: id}
 		case "callable":
 			return Token{Type: Callable, Text: id}
+		case "static":
+			return Token{Type: Static, Text: id}
 		default:
 			return Token{Type: Ident, Text: id}
 		}

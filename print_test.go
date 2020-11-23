@@ -139,13 +139,13 @@ It's	deprecated now.
 /**
 @method  ? \ DateTime getDate( int| string$c ,)   the date of x
 @method translate (mixed& ... $args)does that for y
-@method void  clean ( )
+@method  static  void  clean ( )
 */
 ----
 /**
  * @method ?\DateTime getDate(int|string $c) the date of x
  * @method translate(mixed &...$args)        does that for y
- * @method void clean()
+ * @method static void clean()
  */
 `},
 }

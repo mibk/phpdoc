@@ -34,16 +34,17 @@ func _() {
 	_ = x[This-23]
 	_ = x[Array-24]
 	_ = x[Callable-25]
-	_ = x[Ident-26]
-	_ = x[TagName-27]
-	_ = x[VarName-28]
-	_ = x[Decimal-29]
-	_ = x[Other-30]
+	_ = x[Static-26]
+	_ = x[Ident-27]
+	_ = x[TagName-28]
+	_ = x[VarName-29]
+	_ = x[Decimal-30]
+	_ = x[Other-31]
 }
 
-const _Type_name = "EOF\\nWhitespacesymbolStart/***/*\\?()[]{}<>,:...|&symbolEnd$thisarraycallableIdentTagNameVarNameDecimalOther"
+const _Type_name = "EOF\\nWhitespacesymbolStart/***/*\\?()[]{}<>,:...|&symbolEnd$thisarraycallablestaticIdentTagNameVarNameDecimalOther"
 
-var _Type_index = [...]uint8{0, 3, 5, 15, 26, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 49, 58, 63, 68, 76, 81, 88, 95, 102, 107}
+var _Type_index = [...]uint8{0, 3, 5, 15, 26, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 49, 58, 63, 68, 76, 82, 87, 94, 101, 108, 113}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {
