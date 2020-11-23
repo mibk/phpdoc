@@ -31,20 +31,22 @@ func _() {
 	_ = x[Or-20]
 	_ = x[And-21]
 	_ = x[symbolEnd-22]
-	_ = x[This-23]
-	_ = x[Array-24]
-	_ = x[Callable-25]
-	_ = x[Static-26]
-	_ = x[Ident-27]
-	_ = x[TagName-28]
-	_ = x[VarName-29]
-	_ = x[Decimal-30]
-	_ = x[Other-31]
+	_ = x[keywordStart-23]
+	_ = x[This-24]
+	_ = x[Array-25]
+	_ = x[Callable-26]
+	_ = x[Static-27]
+	_ = x[keywordEnd-28]
+	_ = x[Ident-29]
+	_ = x[TagName-30]
+	_ = x[VarName-31]
+	_ = x[Decimal-32]
+	_ = x[Other-33]
 }
 
-const _Type_name = "EOF\\nWhitespacesymbolStart/***/*\\?()[]{}<>,:...|&symbolEnd$thisarraycallablestaticIdentTagNameVarNameDecimalOther"
+const _Type_name = "EOF\\nWhitespacesymbolStart/***/*\\?()[]{}<>,:...|&symbolEndkeywordStart$thisarraycallablestatickeywordEndIdentTagNameVarNameDecimalOther"
 
-var _Type_index = [...]uint8{0, 3, 5, 15, 26, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 49, 58, 63, 68, 76, 82, 87, 94, 101, 108, 113}
+var _Type_index = [...]uint8{0, 3, 5, 15, 26, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 47, 48, 49, 58, 70, 75, 80, 88, 94, 104, 109, 116, 123, 130, 135}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

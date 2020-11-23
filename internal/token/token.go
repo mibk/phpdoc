@@ -23,10 +23,14 @@ type Token struct {
 }
 
 func (t Token) String() string {
-	if symbolStart < t.Type && t.Type < symbolEnd || t.Type <= Newline {
+	switch {
+	case t.Type == EOF, t.Type == Newline,
+		symbolStart < t.Type && t.Type < symbolEnd,
+		keywordStart < t.Type && t.Type < keywordEnd:
 		return t.Type.String()
+	default:
+		return fmt.Sprintf("%v(%q)", t.Type, t.Text)
 	}
-	return fmt.Sprintf("%v(%q)", t.Type, t.Text)
 }
 
 //go:generate stringer -type Type -linecomment
@@ -60,10 +64,12 @@ const (
 	And       // &
 	symbolEnd
 
+	keywordStart
 	This     // $this
 	Array    // array
 	Callable // callable
 	Static   // static
+	keywordEnd
 
 	Ident
 	TagName

@@ -188,7 +188,11 @@ func TestSyntaxErrors(t *testing.T) {
 		},
 		{
 			"/**@param string $this*/",
-			`line:1:18: expecting VarName, found $this("$this")`,
+			`line:1:18: expecting VarName, found $this`,
+		},
+		{
+			"/**@method static static*/",
+			`line:1:19: expecting ( or basic type, found static`,
 		},
 	}
 
