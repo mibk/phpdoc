@@ -135,6 +135,19 @@ It's	deprecated now.
  * @return callable(int $a, int $b): void
  */
 `},
+	{"method tag", `
+/**
+@method  ? \ DateTime getDate( int| string$c ,)   the date of x
+@method translate (mixed& ... $args)does that for y
+@method void  clean ( )
+*/
+----
+/**
+ * @method ?\DateTime getDate(int|string $c) the date of x
+ * @method translate(mixed &...$args)        does that for y
+ * @method void clean()
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

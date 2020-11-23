@@ -57,6 +57,15 @@ type PropertyTag struct {
 	Desc                string
 }
 
+// A MethodTag represents a @method tag.
+type MethodTag struct {
+	tag
+	Result phptype.Type // or nil
+	Name   string
+	Params []*phptype.Param
+	Desc   string
+}
+
 // A VarTag represents a @var tag.
 type VarTag struct {
 	tag
@@ -111,6 +120,7 @@ type OtherTag struct {
 func (t *ParamTag) desc() string      { return t.Desc }
 func (t *ReturnTag) desc() string     { return t.Desc }
 func (t *PropertyTag) desc() string   { return t.Desc }
+func (t *MethodTag) desc() string     { return t.Desc }
 func (t *VarTag) desc() string        { return t.Desc }
 func (t *ThrowsTag) desc() string     { return t.Desc }
 func (t *ExtendsTag) desc() string    { return t.Desc }

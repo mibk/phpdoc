@@ -105,6 +105,22 @@ func (p *printer) printTag(tag Tag) {
 			p.print("-write")
 		}
 		p.print(nextcol, tag.Type, nextcol, '$', tag.Var)
+	case *MethodTag:
+		p.print("@method", nextcol)
+		if tag.Result != nil {
+			p.print(tag.Result, ' ')
+		}
+		p.print(tag.Name, token.Lparen)
+		for i, par := range tag.Params {
+			if i > 0 {
+				p.print(token.Comma, ' ')
+			}
+			p.print(par.Type)
+			if par.Var != "" {
+				p.print(' ', par)
+			}
+		}
+		p.print(token.Rparen)
 	case *VarTag:
 		p.print("@var", nextcol, tag.Type)
 		if tag.Var != "" {

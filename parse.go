@@ -154,6 +154,7 @@ func (p *parser) parseLine() Line {
 // Tag = ParamTag |
 //       ReturnTag |
 //       PropertyTag |
+//       MethodTag |
 //       VarTag |
 //       ThrowsTag |
 //       ImplementsTag |
@@ -170,6 +171,8 @@ func (p *parser) parseTag() Tag {
 		return p.parseReturnTag()
 	case "@property", "@property-read", "@property-write":
 		return p.parsePropertyTag(name)
+	case "@method":
+		return p.parseMethodTag()
 	case "@var":
 		return p.parseVarTag()
 	case "@throws":
@@ -218,6 +221,27 @@ func (p *parser) parsePropertyTag(name string) *PropertyTag {
 	case strings.HasSuffix(name, "-write"):
 		tag.WriteOnly = true
 	}
+	return tag
+}
+
+// MethodTag = "@method" [ PHPType ] ident "(" [ ParamList [ "," ] ] ")" [ Desc ] .
+func (p *parser) parseMethodTag() *MethodTag {
+	tag := new(MethodTag)
+	tag.Result = p.parseType()
+	tag.Name = p.tok.Text
+	if !p.got(token.Ident) {
+		if id, ok := tag.Result.(*phptype.Ident); ok && !id.Global && len(id.Parts) == 1 {
+			// Result type wasn't defined, and we we thought
+			// was the result type was actually the method name.
+			tag.Result = nil
+			tag.Name = id.Parts[0]
+		} else {
+			p.expect(token.Ident)
+		}
+	}
+	p.expect(token.Lparen)
+	tag.Params = p.parseParamList()
+	tag.Desc = p.parseDesc()
 	return tag
 }
 
@@ -378,25 +402,31 @@ func (p *parser) parseParenType() phptype.Type {
 
 // CallableType  = callable [ FuncSignature ] .
 // FuncSignature = "(" [ ParamList [ "," ] ] ")" [ ":" PHPType ] .
-// ParamList     = Param { "," Param } .
 func (p *parser) parseCallableType() phptype.Type {
 	typ := new(phptype.Callable)
 	if !p.got(token.Lparen) {
 		return typ
 	}
+	typ.Params = p.parseParamList()
+	if p.got(token.Colon) {
+		typ.Result = p.parseType()
+	}
+	return typ
+}
+
+// ParamList = Param { "," Param } .
+func (p *parser) parseParamList() []*phptype.Param {
+	var params []*phptype.Param
 	for !p.got(token.Rparen) && !p.got(token.EOF) {
 		// TODO: Do we need to check for EOF?
 		par := p.parseParam(false)
-		typ.Params = append(typ.Params, par)
+		params = append(params, par)
 		if p.got(token.Rparen) {
 			break
 		}
 		p.expect(token.Comma)
 	}
-	if p.got(token.Colon) {
-		typ.Result = p.parseType()
-	}
-	return typ
+	return params
 }
 
 // Param = PHPType [ [ "&" ] [ "..." ] varname ] .
