@@ -242,6 +242,10 @@ func (p *parser) parseMethodTag() *MethodTag {
 	}
 	p.expect(token.Lparen)
 	tag.Params = p.parseParamList()
+	if p.got(token.Colon) {
+		// Warn about putting result type *after* param list.
+		p.errorf("unexpected %v, expecting description", token.Colon)
+	}
 	tag.Desc = p.parseDesc()
 	return tag
 }

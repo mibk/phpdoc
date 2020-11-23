@@ -194,6 +194,10 @@ func TestSyntaxErrors(t *testing.T) {
 			"/**@method static static*/",
 			`line:1:19: expecting ( or basic type, found static`,
 		},
+		{
+			"/**@method x():*/",
+			`line:1:16: unexpected :, expecting description`,
+		},
 	}
 
 	for _, tt := range tests {
