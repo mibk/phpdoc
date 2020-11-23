@@ -175,8 +175,8 @@ func TestSyntaxErrors(t *testing.T) {
 			`line:2:19: expecting >, found Ident("string")`,
 		},
 		{
-			"/**\n@param array<int, >",
-			`line:2:19: expecting ( or basic type, found >`,
+			"/**\n@param array<int,, >",
+			`line:2:18: expecting ( or basic type, found ,`,
 		},
 		{
 			"/**\n@param callable(int&)",

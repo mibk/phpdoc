@@ -420,18 +420,25 @@ func (p *parser) parseParam(needVar bool) *phptype.Param {
 }
 
 // ArrayShapeType = array [ ArrayShape ] .
-// ArrayShape     = "{" KeyType { "," KeyType } "}" .
+// ArrayShape     = "{" KeyType { "," KeyType } [ "," ] "}" .
 // KeyType        = ArrayKey [ "?" ] ":" PHPType .
 // ArrayKey       = ident | decimal .
 func (p *parser) parseArrayShapeType() phptype.Type {
 	typ := new(phptype.ArrayShape)
 	if p.got(token.Lbrace) {
+	Elems:
 		for {
 			elem := new(phptype.ArrayElem)
 			switch p.tok.Type {
 			case token.Ident, token.Decimal:
 				elem.Key = p.tok.Text
 				p.next()
+			case token.Rbrace:
+				// Allow trailing comma.
+				if len(typ.Elems) > 0 {
+					break Elems
+				}
+				fallthrough
 			default:
 				// TODO: Consider not requiring array keys.
 				p.errorf("expecting %v or %v, found %v", token.Ident, token.Decimal, p.tok)
@@ -450,10 +457,14 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 	return typ
 }
 
-// GenericType = BasicType "<" PHPType { "," PHPType } ">" .
+// GenericType = BasicType "<" PHPType { "," PHPType } [ "," ] ">" .
 func (p *parser) parseGenericType(base phptype.Type) phptype.Type {
 	var params []phptype.Type
 	for {
+		if len(params) > 0 && p.tok.Type == token.Gt {
+			// Allow trailing comma.
+			break
+		}
 		t := p.parseType()
 		params = append(params, t)
 		if !p.got(token.Comma) {

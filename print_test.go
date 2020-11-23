@@ -66,7 +66,7 @@ It's	deprecated now.
 @deprecated Don't use
 @return bool
 @throws  \  InvalidArgumentException
-@implements   Comparable <self >
+@implements   Comparable <self ,>
 @extends \ DateTime
 @uses \ HandyOne
 */
@@ -92,7 +92,7 @@ It's	deprecated now.
 @property  \ Foo $a Foo
 @property-read    array<int,string>    $b   bar
 @property-write int [] $c
-@property array    {0 :int  ,foo?:\ Foo }$d
+@property array    {0 :int  ,foo?:\ Foo ,}$d
 */
 ----
 	/**
