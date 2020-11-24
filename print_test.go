@@ -102,6 +102,17 @@ It's	deprecated now.
 	 * @property       array{0: int, foo?: \Foo} $d
 	 */
 `},
+	{"array shapes", `
+/**
+@var  array{0  ? :int, one :string,}
+@var array{'foo': string ,'bar\'' ?: string}
+*/
+----
+/**
+ * @var array{0?: int, one: string}
+ * @var array{'foo': string, 'bar\''?: string}
+ */
+`},
 	{"template", `
 /**
 @template    T foo

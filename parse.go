@@ -465,7 +465,7 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 		for {
 			elem := new(phptype.ArrayElem)
 			switch p.tok.Type {
-			case token.Ident, token.Int:
+			case token.String, token.Ident, token.Int:
 				elem.Key = p.tok.Text
 				p.next()
 			case token.Rbrace:

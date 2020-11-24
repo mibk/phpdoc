@@ -198,6 +198,14 @@ func TestSyntaxErrors(t *testing.T) {
 			"/**@method x():*/",
 			`line:1:16: unexpected :, expecting description`,
 		},
+		{
+			`/**@var array{'\'`,
+			`line:1:15: expecting Ident or Int, found Other("'\\'")`,
+		},
+		{
+			`/**@var array{'\t':string}*/`,
+			`line:1:15: expecting Ident or Int, found Other("'\\t':string}")`,
+		},
 	}
 
 	for _, tt := range tests {

@@ -45,6 +45,7 @@ const (
 	Ident
 	Tag
 	Var
+	String
 	Int
 	Other
 
@@ -206,6 +207,8 @@ func (s *Scanner) scanAny() Token {
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':
 		return s.scanWhitespace(r)
+	case '\'':
+		return s.scanSingleQuoted()
 	default:
 		if isDigit(r) {
 			return s.scanNumber(r)
@@ -275,6 +278,30 @@ func (s *Scanner) scanIdent() string {
 		default:
 			s.unread()
 			return b.String()
+		}
+	}
+}
+
+func (s *Scanner) scanSingleQuoted() Token {
+	var b strings.Builder
+	b.WriteByte('\'')
+	for {
+		r := s.read()
+		if r == '\n' || r == eof {
+			s.unread()
+			return Token{Type: Other, Text: b.String()}
+		}
+		b.WriteRune(r)
+		switch r {
+		case '\\':
+			switch s.peek() {
+			case '\\', '\'':
+				b.WriteRune(s.read())
+			default:
+				return s.scanOther(b.String())
+			}
+		case '\'':
+			return Token{Type: String, Text: b.String()}
 		}
 	}
 }
