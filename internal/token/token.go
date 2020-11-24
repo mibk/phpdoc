@@ -42,6 +42,12 @@ const (
 	Newline      // \n
 	Whitespace
 
+	Ident
+	TagName
+	VarName
+	Decimal
+	Other
+
 	symbolStart
 	OpenDoc  // /**
 	CloseDoc // */
@@ -70,14 +76,6 @@ const (
 	Callable // callable
 	Static   // static
 	keywordEnd
-
-	Ident
-	TagName
-	VarName
-
-	Decimal
-
-	Other
 )
 
 const eof = -1
