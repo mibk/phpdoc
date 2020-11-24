@@ -12,9 +12,9 @@ func _() {
 	_ = x[Newline-1]
 	_ = x[Whitespace-2]
 	_ = x[Ident-3]
-	_ = x[TagName-4]
-	_ = x[VarName-5]
-	_ = x[Decimal-6]
+	_ = x[Tag-4]
+	_ = x[Var-5]
+	_ = x[Int-6]
 	_ = x[Other-7]
 	_ = x[symbolStart-8]
 	_ = x[OpenDoc-9]
@@ -44,12 +44,12 @@ func _() {
 	_ = x[keywordEnd-33]
 }
 
-const _Type_name = "EOF\\nWhitespaceIdentTagNameVarNameDecimalOthersymbolStart/***/*\\?()[]{}<>,:...|&symbolEndkeywordStart$thisarraycallablestatickeywordEnd"
+const _Type_name = "EOF\\nWhitespaceIdentTagVarIntOthersymbolStart/***/*\\?()[]{}<>,:...|&symbolEndkeywordStart$thisarraycallablestatickeywordEnd"
 
-var _Type_index = [...]uint8{0, 3, 5, 15, 20, 27, 34, 41, 46, 57, 60, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 78, 79, 80, 89, 101, 106, 111, 119, 125, 135}
+var _Type_index = [...]uint8{0, 3, 5, 15, 20, 23, 26, 29, 34, 45, 48, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 66, 67, 68, 77, 89, 94, 99, 107, 113, 123}
 
 func (i Type) String() string {
-	if i < 0 || i >= Type(len(_Type_index)-1) {
+	if i >= Type(len(_Type_index)-1) {
 		return "Type(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 	return _Type_name[_Type_index[i]:_Type_index[i+1]]

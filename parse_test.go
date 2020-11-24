@@ -180,15 +180,15 @@ func TestSyntaxErrors(t *testing.T) {
 		},
 		{
 			"/**\n@param callable(int&)",
-			`line:2:21: expecting VarName, found )`,
+			`line:2:21: expecting Var, found )`,
 		},
 		{
 			"/**@param int*/",
-			`line:1:14: expecting VarName, found */`,
+			`line:1:14: expecting Var, found */`,
 		},
 		{
 			"/**@param string $this*/",
-			`line:1:18: expecting VarName, found $this`,
+			`line:1:18: expecting Var, found $this`,
 		},
 		{
 			"/**@method static static*/",

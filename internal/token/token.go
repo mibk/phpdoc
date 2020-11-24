@@ -35,7 +35,7 @@ func (t Token) String() string {
 
 //go:generate stringer -type Type -linecomment
 
-type Type int
+type Type uint
 
 const (
 	EOF     Type = iota
@@ -43,9 +43,9 @@ const (
 	Whitespace
 
 	Ident
-	TagName
-	VarName
-	Decimal
+	Tag
+	Var
+	Int
 	Other
 
 	symbolStart
@@ -208,7 +208,7 @@ func (s *Scanner) scanAny() Token {
 		return s.scanWhitespace(r)
 	default:
 		if isDigit(r) {
-			return s.scanDecimal(r)
+			return s.scanNumber(r)
 		}
 		s.unread()
 		return s.scanOther("")
@@ -229,7 +229,7 @@ func (s *Scanner) scanTag() Token {
 	if id == "" {
 		return s.scanOther("@")
 	}
-	return Token{Type: TagName, Text: "@" + id}
+	return Token{Type: Tag, Text: "@" + id}
 }
 
 func (s *Scanner) scanTagName() string {
@@ -246,17 +246,17 @@ func (s *Scanner) scanTagName() string {
 }
 
 func (s *Scanner) scanVar() Token {
-	switch id := s.scanIdentName(); {
+	switch id := s.scanIdent(); {
 	case id == "", strings.ContainsRune(id, '-'):
 		return s.scanOther("$" + id)
 	case id == "this":
 		return Token{Type: This, Text: "$this"}
 	default:
-		return Token{Type: VarName, Text: "$" + id}
+		return Token{Type: Var, Text: "$" + id}
 	}
 }
 
-func (s *Scanner) scanIdentName() string {
+func (s *Scanner) scanIdent() string {
 	var b strings.Builder
 	for {
 		switch r := s.read(); {
@@ -279,13 +279,13 @@ func (s *Scanner) scanIdentName() string {
 	}
 }
 
-func (s *Scanner) scanDecimal(r rune) Token {
+func (s *Scanner) scanNumber(r rune) Token {
 	var b strings.Builder
 	b.WriteRune(r)
 	for isDigit(s.peek()) {
 		b.WriteRune(s.read())
 	}
-	return Token{Type: Decimal, Text: b.String()}
+	return Token{Type: Int, Text: b.String()}
 }
 
 func isDigit(r rune) bool {
@@ -308,7 +308,7 @@ func (s *Scanner) scanWhitespace(init rune) Token {
 
 func (s *Scanner) scanOther(init string) Token {
 	if init == "" {
-		switch id := s.scanIdentName(); id {
+		switch id := s.scanIdent(); id {
 		case "":
 			break
 		case "array":

@@ -144,7 +144,7 @@ func (p *parser) parseLines() []Line {
 // TextLine = Desc .
 func (p *parser) parseLine() Line {
 	p.consume(token.Whitespace, token.Asterisk, token.Whitespace)
-	if p.tok.Type == token.TagName {
+	if p.tok.Type == token.Tag {
 		return p.parseTag()
 	} else {
 		return &TextLine{Value: p.parseDesc()}
@@ -162,7 +162,7 @@ func (p *parser) parseLine() Line {
 //       OtherTag .
 func (p *parser) parseTag() Tag {
 	name := p.tok.Text
-	p.expect(token.TagName)
+	p.expect(token.Tag)
 
 	switch name {
 	case "@param":
@@ -212,7 +212,7 @@ func (p *parser) parsePropertyTag(name string) *PropertyTag {
 	tag := new(PropertyTag)
 	tag.Type = p.parseType()
 	tag.Var = strings.TrimPrefix(p.tok.Text, "$")
-	p.expect(token.VarName)
+	p.expect(token.Var)
 	tag.Desc = p.parseDesc()
 
 	switch {
@@ -254,7 +254,7 @@ func (p *parser) parseMethodTag() *MethodTag {
 func (p *parser) parseVarTag() *VarTag {
 	tag := new(VarTag)
 	tag.Type = p.parseType()
-	if p.tok.Type == token.VarName {
+	if p.tok.Type == token.Var {
 		tag.Var = p.tok.Text[1:]
 		p.next()
 	}
@@ -446,10 +446,10 @@ func (p *parser) parseParam(needVar bool) *phptype.Param {
 		needVar = true
 		par.Variadic = true
 	}
-	if v := strings.TrimPrefix(p.tok.Text, "$"); p.got(token.VarName) {
+	if v := strings.TrimPrefix(p.tok.Text, "$"); p.got(token.Var) {
 		par.Var = v
 	} else if needVar {
-		p.expect(token.VarName)
+		p.expect(token.Var)
 	}
 	return par
 }
@@ -465,7 +465,7 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 		for {
 			elem := new(phptype.ArrayElem)
 			switch p.tok.Type {
-			case token.Ident, token.Decimal:
+			case token.Ident, token.Int:
 				elem.Key = p.tok.Text
 				p.next()
 			case token.Rbrace:
@@ -476,7 +476,7 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 				fallthrough
 			default:
 				// TODO: Consider not requiring array keys.
-				p.errorf("expecting %v or %v, found %v", token.Ident, token.Decimal, p.tok)
+				p.errorf("expecting %v or %v, found %v", token.Ident, token.Int, p.tok)
 				return nil
 			}
 			elem.Optional = p.got(token.Qmark)
