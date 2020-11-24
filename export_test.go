@@ -8,7 +8,7 @@ import (
 )
 
 func ParseType(r io.Reader) (phptype.Type, error) {
-	p := &parser{sc: token.NewScanner(r)}
+	p := &parser{scan: token.NewScanner(r)}
 	p.next()
 	typ := p.parseType()
 	return typ, p.err

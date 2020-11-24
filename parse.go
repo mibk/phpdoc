@@ -20,7 +20,7 @@ func (e *SyntaxError) Error() string {
 }
 
 type parser struct {
-	sc *token.Scanner
+	scan *token.Scanner
 
 	err  error
 	tok  token.Token
@@ -30,7 +30,8 @@ type parser struct {
 
 // Parse parses a single PHPDoc comment.
 func Parse(r io.Reader) (*Block, error) {
-	p := &parser{sc: token.NewScanner(r)}
+	p := &parser{scan: token.NewScanner(r)}
+	p.next0() // init
 	doc := p.parseDoc()
 	if p.err != nil {
 		return nil, p.err
@@ -52,7 +53,7 @@ func (p *parser) next0() {
 		p.tok, p.alt = *p.alt, nil
 		return
 	}
-	p.tok = p.sc.Next()
+	p.tok = p.scan.Next()
 }
 
 // next is like next0 but skips whitespace.
@@ -103,7 +104,6 @@ func (p *parser) errorf(format string, args ...interface{}) {
 // PHPDoc = "/**" [ newline ] Line { newline Line } [ newline ] "*/" .
 func (p *parser) parseDoc() *Block {
 	doc := new(Block)
-	p.next0()
 	for {
 		p.consume(token.Newline)
 		if p.tok.Type != token.Whitespace {
