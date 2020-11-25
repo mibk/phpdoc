@@ -3,15 +3,16 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"regexp"
-	"unicode/utf8"
+	"strings"
 
+	"mibk.io/php/token"
 	"mibk.io/phpdoc"
 )
 
@@ -45,7 +46,7 @@ func main() {
 
 		buf := new(bytes.Buffer)
 		if err := formatDocs(filename, buf, f); err != nil {
-			log.Fatalf("formatting %s: %v", filename, err)
+			log.Println(err)
 		}
 		f.Close()
 
@@ -62,44 +63,64 @@ func main() {
 	}
 }
 
-var phpdocRx = regexp.MustCompile(`(?s)[ \t]*/\*\*.*?\*/[ \t]*\n?`)
-
 func formatDocs(filename string, out io.Writer, in io.Reader) error {
-	data, err := ioutil.ReadAll(in)
-	if err != nil {
-		return err
-	}
+	scan := token.NewScanner(in)
 
-	pos := Position{Filename: filename, Line: 1, Column: 1}
 	w := &stickyErrWriter{w: out}
-	for len(data) > 0 {
-		loc := phpdocRx.FindIndex(data)
-		if loc == nil {
-			w.Write(data)
-			break
+	var ws string
+	var doc *phpdoc.Block
+Loop:
+	for {
+		tok := scan.Next()
+		if doc != nil {
+			ws = ""
+			if tok.Type == token.Whitespace {
+				i := strings.LastIndexByte(tok.Text, '\n')
+				doc.Indent = tok.Text[i+1:]
+			}
+			if err := phpdoc.Fprint(w, doc); err != nil {
+				return fmt.Errorf("%s: printing doc: %v", filename, err)
+			}
+			io.WriteString(w, doc.Indent)
+			doc = nil
+			if tok.Type == token.Whitespace {
+				continue
+			}
 		}
-
-		m, n := loc[0], loc[1]
-		if m > 0 {
-			pos.Shift(data[:m])
-			w.Write(data[:m])
-		}
-
-		if doc, err := phpdoc.Parse(bytes.NewReader(data[m:n])); err != nil {
-			errPos := pos
+		if tok.Type == token.DocComment {
+			var err error
+			doc, err = phpdoc.Parse(strings.NewReader(tok.Text))
+			if err == nil {
+				continue
+			}
+			pos := Pos{Line: tok.Pos.Line, Column: tok.Pos.Column}
 			if se, ok := err.(*phpdoc.SyntaxError); ok {
-				errPos = errPos.Add(Position{Line: se.Line, Column: se.Column})
+				pos = pos.Add(Pos{Line: se.Line, Column: se.Column})
 				err = se.Err
 			}
-			log.Printf("%s: %v", errPos, err)
-			w.Write(data[m:n])
-		} else {
-			if err := phpdoc.Fprint(w, doc); err != nil {
-				log.Printf("%s: printing doc: %v", pos, err)
-			}
+			return fmt.Errorf("%s:%v: %v", filename, pos, err)
 		}
-		pos.Shift(data[m:n])
-		data = data[n:]
+		if ws != "" {
+			io.WriteString(w, ws)
+			ws = ""
+		}
+		switch tok.Type {
+		case token.EOF:
+			break Loop
+		case token.Whitespace:
+			i := strings.LastIndexByte(tok.Text, '\n')
+			io.WriteString(w, tok.Text[:i+1])
+			ws = tok.Text[i+1:]
+		default:
+			io.WriteString(w, tok.Text)
+		}
+	}
+	if err := scan.Err(); err != nil {
+		var scanErr *token.ScanError
+		if errors.As(err, &scanErr) {
+			return fmt.Errorf("%s:%v: %v", filename, scanErr.Pos, scanErr.Err)
+		}
+		return fmt.Errorf("formatting %q: %v", filename, err)
 	}
 	return w.err
 }
@@ -117,12 +138,11 @@ func (w *stickyErrWriter) Write(p []byte) (n int, err error) {
 	return n, w.err
 }
 
-type Position struct {
-	Filename     string
+type Pos struct {
 	Line, Column int
 }
 
-func (p Position) Add(q Position) Position {
+func (p Pos) Add(q Pos) Pos {
 	if q.Line == 1 {
 		p.Column += q.Column - 1
 	} else {
@@ -132,18 +152,6 @@ func (p Position) Add(q Position) Position {
 	return p
 }
 
-func (p *Position) Shift(b []byte) {
-	q := endPosition(b)
-	*p = p.Add(q)
-}
-
-func endPosition(b []byte) Position {
-	lines := bytes.Count(b, []byte("\n"))
-	i := bytes.LastIndexByte(b, '\n')
-	columns := utf8.RuneCount(b[i+1:])
-	return Position{Line: lines + 1, Column: columns + 1}
-}
-
-func (p Position) String() string {
-	return fmt.Sprintf("%s:%d:%d", p.Filename, p.Line, p.Column)
+func (p Pos) String() string {
+	return fmt.Sprintf("%d:%d", p.Line, p.Column)
 }
