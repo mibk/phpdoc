@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-
 	"mibk.io/phpdoc"
 	"mibk.io/phpdoc/phptype"
 )

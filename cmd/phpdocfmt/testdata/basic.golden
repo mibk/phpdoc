@@ -1,0 +1,9 @@
+/**
+ * @template T of Foo\IBar                preferably
+ * @method   int getBaz(string ...$names) gets baz
+ */
+thin class () {
+	/** @param T $x */
+	public function setBaz(mixed $x): void {
+	}
+}

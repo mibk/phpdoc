@@ -1,6 +1,15 @@
 package main
 
-import "testing"
+import (
+	"bytes"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
 
 func pos(line, col int) Position {
 	return Position{Line: line, Column: col}
@@ -48,5 +57,35 @@ func TestPostion_Add(t *testing.T) {
 		if got := tt.p.Add(tt.q); got != tt.want {
 			t.Errorf("%v + %v = %v; want %v", tt.p, tt.q, got, tt.want)
 		}
+	}
+}
+
+func TestFormatting(t *testing.T) {
+	files, err := filepath.Glob("testdata/*.input")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, file := range files {
+		name := strings.TrimSuffix(filepath.Base(file), ".input")
+		t.Run(name, func(t *testing.T) {
+			f, err := os.Open(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			buf := new(bytes.Buffer)
+			if err := formatDocs(name, buf, f); err != nil {
+				t.Fatal(err)
+			}
+			f.Close()
+
+			want, err := ioutil.ReadFile(filepath.Join("testdata", name+".golden"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if diff := cmp.Diff(strings.Split(buf.String(), "\n"), strings.Split(string(want), "\n")); diff != "" {
+				t.Errorf("files don't match (-got +want)\n%s", diff)
+			}
+		})
 	}
 }
