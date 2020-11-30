@@ -354,11 +354,11 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 	return intersect
 }
 
-// AtomicType   = ParenType | ThisType | NullableType | ArrayType .
+// AtomicType   = ParenType | ThisType | BasicType | GenericType | NullableType | ArrayType .
 // ThisType     = "$this" .
-// NullableType = [ "?" ] ( GenericType | BasicType ) .
 // BasicType    = NamedType | CallableType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
+// NullableType = "?" ( BasicType | GenericType ) .
 func (p *parser) parseAtomicType() phptype.Type {
 	typ, ok := p.tryParseAtomicType()
 	if !ok {
