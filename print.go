@@ -63,6 +63,27 @@ func (p *printer) print(args ...interface{}) {
 			p.printLine(arg)
 		case phptype.Type:
 			p.printPHPType(arg)
+		case []*phptype.Param:
+			p.print(token.Lparen)
+			for i, par := range arg {
+				if i > 0 {
+					p.print(token.Comma, ' ')
+				}
+				p.print(par.Type)
+				if par.Var != "" {
+					p.print(' ', par)
+				}
+			}
+			p.print(token.Rparen)
+		case *phptype.Param:
+			// The type is printed by the owner.
+			if arg.ByRef {
+				p.print(token.And)
+			}
+			if arg.Variadic {
+				p.print(token.Ellipsis)
+			}
+			p.print('$', arg.Var)
 		case token.Type:
 			_, p.err = p.buf.WriteString(arg.String())
 		case string:
@@ -113,17 +134,7 @@ func (p *printer) printTag(tag Tag) {
 		if tag.Result != nil {
 			p.print(tag.Result, ' ')
 		}
-		p.print(tag.Name, token.Lparen)
-		for i, par := range tag.Params {
-			if i > 0 {
-				p.print(token.Comma, ' ')
-			}
-			p.print(par.Type)
-			if par.Var != "" {
-				p.print(' ', par)
-			}
-		}
-		p.print(token.Rparen)
+		p.print(tag.Name, tag.Params)
 	case *VarTag:
 		p.print("@var", nextcol, tag.Type)
 		if tag.Var != "" {
@@ -177,17 +188,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 	case *phptype.Callable:
 		p.print(token.Callable)
 		if len(typ.Params) > 0 || typ.Result != nil {
-			p.print(token.Lparen)
-			for i, par := range typ.Params {
-				if i > 0 {
-					p.print(token.Comma, ' ')
-				}
-				p.print(par.Type)
-				if par.Var != "" {
-					p.print(' ', par)
-				}
-			}
-			p.print(token.Rparen)
+			p.print(typ.Params)
 			if typ.Result != nil {
 				p.print(token.Colon, ' ', typ.Result)
 			}
@@ -218,15 +219,6 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			p.print(typ)
 		}
 		p.print(token.Gt)
-	case *phptype.Param:
-		// TODO: Really let other node print the type?
-		if typ.ByRef {
-			p.print(token.And)
-		}
-		if typ.Variadic {
-			p.print(token.Ellipsis)
-		}
-		p.print('$', typ.Var)
 	case *phptype.Named:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {

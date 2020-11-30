@@ -73,7 +73,6 @@ type Named struct {
 type This struct{ typ }
 
 type Param struct {
-	typ
 	Type     Type
 	ByRef    bool // pass by reference
 	Variadic bool
