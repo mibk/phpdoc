@@ -227,7 +227,7 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			p.print(token.Ellipsis)
 		}
 		p.print('$', typ.Var)
-	case *phptype.Ident:
+	case *phptype.Named:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {
 				p.print(token.Backslash)

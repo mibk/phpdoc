@@ -60,16 +60,16 @@ type Generic struct {
 	TypeParams []Type
 }
 
-// An Ident represents a (possibly qualified or fully qualified) PHP
-// identifier, which might be a class, built-in type, or a special
-// keyword (e.g. null, true).
-type Ident struct {
+// Named represents a (possibly qualified or fully qualified) PHP
+// name, which might be a class name, a built-in type, or a special
+// type (e.g. null, true).
+type Named struct {
 	typ
 	Parts  []string
 	Global bool // fully qualified
 }
 
-// A This represents the $this special type.
+// This represents the $this special type.
 type This struct{ typ }
 
 type Param struct {

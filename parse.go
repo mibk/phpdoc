@@ -231,7 +231,7 @@ func (p *parser) parseMethodTag() *MethodTag {
 	tag.Result = p.parseType()
 	tag.Name = p.tok.Text
 	if !p.got(token.Ident) {
-		if id, ok := tag.Result.(*phptype.Ident); ok && !id.Global && len(id.Parts) == 1 {
+		if id, ok := tag.Result.(*phptype.Named); ok && !id.Global && len(id.Parts) == 1 {
 			// Result type wasn't defined, and we we thought
 			// was the result type was actually the method name.
 			tag.Result = nil
@@ -357,7 +357,7 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 // AtomicType   = ParenType | ThisType | NullableType | ArrayType .
 // ThisType     = "$this" .
 // NullableType = [ "?" ] ( GenericType | BasicType ) .
-// BasicType    = IdentType | CallableType | ArrayShapeType .
+// BasicType    = NamedType | CallableType | ArrayShapeType .
 // ArrayType    = AtomicType "[" "]" .
 func (p *parser) parseAtomicType() phptype.Type {
 	typ, ok := p.tryParseAtomicType()
@@ -379,7 +379,7 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 			typ = p.parseArrayShapeType()
 		} else if p.got(token.Callable) {
 			typ = p.parseCallableType()
-		} else if typ, ok = p.parseIdentType(); !ok {
+		} else if typ, ok = p.parseNamedType(); !ok {
 			return nil, false
 		}
 		// TODO: Forbid generic params for arrays with a shape?
@@ -510,14 +510,14 @@ func (p *parser) parseGenericType(base phptype.Type) phptype.Type {
 	return &phptype.Generic{Base: base, TypeParams: params}
 }
 
-// IdentType = [ "\\" ] ident { "\\" ident } .
-func (p *parser) parseIdentType() (_ *phptype.Ident, ok bool) {
+// NamedType = [ "\\" ] ident { "\\" ident } .
+func (p *parser) parseNamedType() (_ *phptype.Named, ok bool) {
 	switch p.tok.Type {
 	default:
 		return nil, false
 	case token.Backslash, token.Ident:
 	}
-	id := new(phptype.Ident)
+	id := new(phptype.Named)
 	if p.got(token.Backslash) {
 		id.Global = true
 	}

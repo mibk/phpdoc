@@ -12,7 +12,7 @@ import (
 
 func TestParsingDoc(t *testing.T) {
 	lines := func(lines ...phpdoc.Line) []phpdoc.Line { return lines }
-	typ := func(name string) phptype.Type { return &phptype.Ident{Parts: []string{name}} }
+	typ := func(name string) phptype.Type { return &phptype.Named{Parts: []string{name}} }
 
 	tests := []struct {
 		doc  string
@@ -68,7 +68,7 @@ func TestParsingTypes(t *testing.T) {
 		arrayShape = phptype.ArrayShape
 		arrayElem  = phptype.ArrayElem
 		generic    = phptype.Generic
-		ident      = phptype.Ident
+		named      = phptype.Named
 	)
 
 	types := func(types ...phptype.Type) []phptype.Type { return types }
@@ -80,21 +80,21 @@ func TestParsingTypes(t *testing.T) {
 	}{
 		{
 			typ:  `? float`,
-			want: &nullable{Type: &ident{Parts: parts("float")}},
+			want: &nullable{Type: &named{Parts: parts("float")}},
 		},
 		{
 			typ:  `int [ ] []`,
-			want: &array{Elem: &array{Elem: &ident{Parts: parts("int")}}},
+			want: &array{Elem: &array{Elem: &named{Parts: parts("int")}}},
 		},
 		{
 			typ: `array < string, ?array<string, int > []>`,
 			want: &generic{Base: new(arrayShape), TypeParams: types(
-				&ident{Parts: parts("string")},
+				&named{Parts: parts("string")},
 				&array{Elem: &nullable{Type: &generic{
 					Base: new(arrayShape),
 					TypeParams: types(
-						&ident{Parts: parts("string")},
-						&ident{Parts: parts("int")},
+						&named{Parts: parts("string")},
+						&named{Parts: parts("int")},
 					),
 				}}},
 			)},
@@ -102,43 +102,43 @@ func TestParsingTypes(t *testing.T) {
 		{
 			typ: `Traversable &Countable`,
 			want: &intersect{Types: types(
-				&ident{Parts: parts("Traversable")},
-				&ident{Parts: parts("Countable")},
+				&named{Parts: parts("Traversable")},
+				&named{Parts: parts("Countable")},
 			)},
 		},
 		{
 			typ: `( int |float )[]`,
 			want: &array{Elem: &parens{Type: &union{Types: types(
-				&ident{Parts: parts("int")},
-				&ident{Parts: parts("float")},
+				&named{Parts: parts("int")},
+				&named{Parts: parts("float")},
 			)}}},
 		},
 		{
 			typ:  `\Foo\ Bar \DateTime`,
-			want: &ident{Parts: parts("Foo", "Bar", "DateTime"), Global: true},
+			want: &named{Parts: parts("Foo", "Bar", "DateTime"), Global: true},
 		},
 		{
 			typ:  `Other\DateTime`,
-			want: &ident{Parts: parts("Other", "DateTime")},
+			want: &named{Parts: parts("Other", "DateTime")},
 		},
 		{
 			typ:  `\ Traversable`,
-			want: &ident{Parts: parts("Traversable"), Global: true},
+			want: &named{Parts: parts("Traversable"), Global: true},
 		},
 		{
 			typ: `array{20?:int, foo :string | \ DateTime}`,
 			want: &arrayShape{Elems: []*arrayElem{
-				{Key: "20", Type: &ident{Parts: parts("int")}, Optional: true},
+				{Key: "20", Type: &named{Parts: parts("int")}, Optional: true},
 				{Key: "foo", Type: &union{Types: types(
-					&ident{Parts: parts("string")},
-					&ident{Parts: parts("DateTime"), Global: true},
+					&named{Parts: parts("string")},
+					&named{Parts: parts("DateTime"), Global: true},
 				)}},
 			}},
 		},
 		{
 			typ: `class-string<T>`,
-			want: &generic{Base: &ident{Parts: parts("class-string")},
-				TypeParams: types(&ident{Parts: parts("T")}),
+			want: &generic{Base: &named{Parts: parts("class-string")},
+				TypeParams: types(&named{Parts: parts("T")}),
 			},
 		},
 	}
