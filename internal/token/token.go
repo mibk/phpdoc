@@ -84,6 +84,7 @@ const eof = -1
 type Scanner struct {
 	r    *bufio.Reader
 	done bool
+	err  error
 
 	line, col   int
 	lastLineLen int
@@ -107,12 +108,17 @@ func (s *Scanner) Next() Token {
 	return tok
 }
 
+func (s *Scanner) Err() error { return s.err }
+
 func (s *Scanner) read() rune {
 	if s.done {
 		return eof
 	}
 	r, _, err := s.r.ReadRune()
 	if err != nil {
+		if err != io.EOF {
+			s.err = err
+		}
 		s.done = true
 		return eof
 	}

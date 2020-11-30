@@ -89,8 +89,30 @@ func TestScanner(t *testing.T) {
 		{token.CloseDoc, `*/`, pos("5:1")},
 		{token.EOF, "", pos("5:3")},
 	}
-
+	if err := sc.Err(); err != nil {
+		t.Fatalf("unexpected err: %v", err)
+	}
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("tokens don't match: (-got +want)\n%s", diff)
 	}
+}
+
+func TestBadReader(t *testing.T) {
+	sc := token.NewScanner(new(badReader))
+	for sc.Next().Type != token.EOF {
+	}
+	errStr := "<nil>"
+	if err := sc.Err(); err != nil {
+		errStr = err.Error()
+	}
+	const wantErr = "i'm fine"
+	if errStr != wantErr {
+		t.Errorf("\n got %s\nwant %s", errStr, wantErr)
+	}
+}
+
+type badReader struct{}
+
+func (badReader) Read(p []byte) (n int, err error) {
+	return 0, fmt.Errorf("i'm fine")
 }
