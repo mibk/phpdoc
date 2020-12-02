@@ -80,7 +80,7 @@ func (p *parser) got(typ token.Type) bool {
 
 func (p *parser) consume(types ...token.Type) {
 	if len(types) == 0 {
-		panic("not token types to consume provided")
+		panic("no token types to consume provided")
 	}
 
 	for ; len(types) > 0; types = types[1:] {
