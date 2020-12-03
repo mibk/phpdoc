@@ -38,8 +38,9 @@ func (t Token) String() string {
 type Type uint
 
 const (
-	EOF     Type = iota
-	Newline      // \n
+	Illegal Type = iota
+	EOF
+	Newline // \n
 	Whitespace
 
 	Ident

@@ -49,6 +49,9 @@ func (p *parser) backup() {
 }
 
 func (p *parser) next0() {
+	if p.tok.Type == token.EOF {
+		return
+	}
 	if p.alt != nil {
 		p.tok, p.alt = *p.alt, nil
 		return
@@ -92,6 +95,7 @@ func (p *parser) consume(types ...token.Type) {
 
 func (p *parser) errorf(format string, args ...interface{}) {
 	if p.err == nil {
+		p.tok.Type = token.EOF
 		se := &SyntaxError{Err: fmt.Errorf(format, args...)}
 		se.Line, se.Column = p.tok.Pos.Line, p.tok.Pos.Column
 		p.err = se
@@ -123,21 +127,13 @@ func (p *parser) parseDoc() *Block {
 
 func (p *parser) parseLines() []Line {
 	var lines []Line
-	for {
-		if p.err != nil {
-			return nil
-		}
-		if p.tok.Type == token.CloseDoc {
-			return lines
-		}
-
-		line := p.parseLine()
-		lines = append(lines, line)
-
+	for p.tok.Type != token.CloseDoc {
+		lines = append(lines, p.parseLine())
 		if !p.got(token.Newline) {
-			return lines
+			break
 		}
 	}
+	return lines
 }
 
 // Line     = [ asterisk ] ( TextLine | Tag ) .
@@ -423,7 +419,6 @@ func (p *parser) parseCallableType() phptype.Type {
 func (p *parser) parseParamList() []*phptype.Param {
 	var params []*phptype.Param
 	for !p.got(token.Rparen) && !p.got(token.EOF) {
-		// TODO: Do we need to check for EOF?
 		par := p.parseParam(false)
 		params = append(params, par)
 		if p.got(token.Rparen) {
