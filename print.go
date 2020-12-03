@@ -70,7 +70,7 @@ func (p *printer) print(args ...interface{}) {
 					p.print(token.Comma, ' ')
 				}
 				p.print(par.Type)
-				if par.Var != "" {
+				if par.Name != "" {
 					p.print(' ', par)
 				}
 			}
@@ -83,7 +83,7 @@ func (p *printer) print(args ...interface{}) {
 			if arg.Variadic {
 				p.print(token.Ellipsis)
 			}
-			p.print('$', arg.Var)
+			p.print('$', arg.Name)
 		case token.Type:
 			_, p.err = p.buf.WriteString(arg.String())
 		case string:

@@ -76,7 +76,7 @@ type Param struct {
 	Type     Type
 	ByRef    bool // pass by reference
 	Variadic bool
-	Var      string
+	Name     string
 }
 
 type Callable struct {

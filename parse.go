@@ -442,7 +442,7 @@ func (p *parser) parseParam(needVar bool) *phptype.Param {
 		par.Variadic = true
 	}
 	if v := strings.TrimPrefix(p.tok.Text, "$"); p.got(token.Var) {
-		par.Var = v
+		par.Name = v
 	} else if needVar {
 		p.expect(token.Var)
 	}
