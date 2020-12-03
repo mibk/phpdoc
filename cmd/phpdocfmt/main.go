@@ -45,10 +45,12 @@ func main() {
 		perm := fi.Mode().Perm()
 
 		buf := new(bytes.Buffer)
-		if err := formatDocs(filename, buf, f); err != nil {
-			log.Println(err)
-		}
+		err = formatDocs(filename, buf, f)
 		f.Close()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 
 		if *inPlace {
 			// TODO: Make backup file?
