@@ -352,7 +352,7 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 
 // AtomicType   = ParenType | ThisType | BasicType | GenericType | NullableType | ArrayType .
 // ThisType     = "$this" .
-// BasicType    = NamedType | CallableType | ArrayShapeType .
+// BasicType    = NamedType | CallableType | ArrayShapeType | ConstFetch .
 // ArrayType    = AtomicType "[" "]" .
 // NullableType = "?" ( BasicType | GenericType ) .
 func (p *parser) parseAtomicType() phptype.Type {
@@ -378,6 +378,15 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 		} else if typ, ok = p.parseNamedType(); !ok {
 			return nil, false
 		}
+		if ok && p.got(token.DoubleColon) {
+			if nullable {
+				p.errorf("constant fetch cannot be nullable")
+				return nil, false
+			}
+			typ = &phptype.ConstFetch{Class: typ, Name: p.tok.Text}
+			p.expect(token.Ident)
+			return typ, true
+		}
 		// TODO: Forbid generic params for arrays with a shape?
 		if p.got(token.Lt) {
 			typ = p.parseGenericType(typ)
@@ -389,6 +398,10 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 	for p.got(token.Lbrack) {
 		p.expect(token.Rbrack)
 		typ = &phptype.Array{Elem: typ}
+	}
+	if p.got(token.DoubleColon) {
+		p.errorf("unexpected %v", token.DoubleColon)
+		return nil, false
 	}
 	return typ, true
 }

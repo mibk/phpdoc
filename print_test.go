@@ -159,6 +159,17 @@ It's	deprecated now.
  * @method static void clean()
  */
 `},
+	{"const exprs", `
+/**
+@param   self :: MY_CONST$a
+@param value-of < That   :: ConstVal >$b
+*/
+----
+/**
+ * @param self::MY_CONST           $a
+ * @param value-of<That::ConstVal> $b
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

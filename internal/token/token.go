@@ -54,22 +54,23 @@ const (
 	OpenDoc  // /**
 	CloseDoc // */
 
-	Asterisk  // *
-	Backslash // \
-	Qmark     // ?
-	Lparen    // (
-	Rparen    // )
-	Lbrack    // [
-	Rbrack    // ]
-	Lbrace    // {
-	Rbrace    // }
-	Lt        // <
-	Gt        // >
-	Comma     // ,
-	Colon     // :
-	Ellipsis  // ...
-	Or        // |
-	And       // &
+	Asterisk    // *
+	Backslash   // \
+	Qmark       // ?
+	Lparen      // (
+	Rparen      // )
+	Lbrack      // [
+	Rbrack      // ]
+	Lbrace      // {
+	Rbrace      // }
+	Lt          // <
+	Gt          // >
+	Comma       // ,
+	Colon       // :
+	DoubleColon // ::
+	Ellipsis    // ...
+	Or          // |
+	And         // &
 	symbolEnd
 
 	keywordStart
@@ -196,6 +197,10 @@ func (s *Scanner) scanAny() Token {
 	case ',':
 		return Token{Type: Comma}
 	case ':':
+		if s.peek() == ':' {
+			s.read()
+			return Token{Type: DoubleColon, Text: "::"}
+		}
 		return Token{Type: Colon}
 	case '.':
 		if s.peek() == '.' {

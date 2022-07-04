@@ -219,6 +219,8 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			p.print(typ)
 		}
 		p.print(token.Gt)
+	case *phptype.ConstFetch:
+		p.print(typ.Class, token.DoubleColon, typ.Name)
 	case *phptype.Named:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {

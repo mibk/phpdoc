@@ -60,6 +60,12 @@ type Generic struct {
 	TypeParams []Type
 }
 
+type ConstFetch struct {
+	typ
+	Class Type
+	Name  string
+}
+
 // Named represents a (possibly qualified or fully qualified) PHP
 // name, which might be a class name, a built-in type, or a special
 // type (e.g. null, true).

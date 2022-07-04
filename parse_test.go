@@ -205,6 +205,18 @@ func TestSyntaxErrors(t *testing.T) {
 			`/**@var array{'\t':string}*/`,
 			`line:1:15: expecting Ident or Int, found Other("'\\t':string}")`,
 		},
+		{
+			`/**@param callable ::foo $bar*/`,
+			`line:1:22: unexpected ::`,
+		},
+		{
+			`/**@var array ::foo */`,
+			`line:1:17: unexpected ::`,
+		},
+		{
+			`/**@var ? DateTime::FORMAT */`,
+			`line:1:21: constant fetch cannot be nullable`,
+		},
 	}
 
 	for _, tt := range tests {
