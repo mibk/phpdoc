@@ -217,6 +217,10 @@ func TestSyntaxErrors(t *testing.T) {
 			`/**@var ? DateTime::FORMAT */`,
 			`line:1:21: constant fetch cannot be nullable`,
 		},
+		{
+			`/**@var DateTime::ANY_ * */`,
+			`line:1:26: invalid position of *, did you mean to write ANY_*?`,
+		},
 	}
 
 	for _, tt := range tests {

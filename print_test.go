@@ -161,13 +161,15 @@ It's	deprecated now.
 `},
 	{"const exprs", `
 /**
-@param   self :: MY_CONST$a
+@param   self :: ALL_*$a
 @param value-of < That   :: ConstVal >$b
+@return BAR  ::    *
 */
 ----
 /**
- * @param self::MY_CONST           $a
- * @param value-of<That::ConstVal> $b
+ * @param  self::ALL_*              $a
+ * @param  value-of<That::ConstVal> $b
+ * @return BAR::*
  */
 `},
 }

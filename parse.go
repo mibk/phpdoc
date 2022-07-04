@@ -383,9 +383,22 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 				p.errorf("constant fetch cannot be nullable")
 				return nil, false
 			}
-			typ = &phptype.ConstFetch{Class: typ, Name: p.tok.Text}
-			p.expect(token.Ident)
-			return typ, true
+			cf := &phptype.ConstFetch{Class: typ, Name: p.tok.Text}
+			switch p.tok.Type {
+			case token.Ident, token.Asterisk:
+				cf.Name = p.tok.Text
+			default:
+				p.errorf("unexpected %v, expecting %v", p.tok, token.Ident)
+			}
+			p.next0()
+			if cf.Name != "*" && p.got(token.Asterisk) {
+				cf.Name += "*"
+			}
+			p.consume(token.Whitespace)
+			if p.got(token.Asterisk) {
+				p.errorf("invalid position of *, did you mean to write %s*?", cf.Name)
+			}
+			return cf, true
 		}
 		// TODO: Forbid generic params for arrays with a shape?
 		if p.got(token.Lt) {
