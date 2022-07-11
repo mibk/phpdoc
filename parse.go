@@ -155,6 +155,7 @@ func (p *parser) parseLine() Line {
 //       ThrowsTag |
 //       ImplementsTag |
 //       TemplateTag |
+//       TypeDefTag |
 //       OtherTag .
 func (p *parser) parseTag() Tag {
 	name := p.tok.Text
@@ -181,6 +182,8 @@ func (p *parser) parseTag() Tag {
 		return p.parseUsesTag()
 	case "@template":
 		return p.parseTemplateTag()
+	case "@phpstan-type":
+		return p.parseTypeDefTag()
 	default:
 		return p.parseOtherTag(name[1:])
 		return nil
@@ -299,6 +302,16 @@ func (p *parser) parseTemplateTag() *TemplateTag {
 		p.next()
 		tag.Bound = p.parseType()
 	}
+	tag.Desc = p.parseDesc()
+	return tag
+}
+
+// TypeDefTag = "@phpstan-type" ident PHPType [ Desc ] .
+func (p *parser) parseTypeDefTag() *TypeDefTag {
+	tag := new(TypeDefTag)
+	tag.Name = p.tok.Text
+	p.expect(token.Ident)
+	tag.Type = p.parseType()
 	tag.Desc = p.parseDesc()
 	return tag
 }

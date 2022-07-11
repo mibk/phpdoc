@@ -111,6 +111,14 @@ type TemplateTag struct {
 	Desc  string
 }
 
+// A TemplateTag represents a @phpstan-type tag.
+type TypeDefTag struct {
+	tag
+	Name string
+	Type phptype.Type
+	Desc string
+}
+
 // A OtherTag represents an arbitrary tag without a special meaning.
 type OtherTag struct {
 	tag
@@ -128,4 +136,5 @@ func (t *ExtendsTag) desc() string    { return t.Desc }
 func (t *ImplementsTag) desc() string { return t.Desc }
 func (t *UsesTag) desc() string       { return t.Desc }
 func (t *TemplateTag) desc() string   { return t.Desc }
+func (t *TypeDefTag) desc() string    { return t.Desc }
 func (t *OtherTag) desc() string      { return t.Desc }

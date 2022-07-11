@@ -153,6 +153,8 @@ func (p *printer) printTag(tag Tag) {
 		if tag.Bound != nil {
 			p.print(" of ", tag.Bound)
 		}
+	case *TypeDefTag:
+		p.print("@phpstan-type", nextcol, tag.Name, nextcol, tag.Type)
 	case *OtherTag:
 		p.print('@', tag.Name)
 	default:

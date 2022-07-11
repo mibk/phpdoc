@@ -172,6 +172,17 @@ It's	deprecated now.
  * @return BAR::*
  */
 `},
+	{"types", `
+/**
+@phpstan-type   Foo  array{ 'bar' :string }  For sure
+@param  Foo     []   $foos
+*/
+----
+/**
+ * @phpstan-type Foo   array{'bar': string} For sure
+ * @param        Foo[] $foos
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {
