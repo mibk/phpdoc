@@ -6,8 +6,8 @@ import (
 	"io"
 	"text/tabwriter"
 
-	"mibk.io/phpdoc/internal/token"
-	"mibk.io/phpdoc/phptype"
+	"mibk.dev/phpdoc/internal/token"
+	"mibk.dev/phpdoc/phptype"
 )
 
 // Fprint "pretty-prints" an AST node to w.

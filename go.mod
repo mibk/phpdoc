@@ -1,4 +1,4 @@
-module mibk.io/phpdoc
+module mibk.dev/phpdoc
 
 go 1.13
 

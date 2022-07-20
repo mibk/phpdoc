@@ -6,5 +6,5 @@ compatible with [PHPStan](https://github.com/phpstan/phpstan).
 ## Instalation
 
 ```
-$ go get mibk.io/phpdoc
+$ go get mibk.dev/phpdoc
 ```

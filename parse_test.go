@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"mibk.io/phpdoc"
-	"mibk.io/phpdoc/phptype"
+	"mibk.dev/phpdoc"
+	"mibk.dev/phpdoc/phptype"
 )
 
 func TestParsingDoc(t *testing.T) {

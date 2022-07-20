@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"mibk.io/phpdoc"
+	"mibk.dev/phpdoc"
 )
 
 var printTests = []struct {

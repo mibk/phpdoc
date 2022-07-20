@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 
-	"mibk.io/phpdoc/internal/token"
+	"mibk.dev/phpdoc/internal/token"
 )
 
 func pos(posStr string) token.Pos {

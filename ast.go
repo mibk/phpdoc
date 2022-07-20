@@ -1,6 +1,6 @@
 package phpdoc
 
-import "mibk.io/phpdoc/phptype"
+import "mibk.dev/phpdoc/phptype"
 
 // A Block represents a PHPDoc comment block.
 type Block struct {

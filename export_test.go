@@ -3,8 +3,8 @@ package phpdoc
 import (
 	"io"
 
-	"mibk.io/phpdoc/internal/token"
-	"mibk.io/phpdoc/phptype"
+	"mibk.dev/phpdoc/internal/token"
+	"mibk.dev/phpdoc/phptype"
 )
 
 func ParseType(r io.Reader) (phptype.Type, error) {
