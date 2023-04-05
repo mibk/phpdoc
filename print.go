@@ -223,6 +223,8 @@ func (p *printer) printPHPType(typ phptype.Type) {
 		p.print(token.Gt)
 	case *phptype.ConstFetch:
 		p.print(typ.Class, token.DoubleColon, typ.Name)
+	case *phptype.Literal:
+		p.print(typ.Value)
 	case *phptype.Named:
 		for i, part := range typ.Parts {
 			if i > 0 || typ.Global {
@@ -272,7 +274,6 @@ func (p *printer) printPHPType(typ phptype.Type) {
 // and vtab characters into newlines and htabs (in case no tabwriter
 // is used). Text bracketed by tabwriter.Escape characters is passed
 // through unchanged.
-//
 type trimmer struct {
 	output io.Writer
 	state  int

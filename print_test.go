@@ -183,6 +183,15 @@ It's	deprecated now.
  * @param        Foo[] $foos
  */
 `},
+	{"string lit", `
+/**
+@param  'foo' |  7 | 'bar'     []   $xyz
+*/
+----
+/**
+ * @param 'foo'|7|'bar'[] $xyz
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

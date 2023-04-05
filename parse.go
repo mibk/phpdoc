@@ -148,15 +148,16 @@ func (p *parser) parseLine() Line {
 }
 
 // Tag = ParamTag |
-//       ReturnTag |
-//       PropertyTag |
-//       MethodTag |
-//       VarTag |
-//       ThrowsTag |
-//       ImplementsTag |
-//       TemplateTag |
-//       TypeDefTag |
-//       OtherTag .
+//
+//	ReturnTag |
+//	PropertyTag |
+//	MethodTag |
+//	VarTag |
+//	ThrowsTag |
+//	ImplementsTag |
+//	TemplateTag |
+//	TypeDefTag |
+//	OtherTag .
 func (p *parser) parseTag() Tag {
 	name := p.tok.Text
 	p.expect(token.Tag)
@@ -365,7 +366,7 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 
 // AtomicType   = ParenType | ThisType | BasicType | GenericType | NullableType | ArrayType .
 // ThisType     = "$this" .
-// BasicType    = NamedType | CallableType | ArrayShapeType | ConstFetch .
+// BasicType    = NamedType | CallableType | ArrayShapeType | ConstFetch | LitType .
 // ArrayType    = AtomicType "[" "]" .
 // NullableType = "?" ( BasicType | GenericType ) .
 func (p *parser) parseAtomicType() phptype.Type {
@@ -389,7 +390,9 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 		} else if p.got(token.Callable) {
 			typ = p.parseCallableType()
 		} else if typ, ok = p.parseNamedType(); !ok {
-			return nil, false
+			if typ, ok = p.parseLitType(); !ok {
+				return nil, false
+			}
 		}
 		if ok && p.got(token.DoubleColon) {
 			if nullable {
@@ -491,7 +494,7 @@ func (p *parser) parseParam(needVar bool) *phptype.Param {
 // ArrayShapeType = array [ ArrayShape ] .
 // ArrayShape     = "{" KeyType { "," KeyType } [ "," ] "}" .
 // KeyType        = ArrayKey [ "?" ] ":" PHPType .
-// ArrayKey       = ident | decimal .
+// ArrayKey       = string | ident | decimal .
 func (p *parser) parseArrayShapeType() phptype.Type {
 	typ := new(phptype.ArrayShape)
 	if p.got(token.Lbrace) {
@@ -563,6 +566,19 @@ func (p *parser) parseNamedType() (_ *phptype.Named, ok bool) {
 		}
 	}
 	return id, true
+}
+
+// LitType = string | decimal .
+func (p *parser) parseLitType() (_ *phptype.Literal, ok bool) {
+	lit := new(phptype.Literal)
+	switch p.tok.Type {
+	case token.String, token.Int:
+		lit.Value = p.tok.Text
+		p.next()
+		return lit, true
+	default:
+		return nil, false
+	}
 }
 
 // Desc = { any } .

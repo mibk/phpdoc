@@ -66,6 +66,11 @@ type ConstFetch struct {
 	Name  string
 }
 
+type Literal struct {
+	typ
+	Value string
+}
+
 // Named represents a (possibly qualified or fully qualified) PHP
 // name, which might be a class name, a built-in type, or a special
 // type (e.g. null, true).
