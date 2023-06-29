@@ -212,6 +212,23 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			p.print(token.Colon, ' ', elem.Type)
 		}
 		p.print(token.Rbrace)
+	case *phptype.ObjectShape:
+		p.print(token.Object)
+		if len(typ.Elems) == 0 {
+			break
+		}
+		p.print(token.Lbrace)
+		for i, elem := range typ.Elems {
+			if i > 0 {
+				p.print(token.Comma, ' ')
+			}
+			p.print(elem.Key)
+			if elem.Optional {
+				p.print(token.Qmark)
+			}
+			p.print(token.Colon, ' ', elem.Type)
+		}
+		p.print(token.Rbrace)
 	case *phptype.Generic:
 		p.print(typ.Base, token.Lt)
 		for i, typ := range typ.TypeParams {

@@ -53,6 +53,19 @@ type ArrayElem struct {
 	Optional bool
 }
 
+// An ObjectShape represents the structure of \stdClass.
+type ObjectShape struct {
+	typ
+	Elems []*ObjectElem
+}
+
+// An ObjectElem represents a key-value element of ObjectShape.
+type ObjectElem struct {
+	Key      string
+	Type     Type
+	Optional bool
+}
+
 // Generic represents a pseudo-generic PHP type.
 type Generic struct {
 	typ

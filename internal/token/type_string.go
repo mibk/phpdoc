@@ -42,14 +42,15 @@ func _() {
 	_ = x[keywordStart-31]
 	_ = x[This-32]
 	_ = x[Array-33]
-	_ = x[Callable-34]
-	_ = x[Static-35]
-	_ = x[keywordEnd-36]
+	_ = x[Object-34]
+	_ = x[Callable-35]
+	_ = x[Static-36]
+	_ = x[keywordEnd-37]
 }
 
-const _Type_name = "IllegalEOF\\nWhitespaceIdentTagVarStringIntOthersymbolStart/***/*\\?()[]{}<>,:::...|&symbolEndkeywordStart$thisarraycallablestatickeywordEnd"
+const _Type_name = "IllegalEOF\\nWhitespaceIdentTagVarStringIntOthersymbolStart/***/*\\?()[]{}<>,:::...|&symbolEndkeywordStart$thisarrayobjectcallablestatickeywordEnd"
 
-var _Type_index = [...]uint8{0, 7, 10, 12, 22, 27, 30, 33, 39, 42, 47, 58, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 81, 82, 83, 92, 104, 109, 114, 122, 128, 138}
+var _Type_index = [...]uint8{0, 7, 10, 12, 22, 27, 30, 33, 39, 42, 47, 58, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 81, 82, 83, 92, 104, 109, 114, 120, 128, 134, 144}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {

@@ -113,6 +113,17 @@ It's	deprecated now.
  * @var array{'foo': string, 'bar\''?: string}
  */
 `},
+	{"object shapes", `
+/**
+@var  object   {name :string ,role  ?: int ,}
+@return        object
+*/
+----
+/**
+ * @var    object{name: string, role?: int}
+ * @return object
+ */
+`},
 	{"template", `
 /**
 @template    T foo

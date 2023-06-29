@@ -76,6 +76,7 @@ const (
 	keywordStart
 	This     // $this
 	Array    // array
+	Object   // object
 	Callable // callable
 	Static   // static
 	keywordEnd
@@ -352,6 +353,8 @@ func (s *Scanner) scanOther(init string) Token {
 			break
 		case "array":
 			return Token{Type: Array, Text: id}
+		case "object":
+			return Token{Type: Object, Text: id}
 		case "callable":
 			return Token{Type: Callable, Text: id}
 		case "static":

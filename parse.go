@@ -366,7 +366,7 @@ func (p *parser) parseIntersectType(init phptype.Type) phptype.Type {
 
 // AtomicType   = ParenType | ThisType | BasicType | GenericType | NullableType | ArrayType .
 // ThisType     = "$this" .
-// BasicType    = NamedType | CallableType | ArrayShapeType | ConstFetch | LitType .
+// BasicType    = NamedType | CallableType | ArrayShapeType | ObjectShapeType | ConstFetch | LitType .
 // ArrayType    = AtomicType "[" "]" .
 // NullableType = "?" ( BasicType | GenericType ) .
 func (p *parser) parseAtomicType() phptype.Type {
@@ -387,6 +387,8 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 		nullable := p.got(token.Qmark)
 		if p.got(token.Array) {
 			typ = p.parseArrayShapeType()
+		} else if p.got(token.Object) {
+			typ = p.parseObjectShapeType()
 		} else if p.got(token.Callable) {
 			typ = p.parseCallableType()
 		} else if typ, ok = p.parseNamedType(); !ok {
@@ -514,6 +516,43 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 			default:
 				// TODO: Consider not requiring array keys.
 				p.errorf("expecting %v or %v, found %v", token.Ident, token.Int, p.tok)
+				return nil
+			}
+			elem.Optional = p.got(token.Qmark)
+			p.expect(token.Colon)
+			elem.Type = p.parseType()
+			typ.Elems = append(typ.Elems, elem)
+			if !p.got(token.Comma) {
+				break
+			}
+		}
+		p.expect(token.Rbrace)
+	}
+	return typ
+}
+
+// ObjectShapeType = object [ ObjectShape ] .
+// ObjectShape     = "{" KeyType { "," KeyType } [ "," ] "}" .
+// ObjectKeyType   = ObjectKey [ "?" ] ":" PHPType .
+// ObjectKey       = ident .
+func (p *parser) parseObjectShapeType() phptype.Type {
+	typ := new(phptype.ObjectShape)
+	if p.got(token.Lbrace) {
+	Elems:
+		for {
+			elem := new(phptype.ObjectElem)
+			switch p.tok.Type {
+			case token.Ident:
+				elem.Key = p.tok.Text
+				p.next()
+			case token.Rbrace:
+				// Allow trailing comma.
+				if len(typ.Elems) > 0 {
+					break Elems
+				}
+				fallthrough
+			default:
+				p.errorf("expecting %v, found %v", token.Ident, p.tok)
 				return nil
 			}
 			elem.Optional = p.got(token.Qmark)
