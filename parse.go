@@ -416,10 +416,9 @@ func (p *parser) tryParseAtomicType() (_ phptype.Type, ok bool) {
 			if p.got(token.Asterisk) {
 				p.errorf("invalid position of *, did you mean to write %s*?", cf.Name)
 			}
-			return cf, true
-		}
-		// TODO: Forbid generic params for arrays with a shape?
-		if p.got(token.Lt) {
+			typ = cf
+		} else if p.got(token.Lt) {
+			// TODO: Forbid generic params for arrays with a shape?
 			typ = p.parseGenericType(typ)
 		}
 		if nullable {

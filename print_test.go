@@ -173,12 +173,14 @@ It's	deprecated now.
 	{"const exprs", `
 /**
 @param   self :: ALL_*$a
+@param  self::ANY_*  []           $xx
 @param value-of < That   :: ConstVal >$b
 @return BAR  ::    *
 */
 ----
 /**
  * @param  self::ALL_*              $a
+ * @param  self::ANY_*[]            $xx
  * @param  value-of<That::ConstVal> $b
  * @return BAR::*
  */
