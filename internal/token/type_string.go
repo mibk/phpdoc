@@ -38,19 +38,20 @@ func _() {
 	_ = x[Ellipsis-27]
 	_ = x[Or-28]
 	_ = x[And-29]
-	_ = x[symbolEnd-30]
-	_ = x[keywordStart-31]
-	_ = x[This-32]
-	_ = x[Array-33]
-	_ = x[Object-34]
-	_ = x[Callable-35]
-	_ = x[Static-36]
-	_ = x[keywordEnd-37]
+	_ = x[Assign-30]
+	_ = x[symbolEnd-31]
+	_ = x[keywordStart-32]
+	_ = x[This-33]
+	_ = x[Array-34]
+	_ = x[Object-35]
+	_ = x[Callable-36]
+	_ = x[Static-37]
+	_ = x[keywordEnd-38]
 }
 
-const _Type_name = "IllegalEOF\\nWhitespaceIdentTagVarStringIntOthersymbolStart/***/*\\?()[]{}<>,:::...|&symbolEndkeywordStart$thisarrayobjectcallablestatickeywordEnd"
+const _Type_name = "IllegalEOF\\nWhitespaceIdentTagVarStringIntOthersymbolStart/***/*\\?()[]{}<>,:::...|&=symbolEndkeywordStart$thisarrayobjectcallablestatickeywordEnd"
 
-var _Type_index = [...]uint8{0, 7, 10, 12, 22, 27, 30, 33, 39, 42, 47, 58, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 81, 82, 83, 92, 104, 109, 114, 120, 128, 134, 144}
+var _Type_index = [...]uint8{0, 7, 10, 12, 22, 27, 30, 33, 39, 42, 47, 58, 61, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 81, 82, 83, 84, 93, 105, 110, 115, 121, 129, 135, 145}
 
 func (i Type) String() string {
 	if i >= Type(len(_Type_index)-1) {

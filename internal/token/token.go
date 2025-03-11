@@ -71,6 +71,7 @@ const (
 	Ellipsis    // ...
 	Or          // |
 	And         // &
+	Assign      // =
 	symbolEnd
 
 	keywordStart
@@ -216,6 +217,8 @@ func (s *Scanner) scanAny() Token {
 		return Token{Type: Or}
 	case '&':
 		return Token{Type: And}
+	case '=':
+		return Token{Type: Assign}
 	case '\n':
 		return Token{Type: Newline, Text: string(r)}
 	case ' ', '\t':

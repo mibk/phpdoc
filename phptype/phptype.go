@@ -101,6 +101,7 @@ type Param struct {
 	ByRef    bool // pass by reference
 	Variadic bool
 	Name     string
+	Default  *Literal // or nil
 }
 
 type Callable struct {

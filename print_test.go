@@ -142,19 +142,21 @@ It's	deprecated now.
 @param  callable(): string $k
 @param callable  ( int  $a ,string& ...$b, ): string |int$x
 @param  callable (bool ,string ) $n
+@param  callable (string$s='false' ,bool $b  =true, ) $nn
 @param callable(  ) :$this$m
 @param int... $y
-@return callable  ( int $a , int $b ) :void
+@return callable  ( int $a , int $b=3 ) :void
 */
 ----
 /**
- * @param  callable                                    $m
- * @param  callable(): string                          $k
- * @param  callable(int $a, string &...$b): string|int $x
- * @param  callable(bool, string)                      $n
- * @param  callable(): $this                           $m
- * @param  int                                         ...$y
- * @return callable(int $a, int $b): void
+ * @param  callable                                      $m
+ * @param  callable(): string                            $k
+ * @param  callable(int $a, string &...$b): string|int   $x
+ * @param  callable(bool, string)                        $n
+ * @param  callable(string $s = 'false', bool $b = true) $nn
+ * @param  callable(): $this                             $m
+ * @param  int                                           ...$y
+ * @return callable(int $a, int $b = 3): void
  */
 `},
 	{"method tag", `

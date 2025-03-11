@@ -187,7 +187,6 @@ func (p *parser) parseTag() Tag {
 		return p.parseTypeDefTag()
 	default:
 		return p.parseOtherTag(name[1:])
-		return nil
 	}
 }
 
@@ -458,11 +457,18 @@ func (p *parser) parseCallableType() phptype.Type {
 	return typ
 }
 
-// ParamList = Param { "," Param } .
+// ParamList = Param [ "=" LitType ] { "," Param [ "=" LitType ] } .
 func (p *parser) parseParamList() []*phptype.Param {
 	var params []*phptype.Param
 	for !p.got(token.Rparen) && !p.got(token.EOF) {
 		par := p.parseParam(false)
+		if p.got(token.Assign) {
+			lit, ok := p.parseLitType()
+			if !ok {
+				p.errorf("expecting literal value, found %v", p.tok)
+			}
+			par.Default = lit
+		}
 		params = append(params, par)
 		if p.got(token.Rparen) {
 			break
@@ -606,11 +612,11 @@ func (p *parser) parseNamedType() (_ *phptype.Named, ok bool) {
 	return id, true
 }
 
-// LitType = string | decimal .
+// LitType = string | decimal | ident .
 func (p *parser) parseLitType() (_ *phptype.Literal, ok bool) {
 	lit := new(phptype.Literal)
 	switch p.tok.Type {
-	case token.String, token.Int:
+	case token.String, token.Int, token.Ident:
 		lit.Value = p.tok.Text
 		p.next()
 		return lit, true

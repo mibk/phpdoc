@@ -84,6 +84,9 @@ func (p *printer) print(args ...interface{}) {
 				p.print(token.Ellipsis)
 			}
 			p.print('$', arg.Name)
+			if arg.Default != nil {
+				p.print(' ', token.Assign, ' ', arg.Default)
+			}
 		case token.Type:
 			_, p.err = p.buf.WriteString(arg.String())
 		case string:
