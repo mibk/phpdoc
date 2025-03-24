@@ -89,7 +89,7 @@ func TestScanner(t *testing.T) {
 		{token.Newline, "\n", pos("4:43")},
 		{token.Whitespace, "\t", pos("5:1")},
 		{token.Other, "@test123 ", pos("5:2")},
-		{token.Other, "@testCase", pos("5:11")},
+		{token.Tag, "@testCase", pos("5:11")},
 		{token.Newline, "\n", pos("5:20")},
 		{token.CloseDoc, `*/`, pos("6:1")},
 		{token.EOF, "", pos("6:3")},

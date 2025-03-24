@@ -256,7 +256,7 @@ func (s *Scanner) scanTagName() (id string, valid bool) {
 	b.WriteByte('@')
 	for {
 		switch r := s.read(); {
-		case r == '-' || r >= 'a' && r <= 'z':
+		case r == '-', r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z':
 			b.WriteRune(r)
 		case r == ' ', r == '\t', r == '\n', r == eof:
 			valid = b.Len() > 0
