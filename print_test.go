@@ -207,6 +207,29 @@ It's	deprecated now.
  * @param 'foo'|7|'bar'[] $xyz
  */
 `},
+	{"non-doc comment", `
+/** *********** */
+----
+/** *********** */
+`},
+	{"do not format non-tag lines", `
+/**
+* Other
+
+  Formats
+*   - are    also
+*     - supported
+* */
+----
+/**
+ * Other
+ *
+ * Formats
+ *   - are    also
+ *     - supported
+ *
+ */
+`},
 }
 
 func TestPrinting(t *testing.T) {

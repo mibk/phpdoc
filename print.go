@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strings"
 	"text/tabwriter"
 
 	"mibk.dev/phpdoc/internal/token"
@@ -104,7 +105,11 @@ func (p *printer) print(args ...interface{}) {
 func (p *printer) printLine(line Line) {
 	switch l := line.(type) {
 	case *TextLine:
-		p.print(tabesc, l.Value, tabesc)
+		if l.Value == "*" {
+			return
+		}
+		line := strings.TrimPrefix(l.Value, "* ")
+		p.print(tabesc, line, tabesc)
 	case Tag:
 		p.printTag(l)
 	default:

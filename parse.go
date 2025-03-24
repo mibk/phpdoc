@@ -139,11 +139,20 @@ func (p *parser) parseLines() []Line {
 // Line     = [ asterisk ] ( TextLine | Tag ) .
 // TextLine = Desc .
 func (p *parser) parseLine() Line {
-	p.consume(token.Whitespace, token.Asterisk, token.Whitespace)
+	p.consume(token.Whitespace)
+	var b strings.Builder
+	if p.tok.Type == token.Asterisk {
+		b.WriteString(p.tok.Text)
+		p.next0()
+	}
+	if p.tok.Type == token.Whitespace {
+		b.WriteString(p.tok.Text)
+		p.next0()
+	}
 	if p.tok.Type == token.Tag {
 		return p.parseTag()
 	} else {
-		return &TextLine{Value: p.parseDesc()}
+		return &TextLine{Value: p.parseDesc(&b)}
 	}
 }
 
@@ -194,7 +203,7 @@ func (p *parser) parseTag() Tag {
 func (p *parser) parseParamTag() *ParamTag {
 	tag := new(ParamTag)
 	tag.Param = p.parseParam(true)
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -202,7 +211,7 @@ func (p *parser) parseParamTag() *ParamTag {
 func (p *parser) parseReturnTag() *ReturnTag {
 	tag := new(ReturnTag)
 	tag.Type = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -212,7 +221,7 @@ func (p *parser) parsePropertyTag(name string) *PropertyTag {
 	tag.Type = p.parseType()
 	tag.Var = strings.TrimPrefix(p.tok.Text, "$")
 	p.expect(token.Var)
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 
 	switch {
 	case strings.HasSuffix(name, "-read"):
@@ -245,7 +254,7 @@ func (p *parser) parseMethodTag() *MethodTag {
 		// Warn about putting result type *after* param list.
 		p.errorf("unexpected %v, expecting description", token.Colon)
 	}
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -257,7 +266,7 @@ func (p *parser) parseVarTag() *VarTag {
 		tag.Var = p.tok.Text[1:]
 		p.next()
 	}
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -265,7 +274,7 @@ func (p *parser) parseVarTag() *VarTag {
 func (p *parser) parseThrowsTag() *ThrowsTag {
 	tag := new(ThrowsTag)
 	tag.Class = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -273,7 +282,7 @@ func (p *parser) parseThrowsTag() *ThrowsTag {
 func (p *parser) parseExtendsTag() *ExtendsTag {
 	tag := new(ExtendsTag)
 	tag.Class = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -281,7 +290,7 @@ func (p *parser) parseExtendsTag() *ExtendsTag {
 func (p *parser) parseImplementsTag() *ImplementsTag {
 	tag := new(ImplementsTag)
 	tag.Interface = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -289,7 +298,7 @@ func (p *parser) parseImplementsTag() *ImplementsTag {
 func (p *parser) parseUsesTag() *UsesTag {
 	tag := new(UsesTag)
 	tag.Trait = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -302,7 +311,7 @@ func (p *parser) parseTemplateTag() *TemplateTag {
 		p.next()
 		tag.Bound = p.parseType()
 	}
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -312,14 +321,14 @@ func (p *parser) parseTypeDefTag() *TypeDefTag {
 	tag.Name = p.tok.Text
 	p.expect(token.Ident)
 	tag.Type = p.parseType()
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
 // OtherTag = tagname [ Desc ] .
 func (p *parser) parseOtherTag(name string) *OtherTag {
 	tag := &OtherTag{Name: name}
-	tag.Desc = p.parseDesc()
+	tag.Desc = p.parseDesc(nil)
 	return tag
 }
 
@@ -626,8 +635,10 @@ func (p *parser) parseLitType() (_ *phptype.Literal, ok bool) {
 }
 
 // Desc = { any } .
-func (p *parser) parseDesc() string {
-	var b strings.Builder
+func (p *parser) parseDesc(b *strings.Builder) string {
+	if b == nil {
+		b = new(strings.Builder)
+	}
 LOOP:
 	for {
 		switch p.tok.Type {
