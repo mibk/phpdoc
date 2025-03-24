@@ -230,6 +230,11 @@ It's	deprecated now.
  *
  */
 `},
+	{"non-params", `
+/** @param123 */
+----
+/** @param123 */
+`},
 }
 
 func TestPrinting(t *testing.T) {

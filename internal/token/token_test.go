@@ -21,6 +21,7 @@ func TestScanner(t *testing.T) {
 	@param (\Traversable&\Countable)|array{11 :int} $map
 	@param int|null ...$_0_žluťoučký_9
 	* @return string[]|array<string, ?string>
+	@test123 @testCase
 */`
 
 	sc := token.NewScanner(strings.NewReader(input))
@@ -86,8 +87,12 @@ func TestScanner(t *testing.T) {
 		{token.Ident, "string", pos("4:36")},
 		{token.Gt, ">", pos("4:42")},
 		{token.Newline, "\n", pos("4:43")},
-		{token.CloseDoc, `*/`, pos("5:1")},
-		{token.EOF, "", pos("5:3")},
+		{token.Whitespace, "\t", pos("5:1")},
+		{token.Other, "@test123 ", pos("5:2")},
+		{token.Other, "@testCase", pos("5:11")},
+		{token.Newline, "\n", pos("5:20")},
+		{token.CloseDoc, `*/`, pos("6:1")},
+		{token.EOF, "", pos("6:3")},
 	}
 	if err := sc.Err(); err != nil {
 		t.Fatalf("unexpected err: %v", err)

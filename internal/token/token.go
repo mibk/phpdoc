@@ -244,22 +244,26 @@ func (s *Scanner) scanOpenDoc() Token {
 }
 
 func (s *Scanner) scanTag() Token {
-	id := s.scanTagName()
-	if id == "" {
-		return s.scanOther("@")
+	id, valid := s.scanTagName()
+	if !valid {
+		return s.scanOther(id)
 	}
-	return Token{Type: Tag, Text: "@" + id}
+	return Token{Type: Tag, Text: id}
 }
 
-func (s *Scanner) scanTagName() string {
+func (s *Scanner) scanTagName() (id string, valid bool) {
 	var b strings.Builder
+	b.WriteByte('@')
 	for {
 		switch r := s.read(); {
 		case r == '-' || r >= 'a' && r <= 'z':
 			b.WriteRune(r)
+		case r == ' ', r == '\t', r == '\n', r == eof:
+			valid = b.Len() > 0
+			fallthrough
 		default:
 			s.unread()
-			return b.String()
+			return b.String(), valid
 		}
 	}
 }
