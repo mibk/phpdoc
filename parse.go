@@ -600,14 +600,18 @@ func (p *parser) parseGenericType(base phptype.Type) phptype.Type {
 	return &phptype.Generic{Base: base, TypeParams: params}
 }
 
-// NamedType = [ "\\" ] ident { "\\" ident } .
+// NamedType = static | [ "\\" ] ident { "\\" ident } .
 func (p *parser) parseNamedType() (_ *phptype.Named, ok bool) {
+	id := new(phptype.Named)
 	switch p.tok.Type {
 	default:
 		return nil, false
+	case token.Static:
+		id.Parts = append(id.Parts, p.tok.Text)
+		p.next()
+		return id, true
 	case token.Backslash, token.Ident:
 	}
-	id := new(phptype.Named)
 	if p.got(token.Backslash) {
 		id.Global = true
 	}

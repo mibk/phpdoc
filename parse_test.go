@@ -141,6 +141,14 @@ func TestParsingTypes(t *testing.T) {
 				TypeParams: types(&named{Parts: parts("T")}),
 			},
 		},
+		{
+			typ:  `static`,
+			want: &phptype.Named{Parts: []string{"static"}},
+		},
+		{
+			typ:  `self`,
+			want: &phptype.Named{Parts: []string{"self"}},
+		},
 	}
 
 	for _, tt := range tests {
@@ -190,8 +198,8 @@ func TestSyntaxErrors(t *testing.T) {
 			`line:1:18: expecting Var, found $this`,
 		},
 		{
-			"/**@method static static*/",
-			`line:1:19: expecting ( or basic type, found static`,
+			"/**@method static $name*/",
+			`line:1:19: expecting ( or basic type, found Var("$name")`,
 		},
 		{
 			"/**@method x():*/",
