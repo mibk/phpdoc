@@ -509,7 +509,7 @@ func (p *parser) parseParam(needVar bool) *phptype.Param {
 
 // ArrayShapeType = array [ ArrayShape ] .
 // ArrayShape     = "{" KeyType { "," KeyType } [ "," ] "}" .
-// KeyType        = ArrayKey [ "?" ] ":" PHPType .
+// KeyType        = [ ArrayKey [ "?" ] ":" ] PHPType .
 // ArrayKey       = string | ident | decimal .
 func (p *parser) parseArrayShapeType() phptype.Type {
 	typ := new(phptype.ArrayShape)
@@ -521,20 +521,23 @@ func (p *parser) parseArrayShapeType() phptype.Type {
 			case token.String, token.Ident, token.Int:
 				elem.Key = p.tok.Text
 				p.next()
+				elem.Optional = p.got(token.Qmark)
+				if !p.got(token.Colon) {
+					elem.Key = ""
+					p.backup()
+				}
 			case token.Rbrace:
 				// Allow trailing comma.
 				if len(typ.Elems) > 0 {
 					break Elems
 				}
-				fallthrough
-			default:
-				// TODO: Consider not requiring array keys.
-				p.errorf("expecting %v or %v, found %v", token.Ident, token.Int, p.tok)
-				return nil
 			}
-			elem.Optional = p.got(token.Qmark)
-			p.expect(token.Colon)
+			had := p.tok
 			elem.Type = p.parseType()
+			if p.err != nil {
+				p.err = nil
+				p.errorf("expecting array shape key, or value; found %v", had)
+			}
 			typ.Elems = append(typ.Elems, elem)
 			if !p.got(token.Comma) {
 				break

@@ -213,11 +213,14 @@ func (p *printer) printPHPType(typ phptype.Type) {
 			if i > 0 {
 				p.print(token.Comma, ' ')
 			}
-			p.print(elem.Key)
-			if elem.Optional {
-				p.print(token.Qmark)
+			if elem.Key != "" {
+				p.print(elem.Key)
+				if elem.Optional {
+					p.print(token.Qmark)
+				}
+				p.print(token.Colon, ' ')
 			}
-			p.print(token.Colon, ' ', elem.Type)
+			p.print(elem.Type)
 		}
 		p.print(token.Rbrace)
 	case *phptype.ObjectShape:

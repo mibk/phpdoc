@@ -106,11 +106,13 @@ It's	deprecated now.
 /**
 @var  array{0  ? :int, one :string,}
 @var array{'foo': string ,'bar\'' ?: string}
+@return  array{  int ,? string }
 */
 ----
 /**
- * @var array{0?: int, one: string}
- * @var array{'foo': string, 'bar\''?: string}
+ * @var    array{0?: int, one: string}
+ * @var    array{'foo': string, 'bar\''?: string}
+ * @return array{int, ?string}
  */
 `},
 	{"object shapes", `

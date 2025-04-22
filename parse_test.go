@@ -207,11 +207,11 @@ func TestSyntaxErrors(t *testing.T) {
 		},
 		{
 			`/**@var array{'\'`,
-			`line:1:15: expecting Ident or Int, found Other("'\\'")`,
+			`line:1:15: expecting array shape key, or value; found Other("'\\'")`,
 		},
 		{
 			`/**@var array{'\t':string}*/`,
-			`line:1:15: expecting Ident or Int, found Other("'\\t':string}")`,
+			`line:1:15: expecting array shape key, or value; found Other("'\\t':string}")`,
 		},
 		{
 			`/**@param callable ::foo $bar*/`,

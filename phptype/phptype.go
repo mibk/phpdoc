@@ -48,7 +48,7 @@ type ArrayShape struct {
 
 // An ArrayElem represents a key-value element of ArrayShape.
 type ArrayElem struct {
-	Key      string
+	Key      string // or "" if for implicit keys
 	Type     Type
 	Optional bool
 }
