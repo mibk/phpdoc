@@ -307,7 +307,9 @@ func (s *Scanner) scanSingleQuoted() Token {
 	b.WriteByte('\'')
 	for {
 		r := s.read()
-		if r == '\n' || r == eof {
+		switch r {
+		case '\n', '*', eof:
+			// TODO: A string might include ‘*’, though.
 			s.unread()
 			return Token{Type: Other, Text: b.String()}
 		}

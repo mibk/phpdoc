@@ -237,6 +237,11 @@ It's	deprecated now.
 ----
 /** @param123 */
 `},
+	{"unterminated quote bug", `
+/** @var string[] shouldn't be empty */
+----
+/** @var string[] shouldn't be empty */
+`},
 }
 
 func TestPrinting(t *testing.T) {
